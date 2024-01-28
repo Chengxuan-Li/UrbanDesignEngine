@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34114.132
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanDesignEngine", "UrbanDesignEngine.csproj", "{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EFAFECC9-8751-41DA-817E-A69631E7E3BE}
+	EndGlobalSection
+EndGlobal
