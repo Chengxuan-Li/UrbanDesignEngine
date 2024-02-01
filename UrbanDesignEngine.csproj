@@ -60,15 +60,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms\SweepLineIntersection.cs" />
+    <Compile Include="Constraints\AngleConstraint.cs" />
+    <Compile Include="Constraints\ProximityConstraint.cs" />
+    <Compile Include="DataStructure\NetworkEdge.cs" />
+    <Compile Include="DataStructure\NetworkGraph.cs" />
+    <Compile Include="DataStructure\NetworkNode.cs" />
     <Compile Include="GlobalSettings.cs" />
+    <Compile Include="Growth\AngleControlledGrowth.cs" />
     <Compile Include="LSystem.cs" />
     <Compile Include="LSystemComponent.cs" />
+    <Compile Include="Utilities\AngleInterval.cs" />
+    <Compile Include="Utilities\DataManagement.cs" />
+    <Compile Include="SweepLineIntersectionComponent.cs" />
+    <Compile Include="Utilities\Trigonometry.cs" />
     <Compile Include="UrbanDesignEngineInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

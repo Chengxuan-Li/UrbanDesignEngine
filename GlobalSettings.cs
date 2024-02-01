@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace UrbanDesignEngine
 {
-    public class GlobalSettings
+    public static class GlobalSettings
     {
-        
+        public static double AbsoluteTolerance = 0.001;
     }
 }

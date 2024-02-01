@@ -7,7 +7,7 @@ using Rhino;
 using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
 
-namespace Algorithms
+namespace UrbanDesignEngine.Algorithms
 {
     public static class SweepLineIntersection
     {
@@ -19,6 +19,22 @@ namespace Algorithms
 			Coincident = 1,
 			OnSegment = 2,
         }
+
+		public static bool TempLineNetworkIntersection(Line line, List<Line> networkLines, out List<double> parameters)
+        {
+			parameters = new List<double>();
+			double paramA;
+			double paramB;
+			foreach (Line networkLine in networkLines)
+            {
+				if (Intersection.LineLine(line, networkLine, out paramA, out paramB))
+                {
+					if (paramA > 0 && paramA < 1 && paramB >= 0 && paramB <= 1) parameters.Add(paramA);
+                }
+            }
+			return parameters.Count > 0;
+        }
+
         public static bool LineNetworkIntersection(Line line, List<Line> networkLines, out List<int> indices)
         {
 			List<Segment> segments = new List<Segment> {
