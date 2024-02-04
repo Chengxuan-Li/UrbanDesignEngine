@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UrbanDesignEngine.DataStructure;
 using UrbanDesignEngine.Utilities;
+using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Growth
 {
@@ -22,7 +23,7 @@ namespace UrbanDesignEngine.Growth
             
         }
 
-        public bool Next(double distance, out NetworkNode result)
+        public bool Next(double distance, out Point3d result)
         {
             
             double nextAngle = random.NextDouble() * 2 * Math.PI;
@@ -38,13 +39,10 @@ namespace UrbanDesignEngine.Growth
                     break;
                 }
             }
-            result = new NetworkNode(
-                new Rhino.Geometry.Point3d(
+            result = new Point3d(
                     Node.Point.X + distance * Math.Cos(nextAngle),
                     Node.Point.Y + distance * Math.Sin(nextAngle),
-                    0),
-                Node.Graph
-                );
+                    0);
             return valid;
         }
     }

@@ -24,6 +24,15 @@ namespace UrbanDesignEngine
         public double MinimumAngle = 2.8 / 6.0 * Math.PI;
         public int NumAttempt = 5;
         Random random = new Random();
+        public List<Curve> FaceCurves
+        {
+            get
+            {
+                List<Curve> crvs = new List<Curve>();
+                Graph.NetworkFaces.ForEach(f => crvs.Add(f.GetGeometry()));
+                return crvs;
+            }
+        }
 
 
         int currentIteration = 0;
@@ -45,6 +54,9 @@ namespace UrbanDesignEngine
                 GrowAll();
                 currentIteration++;
             }
+            Graph.SolveFaces();
+            // TODO make all edges, faces, nodes a unique index
+            
         }
 
         void GrowAll()
@@ -59,7 +71,7 @@ namespace UrbanDesignEngine
             {
                 AngleControlledGrowth angleControlledGrowth = new AngleControlledGrowth(node, MinimumAngle);
                 angleControlledGrowth.random = random;
-                NetworkNode result;
+                Point3d result;
                 int currentAttempt = 0;
                 while (currentAttempt < NumAttempt)
                 {
@@ -68,17 +80,25 @@ namespace UrbanDesignEngine
                     {
                         List<Line> lines = Graph.GetLines();
                         List<int> indices = new List<int>();
-                        Line newLine = new Line(node.Point, result.Point);
+                        Line newLine = new Line(node.Point, result);
                         List<double> parameters;
                         bool intersects = SweepLineIntersection.TempLineNetworkIntersection(newLine, lines, out parameters);
                         if (intersects)
                         {
                             
-                            result.Point = newLine.PointAt(parameters.Min());
+                            result = newLine.PointAt(parameters.Min());
                         }
-                        ProximityConstraint.Snap(result, SnapDistance);
-                        Graph.AddNetworkNode(result);
-                        Graph.AddNetworkEdge(new NetworkEdge(node, result, Graph.Graph));
+                        var resultNode = new NetworkNode(result, node.Graph, Graph.NextNodeId);
+                        if (ProximityConstraint.Snap(resultNode, SnapDistance))
+                        {
+                            NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Equals(resultNode));
+                            if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph.Graph, Graph.NextEdgeId));
+                        } else
+                        {
+                            Graph.AddNetworkNode(resultNode);
+                            Graph.AddNetworkEdge(new NetworkEdge(node, resultNode, Graph.Graph, Graph.NextEdgeId));
+                        }
+                        
                         node.PossibleGrowthsLeft += -1;
                     } else
                     {

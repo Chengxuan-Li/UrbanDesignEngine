@@ -63,6 +63,7 @@
     <Compile Include="Constraints\AngleConstraint.cs" />
     <Compile Include="Constraints\ProximityConstraint.cs" />
     <Compile Include="DataStructure\NetworkEdge.cs" />
+    <Compile Include="DataStructure\NetworkFace.cs" />
     <Compile Include="DataStructure\NetworkGraph.cs" />
     <Compile Include="DataStructure\NetworkNode.cs" />
     <Compile Include="GlobalSettings.cs" />

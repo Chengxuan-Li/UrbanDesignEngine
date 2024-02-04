@@ -13,15 +13,21 @@ namespace UrbanDesignEngine.DataStructure
     {
         NetworkNode NodeA;
         NetworkNode NodeB;
+        public UndirectedGraph<NetworkNode, NetworkEdge> Graph;
+        public NetworkFace leftFace = null;
+        public NetworkFace rightFace = null;
+        public int Id;
 
-        public NetworkNode Source => NodeA.CompareTo(NodeB) > 0 ? NodeB : NodeA ;
+        public NetworkNode Source => NodeA.CompareTo(NodeB) > 0 ? NodeB : NodeA;
 
         public NetworkNode Target => NodeA.CompareTo(NodeB) > 0 ? NodeA : NodeB;
 
-        public NetworkEdge(NetworkNode nodeA, NetworkNode nodeB, UndirectedGraph<NetworkNode, NetworkEdge> graph)
+        public NetworkEdge(NetworkNode nodeA, NetworkNode nodeB, UndirectedGraph<NetworkNode, NetworkEdge> graph, int id)
         {
             NodeA = nodeA;
             NodeB = nodeB;
+            Graph = graph;
+            Id = id;
         }
 
         public bool Equals(NetworkEdge other)
@@ -36,7 +42,46 @@ namespace UrbanDesignEngine.DataStructure
             } else
             {
                 return false;
-            }    
+            }
+        }
+
+        public NetworkNode TraverseSource(bool direction)
+        {
+            return direction ? Source : Target;
+        }
+
+        public NetworkNode TraverseTarget(bool direction)
+        {
+            return direction ? Target : Source;
+        }
+
+        public bool OtherNode(NetworkNode node, out NetworkNode otherNode)
+        {
+            if (node.Equals(Source))
+            {
+                otherNode = Target;
+                return true;
+            } else if (node.Equals(Target))
+            {
+                otherNode = Source;
+                return true;
+            } else
+            {
+                otherNode = node;
+                return false;
+            }
+        }
+
+        public NetworkNode TryGetOtherNode(NetworkNode node)
+        {
+            NetworkNode otherNode;
+            OtherNode(node, out otherNode);
+            return otherNode;
+        }
+
+        public bool IsSource(NetworkNode node)
+        {
+            return node.Equals(Source);
         }
     }
 }

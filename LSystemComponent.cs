@@ -52,6 +52,7 @@ namespace UrbanDesignEngine
             // Use the pManager object to register your output parameters.
             // Output parameters do not have default values, but they too must have the correct access type.
             pManager.AddLineParameter("Lines", "Lines", "Lines", GH_ParamAccess.list);
+            pManager.AddCurveParameter("Faces", "Faces", "Faces", GH_ParamAccess.list);
 
             // Sometimes you want to hide a specific parameter from the Rhino preview.
             // You can use the HideParameter() method as a quick way:
@@ -101,6 +102,7 @@ namespace UrbanDesignEngine
 
             // Finally assign the spiral to the output parameter.
             DA.SetDataList(0, lines);
+            DA.SetDataList(1, lSystem.FaceCurves);
         }
 
         private Curve CreateSpiral(Plane plane, double r0, double r1, Int32 turns)
