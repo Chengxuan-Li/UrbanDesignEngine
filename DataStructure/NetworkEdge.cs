@@ -13,7 +13,7 @@ namespace UrbanDesignEngine.DataStructure
     {
         NetworkNode NodeA;
         NetworkNode NodeB;
-        public UndirectedGraph<NetworkNode, NetworkEdge> Graph;
+        public NetworkGraph Graph;
         public NetworkFace leftFace = null;
         public NetworkFace rightFace = null;
         public int Id;
@@ -22,7 +22,7 @@ namespace UrbanDesignEngine.DataStructure
 
         public NetworkNode Target => NodeA.CompareTo(NodeB) > 0 ? NodeA : NodeB;
 
-        public NetworkEdge(NetworkNode nodeA, NetworkNode nodeB, UndirectedGraph<NetworkNode, NetworkEdge> graph, int id)
+        public NetworkEdge(NetworkNode nodeA, NetworkNode nodeB, NetworkGraph graph, int id)
         {
             NodeA = nodeA;
             NodeB = nodeB;
@@ -36,7 +36,10 @@ namespace UrbanDesignEngine.DataStructure
             {
                 return false;
             }
-            if (Source.Equals(other.Source) && Target.Equals(other.Target))
+            if (Source.Id == other.Source.Id && Target.Id == other.Target.Id)
+            {
+                return true;
+            } else if (Source.Id == other.Target.Id && Target.Id == other.Source.Id)
             {
                 return true;
             } else
@@ -55,6 +58,12 @@ namespace UrbanDesignEngine.DataStructure
             return direction ? Target : Source;
         }
 
+        /// <summary>
+        /// Gets the other node of this edge different to the given node
+        /// </summary>
+        /// <param name="node">The given node</param>
+        /// <param name="otherNode">The other node</param>
+        /// <returns>true if successfully gets the other node; otherwise false</returns>
         public bool OtherNode(NetworkNode node, out NetworkNode otherNode)
         {
             if (node.Equals(Source))
@@ -82,6 +91,11 @@ namespace UrbanDesignEngine.DataStructure
         public bool IsSource(NetworkNode node)
         {
             return node.Equals(Source);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("NEdge {0}: ({1}, {2})", Id, Source.Id, Target.Id);
         }
     }
 }

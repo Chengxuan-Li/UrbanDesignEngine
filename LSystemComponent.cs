@@ -102,7 +102,7 @@ namespace UrbanDesignEngine
 
             // Finally assign the spiral to the output parameter.
             DA.SetDataList(0, lines);
-            DA.SetDataList(1, lSystem.FaceCurves);
+            //DA.SetDataList(1, lSystem.FaceCurves);
         }
 
         private Curve CreateSpiral(Plane plane, double r0, double r1, Int32 turns)

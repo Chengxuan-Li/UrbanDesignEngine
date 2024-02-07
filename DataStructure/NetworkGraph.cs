@@ -7,36 +7,72 @@ using QuikGraph;
 using Rhino;
 using Rhino.Geometry;
 using UrbanDesignEngine.Utilities;
+using Rhino.Geometry.Intersect;
 
 namespace UrbanDesignEngine.DataStructure
 {
     public class NetworkGraph
     {
         public UndirectedGraph<NetworkNode, NetworkEdge> Graph = new UndirectedGraph<NetworkNode, NetworkEdge>();
-        public List<NetworkNode> NetworkNodes = new List<NetworkNode>();
-        public List<NetworkEdge> NetworkEdges = new List<NetworkEdge>();
+
         public List<NetworkFace> NetworkFaces = new List<NetworkFace>();
 
-        public int NextNodeId => NetworkNodes.Count;
-        public int NextEdgeId => NetworkEdges.Count;
+        public int NextNodeId => Graph.VertexCount;
+        public int NextEdgeId => Graph.EdgeCount;
         public int NextFaceId => NetworkFaces.Count;
 
-        public bool AddNetworkNode(NetworkNode node)
+        /// <summary>
+        /// Adds a node into a network
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>Index of the node in the network</returns>
+        public int AddNetworkNode(NetworkNode node)
         {
-            node.Id = NextNodeId;
-            return Graph.AddVertex(node);
+            if (Graph.Vertices.Contains(node))
+            {
+                int found = Graph.Vertices.ToList().FindIndex(n => n.Equals(node));
+                return found;
+            } else
+            {
+                node.Id = NextNodeId;
+                Graph.AddVertex(node);
+                return node.Id;
+            }
         }
 
-        public bool AddNetworkNodeFromPoint(Point3d point)
+        /// <summary>
+        /// Adds a node from a Point3d into a network
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns>Index of the node in the network</returns>
+        public int AddNetworkNode(Point3d point)
         {
-            NetworkNode node = new NetworkNode(point, Graph, NextNodeId);
+            NetworkNode node = new NetworkNode(point, this, NextNodeId);
             return AddNetworkNode(node);
         }
 
-        public bool AddNetworkEdge(NetworkEdge edge)
+
+        public int AddNetworkEdge(NetworkEdge edge)
         {
-            edge.Id = NextEdgeId;
-            return Graph.AddEdge(edge);
+            if (Graph.Edges.Contains(edge))
+            {
+                int found = Graph.Edges.ToList().FindIndex(e => e.Equals(edge));
+                return found;
+            } else
+            {
+                edge.Id = NextEdgeId;
+                Graph.AddEdge(edge);
+                return edge.Id;
+            }
+        }
+
+        public int AddNetworkEdge(Point3d pointA, Point3d pointB)
+        {
+            int indexA = AddNetworkNode(pointA);
+            int indexB = AddNetworkNode(pointB);
+            NetworkNode nodeA = Graph.Vertices.ToList()[indexA];
+            NetworkNode nodeB = Graph.Vertices.ToList()[indexB];
+            return AddNetworkEdge(new NetworkEdge(nodeA, nodeB, this, -1));
         }
 
         public List<Line> GetLines()
@@ -52,14 +88,15 @@ namespace UrbanDesignEngine.DataStructure
             {
                 if (edge.leftFace == null)
                 {
-                    NetworkFaces.Add(new NetworkFace(edge, true));
+                    NetworkFaces.Add(new NetworkFace(edge, true, NextFaceId));
                 }
                 if (edge.rightFace == null)
                 {
-                    NetworkFaces.Add(new NetworkFace(edge, false));
+                    NetworkFaces.Add(new NetworkFace(edge, false, NextFaceId));
                 }
             }
         }
+
 
     }
 }

@@ -10,7 +10,8 @@ namespace UrbanDesignEngine.DataStructure
 {
     public class NetworkFace : IEquatable<NetworkFace>
     {
-        public UndirectedGraph<NetworkNode, NetworkEdge> Graph;
+        public NetworkGraph Graph;
+        public int Id;
         public List<NetworkNode> NodesTraversed = new List<NetworkNode>();
         public List<NetworkEdge> EdgesTraversed = new List<NetworkEdge>();
         public List<bool> EdgesTraverseDirection = new List<bool>();
@@ -18,7 +19,7 @@ namespace UrbanDesignEngine.DataStructure
         public bool IsComplete
             => (
             NodesTraversed.Count > 1
-            && Graph.AdjacentVertices(NodesTraversed[0]).ToList().Contains(
+            && Graph.Graph.AdjacentVertices(NodesTraversed[0]).ToList().Contains(
                 NodesTraversed[NodesTraversed.Count - 1]
                 )
             && EdgesTraversed.Count == NodesTraversed.Count
@@ -41,9 +42,10 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        public NetworkFace(NetworkEdge edge, bool direction)
+        public NetworkFace(NetworkEdge edge, bool direction, int id)
         {
             Graph = edge.Graph;
+            Id = id;
             NodesTraversed.Add(direction ? edge.Source : edge.Target);
             NodesTraversed.Add(direction ? edge.Target : edge.Source);
             EdgesTraversed.Add(edge);
@@ -79,8 +81,8 @@ namespace UrbanDesignEngine.DataStructure
         {
             NetworkEdge nextEdge;
             bool nextEdgeTraverseDirection;
-            if (!NodesTraversed[NodesTraversed.Count - 1].NextEdge(EdgesTraversed[EdgesTraversed.Count - 1], true, out nextEdge, out nextEdgeTraverseDirection)) return false;
-            if (nextEdge.Equals(EdgesTraversed[0]) && nextEdgeTraverseDirection == EdgesTraverseDirection[0]) return false;
+            if (!NodesTraversed[NodesTraversed.Count - 1].NextEdge(EdgesTraversed[EdgesTraversed.Count - 1], out nextEdge, out nextEdgeTraverseDirection)) return false;
+            if (nextEdge.Equals(EdgesTraversed[0])) return false;
             EdgesTraversed.Add(nextEdge);
             EdgesTraverseDirection.Add(nextEdgeTraverseDirection);
             NetworkNode nextNode = (nextEdgeTraverseDirection) ? nextEdge.Target : nextEdge.Source;
@@ -151,6 +153,11 @@ namespace UrbanDesignEngine.DataStructure
             NodesTraversed.ForEach(n => pts.Add(n.Point));
             var pl = new Polyline(pts);
             return pl.ToNurbsCurve();
+        }
+
+        public override string ToString()
+        {
+            return String.Format("NFace {0}", Id);
         }
     }
 }
