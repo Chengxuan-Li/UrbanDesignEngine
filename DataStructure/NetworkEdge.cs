@@ -98,4 +98,17 @@ namespace UrbanDesignEngine.DataStructure
             return String.Format("NEdge {0}: ({1}, {2})", Id, Source.Id, Target.Id);
         }
     }
+
+    public class NetworkEdgeEqualityComparer : IEqualityComparer<NetworkEdge>
+    {
+        public bool Equals(NetworkEdge x, NetworkEdge y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(NetworkEdge obj)
+        {
+            return obj.Id;
+        }
+    }
 }

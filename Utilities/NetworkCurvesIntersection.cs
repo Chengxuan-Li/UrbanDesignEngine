@@ -89,7 +89,8 @@ namespace UrbanDesignEngine.Utilities
             {
                 get
                 {
-                    List<double> ps = IntersectionParameters.Distinct().ToList();
+                    DoubleEqualityComparer comparer = new DoubleEqualityComparer();
+                    List<double> ps = IntersectionParameters.Distinct(comparer).ToList();
                     ps.Sort();
                     return ps;
                 }

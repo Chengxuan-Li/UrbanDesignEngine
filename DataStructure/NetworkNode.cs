@@ -46,6 +46,9 @@ namespace UrbanDesignEngine.DataStructure
             if (other == null)
             {
                 return -1;
+            } else if (this.Id == other.Id)
+            {
+                return 0;
             } else if (Point.DistanceTo(other.Point) <= GlobalSettings.AbsoluteTolerance)
             {
                 return 0;
@@ -95,6 +98,19 @@ namespace UrbanDesignEngine.DataStructure
         public override string ToString()
         {
             return String.Format("NNode {0}", Id);
+        }
+    }
+
+    public class NetworkNodeEqualityComparer : IEqualityComparer<NetworkNode>
+    {
+        public bool Equals(NetworkNode x, NetworkNode y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(NetworkNode obj)
+        {
+            return obj.Id;
         }
     }
 }

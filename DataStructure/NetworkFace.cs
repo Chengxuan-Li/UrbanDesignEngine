@@ -16,6 +16,12 @@ namespace UrbanDesignEngine.DataStructure
         public List<NetworkEdge> EdgesTraversed = new List<NetworkEdge>();
         public List<bool> EdgesTraverseDirection = new List<bool>();
 
+        enum DevelopmentStatus
+        {
+            Developing,
+            Stopped,
+            Finished,
+        }
         public bool IsComplete
             => (
             NodesTraversed.Count > 1
@@ -25,6 +31,8 @@ namespace UrbanDesignEngine.DataStructure
             && EdgesTraversed.Count == NodesTraversed.Count
             && EdgesTraverseDirection.Count == EdgesTraversed.Count
             );
+
+        public bool DevelopmentResult = false;
 
         public bool IsTraverseable
         {
@@ -50,23 +58,25 @@ namespace UrbanDesignEngine.DataStructure
             NodesTraversed.Add(direction ? edge.Target : edge.Source);
             EdgesTraversed.Add(edge);
             EdgesTraverseDirection.Add(direction);
-            bool developing = true;
+            DevelopmentStatus status = DevelopmentStatus.Developing;
             int iterations = 0;
-            while (developing)
+            while (status == DevelopmentStatus.Developing)
             {
-                developing = DevelopNext();
+                status = DevelopNext();
                 iterations++;
-                if (iterations > 25)
+                if (iterations > 250)
                 {
                     break;
                 }
             }
-            if (IsComplete && IsTraverseable)
+            DevelopmentResult = status == DevelopmentStatus.Finished;
+            if (status == DevelopmentStatus.Finished && IsComplete)
             {
                 NodesTraversed.ForEach(n => n.Faces.Add(this));
-                foreach (NetworkEdge e in EdgesTraversed)
+                for (int i = 0; i < EdgesTraversed.Count; i++)
                 {
-                    if (EdgesTraverseDirection[EdgesTraversed.IndexOf(e)])
+                    NetworkEdge e = EdgesTraversed[i];
+                    if (EdgesTraverseDirection[i])
                     {
                         e.leftFace = this;
                     } else
@@ -77,18 +87,22 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        bool DevelopNext()
+        DevelopmentStatus DevelopNext()
         {
             NetworkEdge nextEdge;
             bool nextEdgeTraverseDirection;
-            if (!NodesTraversed[NodesTraversed.Count - 1].NextEdge(EdgesTraversed[EdgesTraversed.Count - 1], out nextEdge, out nextEdgeTraverseDirection)) return false;
-            if (nextEdge.Equals(EdgesTraversed[0])) return false;
+            // this will only return false if the the node contains only 0 angles which is impossible
+            if (!NodesTraversed[NodesTraversed.Count - 1].NextEdge(EdgesTraversed[EdgesTraversed.Count - 1], out nextEdge, out nextEdgeTraverseDirection)) return DevelopmentStatus.Stopped;
+            if (nextEdge.Equals(EdgesTraversed[0]))
+            {
+                //return false;
+            }
             EdgesTraversed.Add(nextEdge);
             EdgesTraverseDirection.Add(nextEdgeTraverseDirection);
             NetworkNode nextNode = (nextEdgeTraverseDirection) ? nextEdge.Target : nextEdge.Source;
-            if (nextNode.Equals(NodesTraversed[0])) return false;
+            if (nextNode.Equals(NodesTraversed[0])) return DevelopmentStatus.Finished;
             NodesTraversed.Add(nextNode);
-            return true;
+            return DevelopmentStatus.Developing;
         }
 
         public bool QueryNext(NetworkNode node, out NetworkNode nextNode, out NetworkEdge nextEdge, out bool nextEdgeDirection)
@@ -149,10 +163,17 @@ namespace UrbanDesignEngine.DataStructure
 
         public Curve GetGeometry()
         {
+            
             List<Point3d> pts = new List<Point3d>();
             NodesTraversed.ForEach(n => pts.Add(n.Point));
+            pts.Add(NodesTraversed[0].Point);
             var pl = new Polyline(pts);
             return pl.ToNurbsCurve();
+            /*
+            List<Curve> cs = new List<Curve>();
+            EdgesTraversed.ForEach(e => cs.Add(new Line(e.Source.Point, e.Target.Point).ToNurbsCurve()));
+            return Curve.JoinCurves(cs)[0];
+            */
         }
 
         public override string ToString()

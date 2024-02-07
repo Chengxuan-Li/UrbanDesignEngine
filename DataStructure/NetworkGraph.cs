@@ -17,6 +17,24 @@ namespace UrbanDesignEngine.DataStructure
 
         public List<NetworkFace> NetworkFaces = new List<NetworkFace>();
 
+        public List<Point3d> NetworkNodesGeometry
+        {
+            get
+            {
+                List<Point3d> pts = new List<Point3d>();
+                Graph.Vertices.ToList().ForEach(v => pts.Add(v.Point));
+                return pts;
+            }
+        }
+        public List<Curve> NetworkFacesGeometry
+        {
+            get
+            {
+                List<Curve> geo = new List<Curve>();
+                NetworkFaces.ForEach(f => geo.Add(f.GetGeometry()));
+                return geo;
+            }
+        }
         public int NextNodeId => Graph.VertexCount;
         public int NextEdgeId => Graph.EdgeCount;
         public int NextFaceId => NetworkFaces.Count;
@@ -28,7 +46,7 @@ namespace UrbanDesignEngine.DataStructure
         /// <returns>Index of the node in the network</returns>
         public int AddNetworkNode(NetworkNode node)
         {
-            if (Graph.Vertices.Contains(node))
+            if (Graph.Vertices.Contains(node, new NetworkNodeEqualityComparer()))
             {
                 int found = Graph.Vertices.ToList().FindIndex(n => n.Equals(node));
                 return found;
@@ -54,7 +72,7 @@ namespace UrbanDesignEngine.DataStructure
 
         public int AddNetworkEdge(NetworkEdge edge)
         {
-            if (Graph.Edges.Contains(edge))
+            if (Graph.Edges.Contains(edge, new NetworkEdgeEqualityComparer()))
             {
                 int found = Graph.Edges.ToList().FindIndex(e => e.Equals(edge));
                 return found;
@@ -84,15 +102,24 @@ namespace UrbanDesignEngine.DataStructure
 
         public void SolveFaces()
         {
-            foreach(NetworkEdge edge in Graph.Edges)
+            for(int i = 0; i < Graph.Edges.ToList().Count; i++)
             {
+                NetworkEdge edge = Graph.Edges.ToList()[i];
                 if (edge.leftFace == null)
                 {
-                    NetworkFaces.Add(new NetworkFace(edge, true, NextFaceId));
+                    NetworkFace face = new NetworkFace(edge, true, NextFaceId);
+                    if (face.DevelopmentResult && face.IsComplete)
+                    {
+                        NetworkFaces.Add(face);
+                    }
                 }
                 if (edge.rightFace == null)
                 {
-                    NetworkFaces.Add(new NetworkFace(edge, false, NextFaceId));
+                    NetworkFace face = new NetworkFace(edge, false, NextFaceId);
+                    if (face.DevelopmentResult && face.IsComplete)
+                    {
+                        NetworkFaces.Add(face);
+                    }
                 }
             }
         }

@@ -33,6 +33,8 @@ namespace UrbanDesignEngine
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddLineParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
+            pManager.AddPointParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
+            pManager.AddCurveParameter("GraphPlanarFaces", "PFs", "Graph planar faces", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -44,8 +46,10 @@ namespace UrbanDesignEngine
             List<Curve> curves = new List<Curve>();
             if (!DA.GetDataList(0, curves)) return;
             NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves);
-            //graph.SolveFaces();
+            graph.SolveFaces();
             DA.SetDataList(0, graph.GetLines());
+            DA.SetDataList(1, graph.NetworkNodesGeometry);
+            DA.SetDataList(2, graph.NetworkFacesGeometry);
         }
 
         /// <summary>
