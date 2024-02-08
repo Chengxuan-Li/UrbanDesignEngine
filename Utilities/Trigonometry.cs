@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UrbanDesignEngine.DataStructure;
+using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Utilities
 {
@@ -18,6 +19,16 @@ namespace UrbanDesignEngine.Utilities
         public static double Angle(NetworkNode source, NetworkNode target)
         {
             double angle = Math.Atan2(target.Point.Y - source.Point.Y, target.Point.X - source.Point.X);
+            if (angle < 0)
+            {
+                angle = angle + Math.PI * 2;
+            }
+            return angle;
+        }
+
+        public static double Angle(Point3d ptA, Point3d ptB)
+        {
+            double angle = Math.Atan2(ptB.Y - ptA.Y, ptB.X - ptA.X);
             if (angle < 0)
             {
                 angle = angle + Math.PI * 2;
@@ -43,6 +54,14 @@ namespace UrbanDesignEngine.Utilities
         {
             double angleA = Angle(dirA ? edgeA.Source : edgeA.Target, dirA ? edgeA.Target : edgeA.Source);
             double angleB = Angle(dirB ? edgeB.Source : edgeB.Target, dirB ? edgeB.Target : edgeB.Source);
+            double angleValue = AngleDifference(angleA, angleB);
+            return (OnLeftSideOf(angleA, angleB) == 1) ? angleValue : -angleValue;
+        }
+
+        public static double AngleTurned(Point3d ptAA, Point3d ptAB, Point3d ptBA, Point3d ptBB)
+        {
+            double angleA = Angle(ptAA, ptAB);
+            double angleB = Angle(ptBA, ptBB);
             double angleValue = AngleDifference(angleA, angleB);
             return (OnLeftSideOf(angleA, angleB) == 1) ? angleValue : -angleValue;
         }

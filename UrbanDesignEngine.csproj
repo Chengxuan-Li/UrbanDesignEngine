@@ -62,6 +62,7 @@
     <Compile Include="Algorithms\SweepLineIntersection.cs" />
     <Compile Include="Components\AccessGraphContent.cs" />
     <Compile Include="Components\DualGraph.cs" />
+    <Compile Include="Components\OffsetWithDirectionControl.cs" />
     <Compile Include="Constraints\AngleConstraint.cs" />
     <Compile Include="Constraints\ProximityConstraint.cs" />
     <Compile Include="DataStructure\GHIOParam.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />
     <Compile Include="Utilities\DataManagement.cs" />
     <Compile Include="SweepLineIntersectionComponent.cs" />
+    <Compile Include="Utilities\OffsetCurve.cs" />
     <Compile Include="Utilities\Trigonometry.cs" />
     <Compile Include="UrbanDesignEngineInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
