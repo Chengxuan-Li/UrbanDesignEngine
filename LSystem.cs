@@ -78,7 +78,7 @@ namespace UrbanDesignEngine
                     if (!node.IsActive) break;
                     if (angleControlledGrowth.Next(random.NextDouble() * (MaxDistance - MinDistance) + MinDistance, out result))
                     {
-                        List<Line> lines = Graph.GetLines();
+                        List<Line> lines = Graph.NetworkEdgesSimpleGeometry;
                         List<int> indices = new List<int>();
                         Line newLine = new Line(node.Point, result);
                         List<double> parameters;

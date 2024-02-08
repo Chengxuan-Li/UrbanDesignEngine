@@ -34,6 +34,39 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
+        public List<int> AdjacentNodeIds
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Graph.AdjacentVertices(this).ToList().ForEach(v => ids.Add(v.Id));
+                return ids;
+            }
+        }
+
+        public List<int> AdjacentEdgeIds
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Graph.AdjacentEdges(this).ToList().ForEach(e => ids.Add(e.Id));
+                return ids;
+            }
+        }
+
+        public List<int> AdjacentFaceIds
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Faces.ToList().ForEach(f => ids.Add(f.Id));
+                return ids;
+            }
+        }
+
+
+
+
         public NetworkNode(Point3d point, NetworkGraph graph, int id)
         {
             Point = point;

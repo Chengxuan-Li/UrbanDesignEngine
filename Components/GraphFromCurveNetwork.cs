@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UrbanDesignEngine.Utilities;
 using UrbanDesignEngine.DataStructure;
 
-namespace UrbanDesignEngine
+namespace UrbanDesignEngine.Components
 {
     public class GraphFromCurveNetwork : GH_Component
     {
@@ -15,7 +15,7 @@ namespace UrbanDesignEngine
         public GraphFromCurveNetwork()
           : base("GraphFromCurveNetwork", "GCN",
               "Graph from a network of intersecting curves",
-              "UrbanDesignEngine", "Models")
+              "UrbanDesignEngine", "Graph")
         {
         }
 
@@ -32,6 +32,7 @@ namespace UrbanDesignEngine
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("UDEGraph", "G", "Graph generated from the network of curves", GH_ParamAccess.item);
             pManager.AddLineParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
             pManager.AddPointParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
             pManager.AddCurveParameter("GraphPlanarFaces", "PFs", "Graph planar faces", GH_ParamAccess.list);
@@ -47,9 +48,10 @@ namespace UrbanDesignEngine
             if (!DA.GetDataList(0, curves)) return;
             NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves);
             graph.SolveFaces();
-            DA.SetDataList(0, graph.GetLines());
-            DA.SetDataList(1, graph.NetworkNodesGeometry);
-            DA.SetDataList(2, graph.NetworkFacesGeometry);
+            DA.SetData(0, graph.GHIOParam);
+            DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
+            DA.SetDataList(2, graph.NetworkNodesGeometry);
+            DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
         }
 
         /// <summary>

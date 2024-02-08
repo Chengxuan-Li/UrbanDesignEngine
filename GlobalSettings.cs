@@ -9,5 +9,6 @@ namespace UrbanDesignEngine
     public static class GlobalSettings
     {
         public static double AbsoluteTolerance = 0.0001;
+        public static string SCPrefix = "UDE";
     }
 }

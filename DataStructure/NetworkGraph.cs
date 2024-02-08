@@ -8,12 +8,15 @@ using Rhino;
 using Rhino.Geometry;
 using UrbanDesignEngine.Utilities;
 using Rhino.Geometry.Intersect;
+using Grasshopper;
+using Grasshopper.Kernel.Data;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkGraph
+    public class NetworkGraph 
     {
         public UndirectedGraph<NetworkNode, NetworkEdge> Graph = new UndirectedGraph<NetworkNode, NetworkEdge>();
+
 
         public List<NetworkFace> NetworkFaces = new List<NetworkFace>();
 
@@ -26,7 +29,18 @@ namespace UrbanDesignEngine.DataStructure
                 return pts;
             }
         }
-        public List<Curve> NetworkFacesGeometry
+
+        public List<Line> NetworkEdgesSimpleGeometry
+        {
+            get
+            {
+                List<Line> lines = new List<Line>();
+                Graph.Edges.ToList().ForEach(e => lines.Add(new Line(e.Source.Point, e.Target.Point)));
+                return lines;
+            }
+        }
+
+        public List<Curve> NetworkFacesSimpleGeometry
         {
             get
             {
@@ -35,6 +49,89 @@ namespace UrbanDesignEngine.DataStructure
                 return geo;
             }
         }
+
+        public DataTree<int> NodesAdjacentNodes
+        {
+            get
+            {
+                DataTree<int> tree = new DataTree<int>();
+                for (int i = 0; i < Graph.Vertices.ToList().Count; i++)
+                {
+                    GH_Path path = new GH_Path(i);
+                    tree.AddRange(Graph.Vertices.ToList()[i].AdjacentNodeIds, path);
+                }
+                return tree;
+            }
+        }
+
+        public DataTree<int> NodesAdjacentEdges
+        {
+            get
+            {
+                DataTree<int> tree = new DataTree<int>();
+                for (int i = 0; i < Graph.Vertices.ToList().Count; i++)
+                {
+                    GH_Path path = new GH_Path(i);
+                    tree.AddRange(Graph.Vertices.ToList()[i].AdjacentEdgeIds, path);
+                }
+                return tree;
+            }
+        }
+
+        public DataTree<int> NodesAdjacentFaces
+        {
+            get
+            {
+                DataTree<int> tree = new DataTree<int>();
+                for (int i = 0; i < Graph.Vertices.ToList().Count; i++)
+                {
+                    GH_Path path = new GH_Path(i);
+                    tree.AddRange(Graph.Vertices.ToList()[i].AdjacentFaceIds, path);
+                }
+                return tree;
+            }
+        }
+
+        public List<int> EdgesSourceNodes
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Edges.ToList().ForEach(e => ids.Add(e.Source.Id));
+                return ids;
+            }
+        }
+
+        public List<int> EdgesTargetNodes
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Edges.ToList().ForEach(e => ids.Add(e.Target.Id));
+                return ids;
+            }
+        }
+
+        public List<int> EdgesLeftFaces
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Edges.ToList().ForEach(e => ids.Add(e.leftFace.Id));
+                return ids;
+            }
+        }
+
+        public List<int> EdgesRightFaces
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Edges.ToList().ForEach(e => ids.Add(e.rightFace.Id));
+                return ids;
+            }
+        }
+
         public int NextNodeId => Graph.VertexCount;
         public int NextEdgeId => Graph.EdgeCount;
         public int NextFaceId => NetworkFaces.Count;
@@ -93,12 +190,6 @@ namespace UrbanDesignEngine.DataStructure
             return AddNetworkEdge(new NetworkEdge(nodeA, nodeB, this, -1));
         }
 
-        public List<Line> GetLines()
-        {
-            List<Line> lines = new List<Line>();
-            Graph.Edges.ToList().ForEach(e => lines.Add(new Line(e.Source.Point, e.Target.Point)));
-            return lines;
-        }
 
         public void SolveFaces()
         {
@@ -124,6 +215,6 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-
+        public GHIOParam<NetworkGraph> GHIOParam => new GHIOParam<NetworkGraph>(this);
     }
 }
