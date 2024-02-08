@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Algorithms\SweepLineIntersection.cs" />
     <Compile Include="Components\AccessGraphContent.cs" />
+    <Compile Include="Components\DualGraph.cs" />
     <Compile Include="Constraints\AngleConstraint.cs" />
     <Compile Include="Constraints\ProximityConstraint.cs" />
     <Compile Include="DataStructure\GHIOParam.cs" />

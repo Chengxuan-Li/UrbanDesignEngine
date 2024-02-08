@@ -16,7 +16,8 @@ namespace UrbanDesignEngine.DataStructure
     public class NetworkGraph 
     {
         public UndirectedGraph<NetworkNode, NetworkEdge> Graph = new UndirectedGraph<NetworkNode, NetworkEdge>();
-
+        public bool SolvedPlanarFaces => solvedPlanarFaces;
+        private bool solvedPlanarFaces = false;
 
         public List<NetworkFace> NetworkFaces = new List<NetworkFace>();
 
@@ -45,7 +46,7 @@ namespace UrbanDesignEngine.DataStructure
             get
             {
                 List<Curve> geo = new List<Curve>();
-                NetworkFaces.ForEach(f => geo.Add(f.GetGeometry()));
+                NetworkFaces.ForEach(f => geo.Add(f.SimpleGeometry()));
                 return geo;
             }
         }
@@ -112,7 +113,7 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        public List<int> EdgesLeftFaces
+        public List<int> EdgesLeftFaces // this is where exceptions are often raised Edges[0] has null left and right faces
         {
             get
             {
@@ -213,6 +214,31 @@ namespace UrbanDesignEngine.DataStructure
                     }
                 }
             }
+            solvedPlanarFaces = true;
+        }
+
+
+
+        public static NetworkGraph DualGraph(NetworkGraph graph)
+        {
+            if (!graph.SolvedPlanarFaces) graph.SolveFaces();
+            NetworkGraph dualGraph = new NetworkGraph();
+            graph.NetworkFaces.ForEach(f => dualGraph.AddNetworkNode(f.Centroid));
+            for(int i = 0; i < graph.NetworkFaces.Count; i++)
+            {
+                NetworkFace f = graph.NetworkFaces[i];
+                for (int j = 0; j < f.EdgesTraversed.Count; j++)
+                {
+                    NetworkEdge e = f.EdgesTraversed[j];
+                    bool dir = f.EdgesTraverseDirection[j];
+                    int faceIdToCompare = dir ? e.rightFace.Id : e.leftFace.Id;
+                    if (f.Id != faceIdToCompare)
+                    {
+                        dualGraph.AddNetworkEdge(f.Centroid, graph.NetworkFaces[faceIdToCompare].Centroid);
+                    }
+                }
+            }
+            return dualGraph;
         }
 
         public GHIOParam<NetworkGraph> GHIOParam => new GHIOParam<NetworkGraph>(this);

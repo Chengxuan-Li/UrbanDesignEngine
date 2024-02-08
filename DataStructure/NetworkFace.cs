@@ -15,6 +15,7 @@ namespace UrbanDesignEngine.DataStructure
         public List<NetworkNode> NodesTraversed = new List<NetworkNode>();
         public List<NetworkEdge> EdgesTraversed = new List<NetworkEdge>();
         public List<bool> EdgesTraverseDirection = new List<bool>();
+        public Point3d Centroid => AreaMassProperties.Compute(SimpleGeometry()).Centroid;
 
         enum DevelopmentStatus
         {
@@ -161,7 +162,7 @@ namespace UrbanDesignEngine.DataStructure
             return true;
         }
 
-        public Curve GetGeometry()
+        public Curve SimpleGeometry()
         {
             
             List<Point3d> pts = new List<Point3d>();

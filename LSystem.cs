@@ -29,7 +29,7 @@ namespace UrbanDesignEngine
             get
             {
                 List<Curve> crvs = new List<Curve>();
-                Graph.NetworkFaces.ForEach(f => crvs.Add(f.GetGeometry()));
+                Graph.NetworkFaces.ForEach(f => crvs.Add(f.SimpleGeometry()));
                 return crvs;
             }
         }
