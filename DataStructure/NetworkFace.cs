@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using QuikGraph;
 using Rhino.Geometry;
+using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
@@ -17,6 +18,31 @@ namespace UrbanDesignEngine.DataStructure
         public List<bool> EdgesTraverseDirection = new List<bool>();
         public Point3d Centroid => AreaMassProperties.Compute(SimpleGeometry()).Centroid;
 
+        public List<double> AnglesTurned
+        {
+            get
+            {
+                if (DevelopmentResult && IsComplete)
+                {
+                    List<double> angles = new List<double>();
+                    int count = EdgesTraversed.Count;
+                    for (int i = 0; i < count - 1; i++)
+                    {
+                        angles.Add(Trigonometry.AngleTurned(EdgesTraversed[i], EdgesTraversed[i + 1], EdgesTraverseDirection[i], EdgesTraverseDirection[i + 1]));
+                    }
+                    angles.Add(Trigonometry.AngleTurned(EdgesTraversed[count - 1], EdgesTraversed[0], EdgesTraverseDirection[count - 1], EdgesTraverseDirection[0]));
+                    return angles;
+                } else
+                {
+                    return new List<double>();
+                }
+                
+            }
+        }
+
+        
+        public bool IsAntiClockWise => AnglesTurned.Sum() >= 2*Math.PI && AnglesTurned.Sum() <= 4 * Math.PI; // TODO Check
+
         enum DevelopmentStatus
         {
             Developing,
@@ -25,7 +51,7 @@ namespace UrbanDesignEngine.DataStructure
         }
         public bool IsComplete
             => (
-            NodesTraversed.Count > 1
+            NodesTraversed.Count > 2
             && Graph.Graph.AdjacentVertices(NodesTraversed[0]).ToList().Contains(
                 NodesTraversed[NodesTraversed.Count - 1]
                 )

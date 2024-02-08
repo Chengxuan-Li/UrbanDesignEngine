@@ -118,7 +118,7 @@ namespace UrbanDesignEngine.DataStructure
             get
             {
                 List<int> ids = new List<int>();
-                Graph.Edges.ToList().ForEach(e => ids.Add(e.leftFace.Id));
+                Graph.Edges.ToList().ForEach(e => ids.Add(e.leftFace == null ? 0 : e.leftFace.Id));
                 return ids;
             }
         }

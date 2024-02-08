@@ -92,6 +92,8 @@ namespace UrbanDesignEngine.Utilities
                     return;
                 }
             }
+
+
             smaller = items[0];
             bigger = items[items.Count - 1];
             return;

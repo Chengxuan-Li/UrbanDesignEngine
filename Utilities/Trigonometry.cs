@@ -38,5 +38,40 @@ namespace UrbanDesignEngine.Utilities
             double difference = Math.Abs(angleA - angleB);
             return (difference > Math.PI) ? 2 * Math.PI - difference : difference;
         }
+
+        public static double AngleTurned(NetworkEdge edgeA, NetworkEdge edgeB, bool dirA, bool dirB)
+        {
+            double angleA = Angle(dirA ? edgeA.Source : edgeA.Target, dirA ? edgeA.Target : edgeA.Source);
+            double angleB = Angle(dirB ? edgeB.Source : edgeB.Target, dirB ? edgeB.Target : edgeB.Source);
+            double angleValue = AngleDifference(angleA, angleB);
+            return (OnLeftSideOf(angleA, angleB) == 1) ? angleValue : -angleValue;
+        }
+
+        public static int OnLeftSideOf(double baseAngle, double angleToCompare)
+        {
+            baseAngle = baseAngle % (Math.PI * 2);
+            angleToCompare = angleToCompare % (Math.PI * 2);
+            if (baseAngle == angleToCompare) return 0;
+            if (AngleDifference(baseAngle, angleToCompare) == Math.PI) return 0;
+            if (baseAngle < Math.PI)
+            {
+                if (angleToCompare > baseAngle && angleToCompare < baseAngle + Math.PI)
+                {
+                    return 1;
+                } else
+                {
+                    return -1;
+                }
+            } else
+            {
+                if (angleToCompare < baseAngle && angleToCompare > baseAngle - Math.PI)
+                {
+                    return -1;
+                } else
+                {
+                    return 1;
+                }    
+            }
+        }
     }
 }

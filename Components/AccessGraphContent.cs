@@ -54,6 +54,7 @@ namespace UrbanDesignEngine.Components
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             if (!ScriptVariableGetter<NetworkGraph>.GetScriptVariable(this, DA, 0, out NetworkGraph graph)) return;
+            graph.NetworkFaces.RemoveAll(f => !f.IsAntiClockWise); // temporary TODO
             DA.SetDataList(0, graph.NetworkNodesGeometry);
             DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
             // 2 edgecrvs
@@ -64,9 +65,9 @@ namespace UrbanDesignEngine.Components
             DA.SetDataTree(7, graph.NodesAdjacentFaces);
             DA.SetDataList(8, graph.EdgesSourceNodes);
             DA.SetDataList(9, graph.EdgesTargetNodes);
-            DA.SetDataList(10, graph.EdgesLeftFaces);
-            DA.SetDataList(11, graph.EdgesRightFaces);
-
+            //DA.SetDataList(10, graph.EdgesLeftFaces);
+            //DA.SetDataList(11, graph.EdgesRightFaces);
+            
         }
 
         /// <summary>
