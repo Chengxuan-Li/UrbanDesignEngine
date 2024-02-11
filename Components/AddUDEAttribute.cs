@@ -2,19 +2,19 @@
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
-using UrbanDesignEngine.Utilities;
+using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
-    public class OffsetWithDirectionControl : GH_Component
+    public class AddUDEAttribute : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the OffsetWithDirectionControl class.
+        /// Initializes a new instance of the AddUDEAttribute class.
         /// </summary>
-        public OffsetWithDirectionControl()
-          : base("OffsetWithDirectionControl", "ODC",
-              "Offset curve with direction control",
-             "UrbanDesignEngine", "Utilities")
+        public AddUDEAttribute()
+          : base("AddUDEAttribute", "AddAttr",
+              "Add attribute to a Rhino geometry",
+              "UrbanDesignEngine", "Data Management")
         {
         }
 
@@ -23,10 +23,9 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddCurveParameter("Curve", "C", "Curves to offset", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Distance", "D", "Distance of offset", GH_ParamAccess.item);
-            pManager.AddBooleanParameter("Inwards", "In", "True if offsetting inwards, otherwise false; if the input curve is not enclosed, this control is meaningless", GH_ParamAccess.item);
-            pManager[2].Optional = true;
+            pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
+            pManager.AddTextParameter("Key", "Key", "Key", GH_ParamAccess.item);
+            pManager.AddTextParameter("Value", "Value", "Value", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -34,7 +33,8 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddCurveParameter("Offset Curve", "OC", "Resultant curve after offset", GH_ParamAccess.item);
+            pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Result", "R", "Result, true if success", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -43,17 +43,16 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            Curve curve = default;
-            if (!DA.GetData(0, ref curve)) return;
-            double distance = default;
-            if (!DA.GetData(1, ref distance)) return;
-            bool inwards = true;
-            DA.GetData(2, ref inwards);
-            Polyline pl;
-            Curve result;
-            result = OffsetCurve.OffsetWithDirection(curve, distance, inwards);
-            DA.SetData(0, result);
+            string guid = default;
+            if (!DA.GetData(0, ref guid)) return;
+            string key = default;
+            string val = default;
+            if (!DA.GetData(1, ref key)) return;
+            if (!DA.GetData(2, ref val)) return;
 
+            UDEAttributes attributes = UDEAttributes.FromGuid(new Guid(guid));
+            DA.SetData(0, guid);
+            DA.SetData(1, attributes.Set(key, val));
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("f0705444-2689-4fb7-868a-d875094514e9"); }
+            get { return new Guid("2b2a436a-2069-4f1b-8a8f-0f37bbc9f137"); }
         }
     }
 }

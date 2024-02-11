@@ -17,6 +17,7 @@ namespace UrbanDesignEngine.DataStructure
         public NetworkFace leftFace = null;
         public NetworkFace rightFace = null;
         public int Id;
+        public Curve UnderlyingCurve = default;
 
         public NetworkNode Source => NodeA.CompareTo(NodeB) > 0 ? NodeB : NodeA;
 

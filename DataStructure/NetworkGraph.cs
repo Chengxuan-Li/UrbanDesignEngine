@@ -41,12 +41,32 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
+        public List<Curve> NetworkEdgeUnderglyingGeometry
+        {
+            get
+            {
+                List<Curve> geo = new List<Curve>();
+                Graph.Edges.ToList().ForEach(e => geo.Add(e.UnderlyingCurve));
+                return geo;
+            }
+        }
+
         public List<Curve> NetworkFacesSimpleGeometry
         {
             get
             {
                 List<Curve> geo = new List<Curve>();
                 NetworkFaces.ForEach(f => geo.Add(f.SimpleGeometry()));
+                return geo;
+            }
+        }
+
+        public List<Curve> NetworkFacesUnderlyingGeometry
+        {
+            get
+            {
+                List<Curve> geo = new List<Curve>();
+                NetworkFaces.ForEach(f => geo.Add(f.UnderlyingGeometry));
                 return geo;
             }
         }
@@ -113,7 +133,7 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        public List<int> EdgesLeftFaces // this is where exceptions are often raised Edges[0] has null left and right faces
+        public List<int> EdgesLeftFaces
         {
             get
             {
@@ -191,6 +211,15 @@ namespace UrbanDesignEngine.DataStructure
             return AddNetworkEdge(new NetworkEdge(nodeA, nodeB, this, -1));
         }
 
+        public int AddNetworkEdge(Point3d pointA, Point3d pointB, Curve underlyingCurve)
+        {
+            int indexA = AddNetworkNode(pointA);
+            int indexB = AddNetworkNode(pointB);
+            NetworkNode nodeA = Graph.Vertices.ToList()[indexA];
+            NetworkNode nodeB = Graph.Vertices.ToList()[indexB];
+            return AddNetworkEdge(new NetworkEdge(nodeA, nodeB, this, -1) { UnderlyingCurve = underlyingCurve});
+        }
+
 
         public void SolveFaces()
         {
@@ -223,8 +252,32 @@ namespace UrbanDesignEngine.DataStructure
         {
             if (!graph.SolvedPlanarFaces) graph.SolveFaces();
             NetworkGraph dualGraph = new NetworkGraph();
-            graph.NetworkFaces.ForEach(f => dualGraph.AddNetworkNode(f.Centroid));
-            for(int i = 0; i < graph.NetworkFaces.Count; i++)
+            foreach (NetworkFace f in graph.NetworkFaces)
+            {
+                if (f.IsAntiClockWise)
+                {
+                    dualGraph.AddNetworkNode(f.Centroid);
+                }
+            }
+            //graph.NetworkFaces.ForEach(f => dualGraph.AddNetworkNode(f.Centroid));
+            foreach (NetworkFace f in graph.NetworkFaces)
+            {
+                if (f.IsAntiClockWise)
+                {
+                    for (int j = 0; j < f.EdgesTraversed.Count; j++)
+                    {
+                        NetworkEdge e = f.EdgesTraversed[j];
+                        bool dir = f.EdgesTraverseDirection[j];
+                        int faceIdToCompare = dir ? e.rightFace.Id : e.leftFace.Id;
+                        if (f.Id != faceIdToCompare && (graph.NetworkFaces[faceIdToCompare].IsAntiClockWise))
+                        {
+                            dualGraph.AddNetworkEdge(f.Centroid, graph.NetworkFaces[faceIdToCompare].Centroid);
+                        }
+                    }
+                }
+            }
+            /*
+            for (int i = 0; i < graph.NetworkFaces.Count; i++)
             {
                 NetworkFace f = graph.NetworkFaces[i];
                 for (int j = 0; j < f.EdgesTraversed.Count; j++)
@@ -237,7 +290,7 @@ namespace UrbanDesignEngine.DataStructure
                         dualGraph.AddNetworkEdge(f.Centroid, graph.NetworkFaces[faceIdToCompare].Centroid);
                     }
                 }
-            }
+            }*/
             return dualGraph;
         }
 

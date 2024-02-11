@@ -75,7 +75,9 @@ namespace UrbanDesignEngine.Utilities
                 List<double> ps = GetCurveParameters(i);
                 for (int j = 0; j < ps.Count - 1; j++)
                 {
-                    Graph.AddNetworkEdge(c.PointAt(ps[j]), c.PointAt(ps[j + 1]));
+                    int ii = ps[j] == c.Domain.Min ? 0 : 1;
+                    Curve underlyingCurve = c.Split(new List<double> { ps[j], ps[j + 1] })[ii];
+                    Graph.AddNetworkEdge(c.PointAt(ps[j]), c.PointAt(ps[j + 1]), underlyingCurve);
                 }
             }
             
@@ -85,6 +87,7 @@ namespace UrbanDesignEngine.Utilities
         {
             public Curve curve;
             List<double> IntersectionParameters = new List<double>();
+            public UDEAttributes Attributes;
             public List<double> SortedIntersectionParameters
             {
                 get

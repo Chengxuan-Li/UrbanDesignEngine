@@ -61,7 +61,9 @@
   <ItemGroup>
     <Compile Include="Algorithms\SweepLineIntersection.cs" />
     <Compile Include="Components\AccessGraphContent.cs" />
+    <Compile Include="Components\AddUDEAttribute.cs" />
     <Compile Include="Components\DualGraph.cs" />
+    <Compile Include="Components\GetUDEAttribute.cs" />
     <Compile Include="Components\OffsetWithDirectionControl.cs" />
     <Compile Include="Constraints\AngleConstraint.cs" />
     <Compile Include="Constraints\ProximityConstraint.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="DataStructure\NetworkFace.cs" />
     <Compile Include="DataStructure\NetworkGraph.cs" />
     <Compile Include="DataStructure\NetworkNode.cs" />
+    <Compile Include="DataStructure\UDEAttributes.cs" />
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Components\GraphFromCurveNetwork.cs" />
     <Compile Include="Growth\AngleControlledGrowth.cs" />

@@ -10,5 +10,6 @@ namespace UrbanDesignEngine
     {
         public static double AbsoluteTolerance = 0.0001;
         public static string SCPrefix = "UDE";
+        public static double DefaultOffsetDitance = 4.0;
     }
 }

@@ -47,7 +47,7 @@ namespace UrbanDesignEngine.Components
             List<Curve> curves = new List<Curve>();
             if (!DA.GetDataList(0, curves)) return;
             NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves);
-            graph.SolveFaces();
+            //graph.SolveFaces();
             DA.SetData(0, graph.GHIOParam);
             DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
             DA.SetDataList(2, graph.NetworkNodesGeometry);

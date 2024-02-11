@@ -18,6 +18,16 @@ namespace UrbanDesignEngine.DataStructure
         public List<bool> EdgesTraverseDirection = new List<bool>();
         public Point3d Centroid => AreaMassProperties.Compute(SimpleGeometry()).Centroid;
 
+        public Curve UnderlyingGeometry
+        {
+            get
+            {
+                List<Curve> curves = new List<Curve>();
+                EdgesTraversed.ForEach(e => curves.Add(e.UnderlyingCurve));
+                return Curve.JoinCurves(curves)[0];
+            }
+        }
+
         public List<double> AnglesTurned
         {
             get

@@ -54,19 +54,27 @@ namespace UrbanDesignEngine.Components
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             if (!ScriptVariableGetter<NetworkGraph>.GetScriptVariable(this, DA, 0, out NetworkGraph graph)) return;
-            graph.NetworkFaces.RemoveAll(f => !f.IsAntiClockWise); // temporary TODO
+            //graph.NetworkFaces.RemoveAll(f => !f.IsAntiClockWise); // temporary TODO
             DA.SetDataList(0, graph.NetworkNodesGeometry);
             DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
-            // 2 edgecrvs
-            DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
-            // 4 facecrvs
+            DA.SetDataList(2, graph.NetworkEdgeUnderglyingGeometry);
+            if(graph.SolvedPlanarFaces)
+            {
+                DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
+                DA.SetDataList(4, graph.NetworkFacesUnderlyingGeometry);
+                DA.SetDataList(10, graph.EdgesLeftFaces);
+                DA.SetDataList(11, graph.EdgesRightFaces);
+            } else
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Warning: dual graph not resolved - no face topology exists");   
+            }
+
             DA.SetDataTree(5, graph.NodesAdjacentNodes);
             DA.SetDataTree(6, graph.NodesAdjacentEdges);
             DA.SetDataTree(7, graph.NodesAdjacentFaces);
             DA.SetDataList(8, graph.EdgesSourceNodes);
             DA.SetDataList(9, graph.EdgesTargetNodes);
-            //DA.SetDataList(10, graph.EdgesLeftFaces);
-            //DA.SetDataList(11, graph.EdgesRightFaces);
+
             
         }
 
