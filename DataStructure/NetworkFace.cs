@@ -9,9 +9,10 @@ using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkFace : IEquatable<NetworkFace>
+    public class NetworkFace : IEquatable<NetworkFace>, IAttributable
     {
         public NetworkGraph Graph;
+        public Attributes Attributes = new Attributes();
         public int Id;
         public List<NetworkNode> NodesTraversed = new List<NetworkNode>();
         public List<NetworkEdge> EdgesTraversed = new List<NetworkEdge>();
@@ -217,5 +218,26 @@ namespace UrbanDesignEngine.DataStructure
         {
             return String.Format("NFace {0}", Id);
         }
+
+        public Attributes GetAttributesInstance()
+        {
+            return Attributes;
+        }
+
+        public void SetAttribute(string key, object val)
+        {
+            Attributes.Set(key, val);
+        }
+
+        public T GetAttribute<T>(string key)
+        {
+            return Attributes.Get<T>(key);
+        }
+
+        public bool TryGetAttribute<T>(string key, out T val)
+        {
+            return Attributes.TryGet<T>(key, out val);
+        }
+
     }
 }

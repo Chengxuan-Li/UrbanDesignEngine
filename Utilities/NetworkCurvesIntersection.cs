@@ -26,11 +26,24 @@ namespace UrbanDesignEngine.Utilities
         public static NetworkGraph NetworkGraphFromCurves(List<Curve> curves)
         {
             NetworkCurvesIntersection nci = new NetworkCurvesIntersection(curves);
-            // TODO
             return nci.Graph;
         }
 
-        public NetworkCurvesIntersection(List<Curve> curves)
+        public static NetworkGraph NetworkGraphFromCurves(List<Curve> curves, List<Attributes> attributeList)
+        {
+            NetworkCurvesIntersection nci = new NetworkCurvesIntersection(curves, attributeList);
+            return nci.Graph;
+        }
+
+        public void AddAttributes(List<Attributes> attributesList)
+        {
+            for (int i = 0; i < attributesList.Count; i++)
+            {
+                delegates[i].Attributes = attributesList[i];
+            }
+        }
+
+        public NetworkCurvesIntersection(List<Curve> curves, List<Attributes> attributesList)
         {
             Curves = curves;
             Curves.ForEach(c => delegates.Add(new CurveDelegate(c)));
@@ -53,7 +66,8 @@ namespace UrbanDesignEngine.Utilities
                                 delegates[j].AddParameter(e.ParameterB);
 
                                 Graph.AddNetworkNode(Curves[i].PointAt(e.ParameterA));
-                            } else if (e.IsOverlap)
+                            }
+                            else if (e.IsOverlap)
                             {
                                 delegates[i].AddParameter(e.OverlapA.Min);
                                 delegates[i].AddParameter(e.OverlapA.Max);
@@ -69,6 +83,17 @@ namespace UrbanDesignEngine.Utilities
 
             }
 
+            bool hasAttributes = false;
+            if (curves.Count == attributesList.Count)
+            {
+                hasAttributes = true;
+                for (int i = 0; i < curves.Count; i++)
+                {
+                    delegates[i].Attributes = attributesList[i];
+                }
+            }
+
+
             for (int i = 0; i < count; i++)
             {
                 Curve c = Curves[i];
@@ -77,17 +102,26 @@ namespace UrbanDesignEngine.Utilities
                 {
                     int ii = ps[j] == c.Domain.Min ? 0 : 1;
                     Curve underlyingCurve = c.Split(new List<double> { ps[j], ps[j + 1] })[ii];
-                    Graph.AddNetworkEdge(c.PointAt(ps[j]), c.PointAt(ps[j + 1]), underlyingCurve);
+                    Attributes attributes = hasAttributes ? attributesList[i].Duplicate() : new Attributes();
+                    attributes.SetUnderlyingCurve(underlyingCurve);
+                    Graph.AddNetworkEdge(c.PointAt(ps[j]), c.PointAt(ps[j + 1]), attributes);
                 }
             }
-            
+
         }
+
+        public NetworkCurvesIntersection(List<Curve> curves) : this(curves, new List<Attributes>())
+        {
+
+        }
+
+        
 
         internal class CurveDelegate
         {
             public Curve curve;
             List<double> IntersectionParameters = new List<double>();
-            public UDEAttributes Attributes;
+            public Attributes Attributes;
             public List<double> SortedIntersectionParameters
             {
                 get

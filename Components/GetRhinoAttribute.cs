@@ -6,14 +6,14 @@ using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
-    public class AddUDEAttribute : GH_Component
+    public class GetRhinoAttribute : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the AddUDEAttribute class.
+        /// Initializes a new instance of the GetUDEAttribute class.
         /// </summary>
-        public AddUDEAttribute()
-          : base("AddUDEAttribute", "AddAttr",
-              "Add attribute to a Rhino geometry",
+        public GetRhinoAttribute()
+          : base("GetRhinoAttribute", "GetAttr",
+              "Get attribute from a Rhino geometry",
               "UrbanDesignEngine", "Data Management")
         {
         }
@@ -25,7 +25,6 @@ namespace UrbanDesignEngine.Components
         {
             pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
             pManager.AddTextParameter("Key", "Key", "Key", GH_ParamAccess.item);
-            pManager.AddTextParameter("Value", "Value", "Value", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -35,6 +34,7 @@ namespace UrbanDesignEngine.Components
         {
             pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Result", "R", "Result, true if success", GH_ParamAccess.item);
+            pManager.AddTextParameter("Value", "Value", "Value", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -46,13 +46,14 @@ namespace UrbanDesignEngine.Components
             string guid = default;
             if (!DA.GetData(0, ref guid)) return;
             string key = default;
-            string val = default;
             if (!DA.GetData(1, ref key)) return;
-            if (!DA.GetData(2, ref val)) return;
 
-            UDEAttributes attributes = UDEAttributes.FromGuid(new Guid(guid));
+            InFileAttribuutes attributes = InFileAttribuutes.FromGuid(new Guid(guid));
             DA.SetData(0, guid);
-            DA.SetData(1, attributes.Set(key, val));
+            string val = attributes.Get(key);
+            DA.SetData(1, !String.IsNullOrEmpty(val));
+            DA.SetData(2, val);
+
         }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("2b2a436a-2069-4f1b-8a8f-0f37bbc9f137"); }
+            get { return new Guid("5ad650e1-c5a9-4567-a024-7ae8f52ac097"); }
         }
     }
 }

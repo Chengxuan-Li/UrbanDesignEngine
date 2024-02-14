@@ -63,9 +63,49 @@ namespace UrbanDesignEngine.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon GraphFromCurveNetwork {
+        internal static System.Drawing.Icon Dual {
             get {
-                object obj = ResourceManager.GetObject("GraphFromCurveNetwork", resourceCulture);
+                object obj = ResourceManager.GetObject("Dual", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon GraphFromCurve {
+            get {
+                object obj = ResourceManager.GetObject("GraphFromCurve", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon GraphFromCurveAttr {
+            get {
+                object obj = ResourceManager.GetObject("GraphFromCurveAttr", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon Offset {
+            get {
+                object obj = ResourceManager.GetObject("Offset", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon Unwrap {
+            get {
+                object obj = ResourceManager.GetObject("Unwrap", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

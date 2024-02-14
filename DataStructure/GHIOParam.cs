@@ -14,13 +14,12 @@ using GH_IO.Serialization;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class GHIOParam<ScriptClass> : IGH_Goo 
+    public class GHIOParam<ScriptClass> : IGH_Goo
     {
         public ScriptClass ScriptClassVariable;
 
         public GHIOParam()
         {
-
         }
 
         public GHIOParam(ScriptClass variable)
@@ -28,9 +27,29 @@ namespace UrbanDesignEngine.DataStructure
             ScriptClassVariable = variable;
         }
 
-        public bool GetContent<TargetClass>(out TargetClass variable)
+        /*
+        public bool GetAttributableContent(out IAttributable variable)
         {
-            if (typeof(TargetClass) == typeof(ScriptClass))
+            variable = default;
+            if (typeof(IAttributable).IsAssignableFrom(typeof(ScriptClass)))
+            {
+                variable = (IAttributable)(object)ScriptClassVariable;
+                return variable != null;
+            } else
+            {
+                return false;
+            }
+        }
+        */
+
+        public TargetClass GetContent<TargetClass>()
+        {
+            return (TargetClass)(object)ScriptClassVariable;
+        }
+
+        public bool TryGetContent<TargetClass>(out TargetClass variable)
+        {
+            if (typeof(TargetClass) == typeof(ScriptClass) || typeof(TargetClass).IsAssignableFrom(typeof(ScriptClass)))
             {
                 variable = (TargetClass)((object)ScriptClassVariable);
                 return !(variable == null);
@@ -44,7 +63,7 @@ namespace UrbanDesignEngine.DataStructure
 
         public bool SetContent<TargetClass>(TargetClass variable)
         {
-            if (typeof(TargetClass) == typeof(ScriptClass))
+            if (typeof(TargetClass) == typeof(ScriptClass) || typeof(TargetClass).IsAssignableFrom(typeof(ScriptClass)))
             {
                 ScriptClassVariable = (ScriptClass)((object)variable);
                 return !(ScriptClassVariable == null);
@@ -61,7 +80,7 @@ namespace UrbanDesignEngine.DataStructure
 
         public string TypeName => typeof(ScriptClass).ToString();
 
-        public string TypeDescription => typeof(ScriptClass).ToString();
+        public string TypeDescription => typeof(ScriptClass).ToString() + " Instance";
 
         public bool CastFrom(object source)
         {
@@ -92,7 +111,7 @@ namespace UrbanDesignEngine.DataStructure
             return this; // Performance check req.
         }
 
-        public IGH_GooProxy EmitProxy()
+        public IGH_GooProxy EmitProxy() 
         {
             return (IGH_GooProxy)this; // Performance check req.
         }

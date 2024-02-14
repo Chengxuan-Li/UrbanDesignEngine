@@ -13,8 +13,9 @@ using Grasshopper.Kernel.Data;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkGraph 
+    public class NetworkGraph : IAttributable
     {
+        public Attributes Attributes = new Attributes();
         public UndirectedGraph<NetworkNode, NetworkEdge> Graph = new UndirectedGraph<NetworkNode, NetworkEdge>();
         public bool SolvedPlanarFaces => solvedPlanarFaces;
         private bool solvedPlanarFaces = false;
@@ -213,11 +214,18 @@ namespace UrbanDesignEngine.DataStructure
 
         public int AddNetworkEdge(Point3d pointA, Point3d pointB, Curve underlyingCurve)
         {
+            Attributes attributes = new Attributes();
+            attributes.SetUnderlyingCurve(underlyingCurve);
+            return AddNetworkEdge(pointA, pointB, attributes);
+        }
+
+        public int AddNetworkEdge(Point3d pointA, Point3d pointB, Attributes attributes)
+        {
             int indexA = AddNetworkNode(pointA);
             int indexB = AddNetworkNode(pointB);
             NetworkNode nodeA = Graph.Vertices.ToList()[indexA];
             NetworkNode nodeB = Graph.Vertices.ToList()[indexB];
-            return AddNetworkEdge(new NetworkEdge(nodeA, nodeB, this, -1) { UnderlyingCurve = underlyingCurve});
+            return AddNetworkEdge(new NetworkEdge(nodeA, nodeB, this, -1) { Attributes = attributes });
         }
 
 
@@ -292,6 +300,26 @@ namespace UrbanDesignEngine.DataStructure
                 }
             }*/
             return dualGraph;
+        }
+
+        public Attributes GetAttributesInstance()
+        {
+            return Attributes;
+        }
+
+        public void SetAttribute(string key, object val)
+        {
+            Attributes.Set(key, val);
+        }
+
+        public T GetAttribute<T>(string key)
+        {
+            return Attributes.Get<T>(key);
+        }
+
+        public bool TryGetAttribute<T>(string key, out T val)
+        {
+            return Attributes.TryGet<T>(key, out val);
         }
 
         public GHIOParam<NetworkGraph> GHIOParam => new GHIOParam<NetworkGraph>(this);

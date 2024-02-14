@@ -9,15 +9,28 @@ using Rhino.Geometry;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkEdge : IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>
+    public class NetworkEdge : IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable
     {
         NetworkNode NodeA;
         NetworkNode NodeB;
         public NetworkGraph Graph;
+        public Attributes Attributes = new Attributes();
         public NetworkFace leftFace = null;
         public NetworkFace rightFace = null;
         public int Id;
-        public Curve UnderlyingCurve = default;
+        public Curve UnderlyingCurve
+        {
+            get
+            {
+                if (Attributes.Contains("UnderlyingCurve"))
+                {
+                    return Attributes.Get<Curve>("UnderlyingCurve");
+                } else
+                {
+                    return new Line(Source.Point, Target.Point).ToNurbsCurve();
+                }
+            }
+        }
 
         public NetworkNode Source => NodeA.CompareTo(NodeB) > 0 ? NodeB : NodeA;
 
@@ -98,6 +111,27 @@ namespace UrbanDesignEngine.DataStructure
         {
             return String.Format("NEdge {0}: ({1}, {2})", Id, Source.Id, Target.Id);
         }
+
+        public Attributes GetAttributesInstance()
+        {
+            return Attributes;
+        }
+
+        public void SetAttribute(string key, object val)
+        {
+            Attributes.Set(key, val);
+        }
+
+        public T GetAttribute<T>(string key)
+        {
+            return Attributes.Get<T>(key);
+        }
+
+        public bool TryGetAttribute<T>(string key, out T val)
+        {
+            return Attributes.TryGet<T>(key, out val);
+        }
+
     }
 
     public class NetworkEdgeEqualityComparer : IEqualityComparer<NetworkEdge>

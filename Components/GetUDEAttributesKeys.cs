@@ -1,19 +1,21 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using UrbanDesignEngine.IO;
 using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
-    public class GetUDEAttribute : GH_Component
+    public class QueryUDEAttributesForValue : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the GetUDEAttribute class.
+        /// Initializes a new instance of the QueryUDEAttributesForValue class.
         /// </summary>
-        public GetUDEAttribute()
-          : base("GetUDEAttribute", "GetAttr",
-              "Get attribute from a Rhino geometry",
+        public QueryUDEAttributesForValue()
+          : base("QueryUDEAttributesForValue", "QAttr",
+              "Description",
               "UrbanDesignEngine", "Data Management")
         {
         }
@@ -23,8 +25,8 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
-            pManager.AddTextParameter("Key", "Key", "Key", GH_ParamAccess.item);
+            pManager.AddScriptVariableParameter("UDEAttributes", "Attr", "UDEAttributes instance", GH_ParamAccess.item);
+            pManager.AddTextParameter("Key", "Ky", "Key", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -32,9 +34,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
-            pManager.AddBooleanParameter("Result", "R", "Result, true if success", GH_ParamAccess.item);
-            pManager.AddTextParameter("Value", "Value", "Value", GH_ParamAccess.item);
+            pManager.AddTextParameter("Value", "Val", "Value", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -43,17 +43,11 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string guid = default;
-            if (!DA.GetData(0, ref guid)) return;
-            string key = default;
-            if (!DA.GetData(1, ref key)) return;
-
-            UDEAttributes attributes = UDEAttributes.FromGuid(new Guid(guid));
-            DA.SetData(0, guid);
-            string val = attributes.Get(key);
-            DA.SetData(1, !String.IsNullOrEmpty(val));
-            DA.SetData(2, val);
-
+            if (ScriptVariableGetter<Attributes>.GetScriptVariable(this, DA, 0, true, out Attributes attr) != VariableGetterStatus.Success) return;
+            if (VariableGetter<string>.GetVariable(this, DA, 1, true, out string key) != VariableGetterStatus.Success) return;
+            string result = attr.Get<string>(key);
+            if (String.IsNullOrEmpty(result)) return;
+            DA.SetData(0, result);
         }
 
         /// <summary>
@@ -74,7 +68,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("5ad650e1-c5a9-4567-a024-7ae8f52ac097"); }
+            get { return new Guid("fff18837-e3bd-47ab-8ea7-473ed71cbd0a"); }
         }
     }
 }

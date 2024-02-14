@@ -2,20 +2,20 @@
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
-using UrbanDesignEngine.DataStructure;
 using UrbanDesignEngine.IO;
+using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
-    public class DualGraph : GH_Component
+    public class UnwrapUDEScriptVariable : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the DualGraph class.
+        /// Initializes a new instance of the UnwrapUDEScriptVariable class.
         /// </summary>
-        public DualGraph()
-          : base("DualGraph", "DG",
-              "Create the dual graph of a planar graph",
-              "UrbanDesignEngine", "Graph")
+        public UnwrapUDEScriptVariable()
+          : base("UnwrapUDEScriptVariable", "UWSV",
+              "Description",
+              "UrbanDesignEngine", "Data Management")
         {
         }
 
@@ -24,7 +24,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("UDEGraph", "G", "UDEGraph (planar graph) to create dual from", GH_ParamAccess.item);
+            pManager.AddScriptVariableParameter("UDEAnything", "UDESV", "Any UDEScriptVariable", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -32,7 +32,9 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("DualGraph", "DG", "Created dual graph", GH_ParamAccess.item);
+            pManager.AddGenericParameter("UDEAttributes", "Attr", "Attributes", GH_ParamAccess.item);
+            pManager.AddGeometryParameter("Geometry", "G", "Geometry", GH_ParamAccess.item);
+            pManager.AddTextParameter("GUID", "GUID", "GUID", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -41,9 +43,10 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (!(ScriptVariableGetter<NetworkGraph>.GetScriptVariable(this, DA, 0, true, out NetworkGraph graph) == VariableGetterStatus.Success)) return;
-            NetworkGraph dualGraph = NetworkGraph.DualGraph(graph);
-            DA.SetData(0, dualGraph.GHIOParam);
+            VariableGetterStatus result = ScriptVariableGetter<IAttributable>.GetScriptVariable(this, DA, 0, true, out IAttributable sv);
+            if (result != VariableGetterStatus.Success) return;
+            DA.SetData(0, sv.GetAttributesInstance().GHIOParam);
+            // TODO: let all goo-lable, unwrappable svs implement a IGH_GeometricGoo to have Geo and GeoRef if possible
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace UrbanDesignEngine.Components
         {
             get
             {
-                return Properties.Resources.Dual.ToBitmap();
+                return Properties.Resources.Unwrap.ToBitmap();
             }
         }
 
@@ -62,7 +65,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("76ae1752-629b-4cd3-8ad1-11b752e49dc6"); }
+            get { return new Guid("0930cedf-d2a2-4f67-bb40-460287acce0d"); }
         }
     }
 }

@@ -4,17 +4,18 @@ using System;
 using System.Collections.Generic;
 using UrbanDesignEngine.Utilities;
 using UrbanDesignEngine.DataStructure;
+using UrbanDesignEngine.IO;
 
 namespace UrbanDesignEngine.Components
 {
-    public class GraphFromCurveNetwork : GH_Component
+    public class GraphFromCurveNetworkWithAttributes : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the GraphFromCurveNetwork class.
         /// </summary>
-        public GraphFromCurveNetwork()
-          : base("GraphFromCurveNetwork", "GCN",
-              "Graph from a network of intersecting curves",
+        public GraphFromCurveNetworkWithAttributes()
+          : base("GraphFromCurveNetworkWithAttributes", "GCNAttr",
+              "Graph from a network of intersecting curves, with Attributes",
               "UrbanDesignEngine", "Graph")
         {
         }
@@ -25,6 +26,7 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddCurveParameter("Curves", "Crvs", "Curves", GH_ParamAccess.list);
+            pManager.AddScriptVariableParameter("UDEAttributes", "Attr", "UDE Attribute class definitions", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -46,9 +48,11 @@ namespace UrbanDesignEngine.Components
         {
             List<Curve> curves = new List<Curve>();
             if (!DA.GetDataList(0, curves)) return;
+            List<Attributes> attributesList;
+            ScriptVariableGetter<Attributes>.GetScriptVariableList(this, DA, 1, true, out attributesList);
+            
+
             NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves);
-
-
             graph.SolveFaces();
             DA.SetData(0, graph.GHIOParam);
             DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
@@ -63,7 +67,7 @@ namespace UrbanDesignEngine.Components
         {
             get
             {
-                return Properties.Resources.GraphFromCurve.ToBitmap();
+                return Properties.Resources.GraphFromCurveAttr.ToBitmap();
             }
         }
 
@@ -72,7 +76,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("c24ef903-8649-42e3-99d8-d7d6e504b0b2"); }
+            get { return new Guid("98347f9a-3f49-4a29-ae7a-c0f78dc50e7f"); }
         }
     }
 }

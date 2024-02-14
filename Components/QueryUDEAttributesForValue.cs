@@ -1,21 +1,22 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using UrbanDesignEngine.DataStructure;
 using UrbanDesignEngine.IO;
+using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
-    public class DualGraph : GH_Component
+    public class GetUDEAttributesKeys : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the DualGraph class.
+        /// Initializes a new instance of the GetUDEAttributesKeys class.
         /// </summary>
-        public DualGraph()
-          : base("DualGraph", "DG",
-              "Create the dual graph of a planar graph",
-              "UrbanDesignEngine", "Graph")
+        public GetUDEAttributesKeys()
+          : base("GetUDEAttributesKeys", "AttrKys",
+              "Description",
+              "UrbanDesignEngine", "Data Management")
         {
         }
 
@@ -24,7 +25,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("UDEGraph", "G", "UDEGraph (planar graph) to create dual from", GH_ParamAccess.item);
+            pManager.AddScriptVariableParameter("UDEAttributes", "Attr", "UDEAttributes instance", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("DualGraph", "DG", "Created dual graph", GH_ParamAccess.item);
+            pManager.AddTextParameter("Keys", "Kys", "List of keys", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -41,9 +42,8 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (!(ScriptVariableGetter<NetworkGraph>.GetScriptVariable(this, DA, 0, true, out NetworkGraph graph) == VariableGetterStatus.Success)) return;
-            NetworkGraph dualGraph = NetworkGraph.DualGraph(graph);
-            DA.SetData(0, dualGraph.GHIOParam);
+            if (ScriptVariableGetter<Attributes>.GetScriptVariable(this, DA, 0, true, out Attributes attr) != VariableGetterStatus.Success) return;
+            DA.SetDataList(0, attr.Content.Keys.ToList());
         }
 
         /// <summary>
@@ -53,7 +53,9 @@ namespace UrbanDesignEngine.Components
         {
             get
             {
-                return Properties.Resources.Dual.ToBitmap();
+                //You can add image files to your project resources and access them like this:
+                // return Resources.IconForThisComponent;
+                return null;
             }
         }
 
@@ -62,7 +64,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("76ae1752-629b-4cd3-8ad1-11b752e49dc6"); }
+            get { return new Guid("0724fa41-2a88-4ec2-ae1d-fa3e51e8bfcf"); }
         }
     }
 }

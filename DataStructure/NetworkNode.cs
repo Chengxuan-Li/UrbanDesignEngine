@@ -10,10 +10,11 @@ using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkNode : IComparable<NetworkNode>, IEquatable<NetworkNode>
+    public class NetworkNode : IComparable<NetworkNode>, IEquatable<NetworkNode>, IAttributable
     {
         public Point3d Point;
         public NetworkGraph Graph;
+        public Attributes Attributes = new Attributes();
         public List<NetworkFace> Faces = new List<NetworkFace>();
         public bool IsActive => PossibleGrowthsLeft > 0;
         public int PossibleGrowthsLeft = 2;
@@ -132,6 +133,27 @@ namespace UrbanDesignEngine.DataStructure
         {
             return String.Format("NNode {0}", Id);
         }
+
+        public Attributes GetAttributesInstance()
+        {
+            return Attributes;
+        }
+
+        public void SetAttribute(string key, object val)
+        {
+            Attributes.Set(key, val);
+        }
+
+        public T GetAttribute<T>(string key)
+        {
+            return Attributes.Get<T>(key);
+        }
+
+        public bool TryGetAttribute<T>(string key, out T val)
+        {
+            return Attributes.TryGet<T>(key, out val);
+        }
+
     }
 
     public class NetworkNodeEqualityComparer : IEqualityComparer<NetworkNode>

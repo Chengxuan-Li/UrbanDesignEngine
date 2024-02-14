@@ -9,9 +9,10 @@ using Rhino.DocObjects;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class UDEAttributes
+    public class InFileAttribuutes
     {
         public ObjectAttributes Attributes;
+        public Guid guid;
         public double OffsetDistance
         {
             get
@@ -26,14 +27,10 @@ namespace UrbanDesignEngine.DataStructure
                 }
             }
         }
-        public static UDEAttributes FromObjectAttributes(ObjectAttributes attributes)
-        {
-            return new UDEAttributes { Attributes = attributes };
-        }
 
-        public static UDEAttributes FromGuid(Guid guid)
+        public static InFileAttribuutes FromGuid(Guid guid)
         {
-            return new UDEAttributes { Attributes = RhinoDoc.ActiveDoc.Objects.FindId(guid).Attributes };
+            return new InFileAttribuutes { Attributes = RhinoDoc.ActiveDoc.Objects.FindId(guid).Attributes, guid = guid };
         }
 
         public bool TryGetDouble(string key, out double result)
