@@ -47,7 +47,7 @@ namespace UrbanDesignEngine.Components
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             Attributes attributes = new DataStructure.Attributes();
-            VariableGetterStatus getterStatus = ScriptVariableGetter<Attributes>.GetScriptVariable(this, DA, 0, false, out attributes);
+            VariableGetterStatus getterStatus = ScriptVariableGetter.GetScriptVariable<Attributes>(this, DA, 0, false, out attributes);
             attributes = new DataStructure.Attributes();//TODO Critical
             string guid = default;
             bool guidInput = DA.GetData(1, ref guid);

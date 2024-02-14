@@ -41,7 +41,7 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (!(ScriptVariableGetter<NetworkGraph>.GetScriptVariable(this, DA, 0, true, out NetworkGraph graph) == VariableGetterStatus.Success)) return;
+            if (!(ScriptVariableGetter.GetScriptVariable<NetworkGraph>(this, DA, 0, true, out NetworkGraph graph) == VariableGetterStatus.Success)) return;
             NetworkGraph dualGraph = NetworkGraph.DualGraph(graph);
             DA.SetData(0, dualGraph.GHIOParam);
         }

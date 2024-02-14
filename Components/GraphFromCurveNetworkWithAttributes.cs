@@ -49,7 +49,7 @@ namespace UrbanDesignEngine.Components
             List<Curve> curves = new List<Curve>();
             if (!DA.GetDataList(0, curves)) return;
             List<Attributes> attributesList;
-            ScriptVariableGetter<Attributes>.GetScriptVariableList(this, DA, 1, true, out attributesList);
+            ScriptVariableGetter.GetScriptVariableList<Attributes>(this, DA, 1, true, out attributesList);
             
 
             NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves);

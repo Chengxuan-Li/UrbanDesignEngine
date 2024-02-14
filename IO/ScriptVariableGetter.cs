@@ -12,9 +12,78 @@ namespace UrbanDesignEngine.IO
     /// <summary>
     /// Custom class to get script variables from GH_Goo dataflow and generates error messages where necessary
     /// </summary>
-    /// <typeparam name="ScriptVariable">Type of script variable to get</typeparam>
-    public class ScriptVariableGetter<ScriptVariable>
+    public class ScriptVariableGetter
     {
+        GH_Component Component;
+        IGH_DataAccess DA;
+        int Index;
+        bool Mandatory;
+        
+
+        public static ScriptVariableGetter AllAttributableScriptVariableClassesGetter(GH_Component component, IGH_DataAccess da, int index, bool mandatory)
+        {
+            return new ScriptVariableGetter()
+            {
+                Component = component,
+                DA = da,
+                Index = index,
+                Mandatory = mandatory,
+            };
+        }
+
+        public VariableGetterStatus GetAllAttributable(out IAttributable result)
+        {
+            result = default;
+            // Add classes manually ... lol
+            if (BaseGet(out Attributes r0))
+            {
+                result = r0;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            
+            if (BaseGet(out NetworkNode r1))
+            {
+                result = r1;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            if (BaseGet(out NetworkEdge r2))
+            {
+                result = r2;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            if (BaseGet(out NetworkFace r3))
+            {
+                result = r3;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            if (BaseGet(out NetworkGraph r4))
+            {
+                result = r4;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            Component.AddRuntimeMessage(Mandatory ? GH_RuntimeMessageLevel.Error : GH_RuntimeMessageLevel.Warning, "Input type error or missing"); // TODO ditinguish warning and error 
+            return VariableGetterStatus.TypeError;
+        }
+
+        bool BaseGet<ScriptVariable>(out ScriptVariable result)
+        {
+            GHIOParam<ScriptVariable> svGHIO = default;
+            result = default;
+            if (DA.GetData(Index, ref svGHIO))
+            {
+                if (svGHIO.TryGetContent(out result))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Get the script varaible from an input stream of GH_Goo
         /// </summary>
@@ -24,7 +93,7 @@ namespace UrbanDesignEngine.IO
         /// <param name="mandatory">true if this input parameter is mandatory</param>
         /// <param name="sv">output script variable; default if failed</param>
         /// <returns>True if successfully gets the variable in the correct type; otherwise false</returns>
-        public static VariableGetterStatus GetScriptVariable(GH_Component component, IGH_DataAccess da, int index, bool mandatory, out ScriptVariable sv)
+        public static VariableGetterStatus GetScriptVariable<ScriptVariable>(GH_Component component, IGH_DataAccess da, int index, bool mandatory, out ScriptVariable sv)
         {
             GHIOParam<ScriptVariable> svGHIO = default;
             sv = default;
@@ -46,7 +115,7 @@ namespace UrbanDesignEngine.IO
             return VariableGetterStatus.Success;
         }
 
-        public static VariableGetterStatus GetScriptVariableList(GH_Component component, IGH_DataAccess da, int index, bool mandatory, out List<ScriptVariable> svs)
+        public static VariableGetterStatus GetScriptVariableList<ScriptVariable>(GH_Component component, IGH_DataAccess da, int index, bool mandatory, out List<ScriptVariable> svs)
         {
             List<GHIOParam<ScriptVariable>> svGHIOs = new List<GHIOParam<ScriptVariable>>();
             svs = new List<ScriptVariable>();

@@ -43,7 +43,7 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (ScriptVariableGetter<Attributes>.GetScriptVariable(this, DA, 0, true, out Attributes attr) != VariableGetterStatus.Success) return;
+            if (ScriptVariableGetter.GetScriptVariable<Attributes>(this, DA, 0, true, out Attributes attr) != VariableGetterStatus.Success) return;
             if (VariableGetter<string>.GetVariable(this, DA, 1, true, out string key) != VariableGetterStatus.Success) return;
             string result = attr.Get<string>(key);
             if (String.IsNullOrEmpty(result)) return;

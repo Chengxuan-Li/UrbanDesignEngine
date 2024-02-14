@@ -43,7 +43,10 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            VariableGetterStatus result = ScriptVariableGetter<IAttributable>.GetScriptVariable(this, DA, 0, true, out IAttributable sv);
+           ScriptVariableGetter svg = ScriptVariableGetter.AllAttributableScriptVariableClassesGetter(this, DA, 0, true);
+
+            VariableGetterStatus result = svg.GetAllAttributable(out IAttributable sv);
+            
             if (result != VariableGetterStatus.Success) return;
             DA.SetData(0, sv.GetAttributesInstance().GHIOParam);
             // TODO: let all goo-lable, unwrappable svs implement a IGH_GeometricGoo to have Geo and GeoRef if possible
