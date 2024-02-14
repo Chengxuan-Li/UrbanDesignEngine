@@ -9,7 +9,7 @@ using Rhino.DocObjects;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class InFileAttribuutes
+    public class InFileAttributes
     {
         public ObjectAttributes Attributes;
         public Guid guid;
@@ -28,9 +28,9 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        public static InFileAttribuutes FromGuid(Guid guid)
+        public static InFileAttributes FromGuid(Guid guid)
         {
-            return new InFileAttribuutes { Attributes = RhinoDoc.ActiveDoc.Objects.FindId(guid).Attributes, guid = guid };
+            return new InFileAttributes { Attributes = RhinoDoc.ActiveDoc.Objects.FindId(guid).Attributes, guid = guid };
         }
 
         public bool TryGetDouble(string key, out double result)

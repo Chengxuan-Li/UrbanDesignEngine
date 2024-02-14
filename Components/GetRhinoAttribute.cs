@@ -48,7 +48,7 @@ namespace UrbanDesignEngine.Components
             string key = default;
             if (!DA.GetData(1, ref key)) return;
 
-            InFileAttribuutes attributes = InFileAttribuutes.FromGuid(new Guid(guid));
+            InFileAttributes attributes = InFileAttributes.FromGuid(new Guid(guid));
             DA.SetData(0, guid);
             string val = attributes.Get(key);
             DA.SetData(1, !String.IsNullOrEmpty(val));

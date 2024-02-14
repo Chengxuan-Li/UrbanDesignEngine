@@ -50,7 +50,7 @@ namespace UrbanDesignEngine.Components
             if (!DA.GetData(1, ref key)) return;
             if (!DA.GetData(2, ref val)) return;
 
-            InFileAttribuutes attributes = InFileAttribuutes.FromGuid(new Guid(guid));
+            InFileAttributes attributes = InFileAttributes.FromGuid(new Guid(guid));
             DA.SetData(0, guid);
             DA.SetData(1, attributes.Set(key, val));
         }

@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UrbanDesignEngine.Utilities;
 using UrbanDesignEngine.DataStructure;
@@ -33,7 +34,7 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("UDEGraph", "G", "Graph generated from the network of curves", GH_ParamAccess.item);
-            pManager.AddLineParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
+            pManager.AddGenericParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
             pManager.AddPointParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
             pManager.AddCurveParameter("GraphPlanarFaces", "PFs", "Graph planar faces", GH_ParamAccess.list);
         }
@@ -51,9 +52,11 @@ namespace UrbanDesignEngine.Components
 
             graph.SolveFaces();
             DA.SetData(0, graph.GHIOParam);
-            DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
-            DA.SetDataList(2, graph.NetworkNodesGeometry);
-            DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
+            List<GHIOCurveParam<NetworkEdge>> edges = new List<GHIOCurveParam<NetworkEdge>>();
+            graph.Graph.Edges.ToList().ForEach(e => edges.Add(e.gHIOParam));
+            DA.SetDataList(1, edges);
+            //DA.SetDataList(2, graph.NetworkNodesGeometry);
+            //DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
         }
 
         /// <summary>
