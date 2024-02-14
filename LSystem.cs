@@ -29,7 +29,7 @@ namespace UrbanDesignEngine
             get
             {
                 List<Curve> crvs = new List<Curve>();
-                Graph.NetworkFaces.ForEach(f => crvs.Add(f.GetGeometry()));
+                Graph.NetworkFaces.ForEach(f => crvs.Add(f.SimpleGeometry()));
                 return crvs;
             }
         }
@@ -44,7 +44,7 @@ namespace UrbanDesignEngine
 
         public LSystem(Point3d origin)
         {
-            Graph.AddNetworkNodeFromPoint(origin);
+            Graph.AddNetworkNode(origin);
         }
 
         public void Solve()
@@ -54,7 +54,7 @@ namespace UrbanDesignEngine
                 GrowAll();
                 currentIteration++;
             }
-            Graph.SolveFaces();
+            //Graph.SolveFaces();
             // TODO make all edges, faces, nodes a unique index
             
         }
@@ -78,7 +78,7 @@ namespace UrbanDesignEngine
                     if (!node.IsActive) break;
                     if (angleControlledGrowth.Next(random.NextDouble() * (MaxDistance - MinDistance) + MinDistance, out result))
                     {
-                        List<Line> lines = Graph.GetLines();
+                        List<Line> lines = Graph.NetworkEdgesSimpleGeometry;
                         List<int> indices = new List<int>();
                         Line newLine = new Line(node.Point, result);
                         List<double> parameters;
@@ -92,11 +92,11 @@ namespace UrbanDesignEngine
                         if (ProximityConstraint.Snap(resultNode, SnapDistance))
                         {
                             NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Equals(resultNode));
-                            if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph.Graph, Graph.NextEdgeId));
+                            if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
                         } else
                         {
                             Graph.AddNetworkNode(resultNode);
-                            Graph.AddNetworkEdge(new NetworkEdge(node, resultNode, Graph.Graph, Graph.NextEdgeId));
+                            Graph.AddNetworkEdge(new NetworkEdge(node, resultNode, Graph, Graph.NextEdgeId));
                         }
                         
                         node.PossibleGrowthsLeft += -1;

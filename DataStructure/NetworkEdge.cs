@@ -9,20 +9,34 @@ using Rhino.Geometry;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkEdge : IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>
+    public class NetworkEdge : IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable
     {
         NetworkNode NodeA;
         NetworkNode NodeB;
-        public UndirectedGraph<NetworkNode, NetworkEdge> Graph;
+        public NetworkGraph Graph;
+        public Attributes Attributes = new Attributes();
         public NetworkFace leftFace = null;
         public NetworkFace rightFace = null;
         public int Id;
+        public Curve UnderlyingCurve
+        {
+            get
+            {
+                if (Attributes.Contains("UnderlyingCurve"))
+                {
+                    return Attributes.Get<Curve>("UnderlyingCurve");
+                } else
+                {
+                    return new Line(Source.Point, Target.Point).ToNurbsCurve();
+                }
+            }
+        }
 
         public NetworkNode Source => NodeA.CompareTo(NodeB) > 0 ? NodeB : NodeA;
 
         public NetworkNode Target => NodeA.CompareTo(NodeB) > 0 ? NodeA : NodeB;
 
-        public NetworkEdge(NetworkNode nodeA, NetworkNode nodeB, UndirectedGraph<NetworkNode, NetworkEdge> graph, int id)
+        public NetworkEdge(NetworkNode nodeA, NetworkNode nodeB, NetworkGraph graph, int id)
         {
             NodeA = nodeA;
             NodeB = nodeB;
@@ -36,7 +50,10 @@ namespace UrbanDesignEngine.DataStructure
             {
                 return false;
             }
-            if (Source.Equals(other.Source) && Target.Equals(other.Target))
+            if (Source.Id == other.Source.Id && Target.Id == other.Target.Id)
+            {
+                return true;
+            } else if (Source.Id == other.Target.Id && Target.Id == other.Source.Id)
             {
                 return true;
             } else
@@ -55,6 +72,12 @@ namespace UrbanDesignEngine.DataStructure
             return direction ? Target : Source;
         }
 
+        /// <summary>
+        /// Gets the other node of this edge different to the given node
+        /// </summary>
+        /// <param name="node">The given node</param>
+        /// <param name="otherNode">The other node</param>
+        /// <returns>true if successfully gets the other node; otherwise false</returns>
         public bool OtherNode(NetworkNode node, out NetworkNode otherNode)
         {
             if (node.Equals(Source))
@@ -82,6 +105,45 @@ namespace UrbanDesignEngine.DataStructure
         public bool IsSource(NetworkNode node)
         {
             return node.Equals(Source);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("NEdge {0}: ({1}, {2})", Id, Source.Id, Target.Id);
+        }
+
+        public Attributes GetAttributesInstance()
+        {
+            return Attributes;
+        }
+
+        public void SetAttribute(string key, object val)
+        {
+            Attributes.Set(key, val);
+        }
+
+        public T GetAttribute<T>(string key)
+        {
+            return Attributes.Get<T>(key);
+        }
+
+        public bool TryGetAttribute<T>(string key, out T val)
+        {
+            return Attributes.TryGet<T>(key, out val);
+        }
+
+    }
+
+    public class NetworkEdgeEqualityComparer : IEqualityComparer<NetworkEdge>
+    {
+        public bool Equals(NetworkEdge x, NetworkEdge y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(NetworkEdge obj)
+        {
+            return obj.Id;
         }
     }
 }

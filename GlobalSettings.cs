@@ -8,6 +8,8 @@ namespace UrbanDesignEngine
 {
     public static class GlobalSettings
     {
-        public static double AbsoluteTolerance = 0.001;
+        public static double AbsoluteTolerance = 0.0001;
+        public static string SCPrefix = "UDE";
+        public static double DefaultOffsetDitance = 4.0;
     }
 }

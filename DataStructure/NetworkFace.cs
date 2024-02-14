@@ -5,25 +5,72 @@ using System.Text;
 using System.Threading.Tasks;
 using QuikGraph;
 using Rhino.Geometry;
+using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkFace : IEquatable<NetworkFace>
+    public class NetworkFace : IEquatable<NetworkFace>, IAttributable
     {
-        public UndirectedGraph<NetworkNode, NetworkEdge> Graph;
+        public NetworkGraph Graph;
+        public Attributes Attributes = new Attributes();
+        public int Id;
         public List<NetworkNode> NodesTraversed = new List<NetworkNode>();
         public List<NetworkEdge> EdgesTraversed = new List<NetworkEdge>();
         public List<bool> EdgesTraverseDirection = new List<bool>();
+        public Point3d Centroid => AreaMassProperties.Compute(SimpleGeometry()).Centroid;
 
+        public Curve UnderlyingGeometry
+        {
+            get
+            {
+                List<Curve> curves = new List<Curve>();
+                EdgesTraversed.ForEach(e => curves.Add(e.UnderlyingCurve));
+                return Curve.JoinCurves(curves)[0];
+            }
+        }
+
+        public List<double> AnglesTurned
+        {
+            get
+            {
+                if (DevelopmentResult && IsComplete)
+                {
+                    List<double> angles = new List<double>();
+                    int count = EdgesTraversed.Count;
+                    for (int i = 0; i < count - 1; i++)
+                    {
+                        angles.Add(Trigonometry.AngleTurned(EdgesTraversed[i], EdgesTraversed[i + 1], EdgesTraverseDirection[i], EdgesTraverseDirection[i + 1]));
+                    }
+                    angles.Add(Trigonometry.AngleTurned(EdgesTraversed[count - 1], EdgesTraversed[0], EdgesTraverseDirection[count - 1], EdgesTraverseDirection[0]));
+                    return angles;
+                } else
+                {
+                    return new List<double>();
+                }
+                
+            }
+        }
+
+        
+        public bool IsAntiClockWise => AnglesTurned.Sum() >= 2*Math.PI && AnglesTurned.Sum() <= 4 * Math.PI; // TODO Check
+
+        enum DevelopmentStatus
+        {
+            Developing,
+            Stopped,
+            Finished,
+        }
         public bool IsComplete
             => (
-            NodesTraversed.Count > 1
-            && Graph.AdjacentVertices(NodesTraversed[0]).ToList().Contains(
+            NodesTraversed.Count > 2
+            && Graph.Graph.AdjacentVertices(NodesTraversed[0]).ToList().Contains(
                 NodesTraversed[NodesTraversed.Count - 1]
                 )
             && EdgesTraversed.Count == NodesTraversed.Count
             && EdgesTraverseDirection.Count == EdgesTraversed.Count
             );
+
+        public bool DevelopmentResult = false;
 
         public bool IsTraverseable
         {
@@ -41,30 +88,33 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        public NetworkFace(NetworkEdge edge, bool direction)
+        public NetworkFace(NetworkEdge edge, bool direction, int id)
         {
             Graph = edge.Graph;
+            Id = id;
             NodesTraversed.Add(direction ? edge.Source : edge.Target);
             NodesTraversed.Add(direction ? edge.Target : edge.Source);
             EdgesTraversed.Add(edge);
             EdgesTraverseDirection.Add(direction);
-            bool developing = true;
+            DevelopmentStatus status = DevelopmentStatus.Developing;
             int iterations = 0;
-            while (developing)
+            while (status == DevelopmentStatus.Developing)
             {
-                developing = DevelopNext();
+                status = DevelopNext();
                 iterations++;
-                if (iterations > 25)
+                if (iterations > 250)
                 {
                     break;
                 }
             }
-            if (IsComplete && IsTraverseable)
+            DevelopmentResult = status == DevelopmentStatus.Finished;
+            if (status == DevelopmentStatus.Finished && IsComplete)
             {
                 NodesTraversed.ForEach(n => n.Faces.Add(this));
-                foreach (NetworkEdge e in EdgesTraversed)
+                for (int i = 0; i < EdgesTraversed.Count; i++)
                 {
-                    if (EdgesTraverseDirection[EdgesTraversed.IndexOf(e)])
+                    NetworkEdge e = EdgesTraversed[i];
+                    if (EdgesTraverseDirection[i])
                     {
                         e.leftFace = this;
                     } else
@@ -75,18 +125,22 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
-        bool DevelopNext()
+        DevelopmentStatus DevelopNext()
         {
             NetworkEdge nextEdge;
             bool nextEdgeTraverseDirection;
-            if (!NodesTraversed[NodesTraversed.Count - 1].NextEdge(EdgesTraversed[EdgesTraversed.Count - 1], true, out nextEdge, out nextEdgeTraverseDirection)) return false;
-            if (nextEdge.Equals(EdgesTraversed[0]) && nextEdgeTraverseDirection == EdgesTraverseDirection[0]) return false;
+            // this will only return false if the the node contains only 0 angles which is impossible
+            if (!NodesTraversed[NodesTraversed.Count - 1].NextEdge(EdgesTraversed[EdgesTraversed.Count - 1], out nextEdge, out nextEdgeTraverseDirection)) return DevelopmentStatus.Stopped;
+            if (nextEdge.Equals(EdgesTraversed[0]))
+            {
+                //return false;
+            }
             EdgesTraversed.Add(nextEdge);
             EdgesTraverseDirection.Add(nextEdgeTraverseDirection);
             NetworkNode nextNode = (nextEdgeTraverseDirection) ? nextEdge.Target : nextEdge.Source;
-            if (nextNode.Equals(NodesTraversed[0])) return false;
+            if (nextNode.Equals(NodesTraversed[0])) return DevelopmentStatus.Finished;
             NodesTraversed.Add(nextNode);
-            return true;
+            return DevelopmentStatus.Developing;
         }
 
         public bool QueryNext(NetworkNode node, out NetworkNode nextNode, out NetworkEdge nextEdge, out bool nextEdgeDirection)
@@ -145,12 +199,45 @@ namespace UrbanDesignEngine.DataStructure
             return true;
         }
 
-        public Curve GetGeometry()
+        public Curve SimpleGeometry()
         {
+            
             List<Point3d> pts = new List<Point3d>();
             NodesTraversed.ForEach(n => pts.Add(n.Point));
+            pts.Add(NodesTraversed[0].Point);
             var pl = new Polyline(pts);
             return pl.ToNurbsCurve();
+            /*
+            List<Curve> cs = new List<Curve>();
+            EdgesTraversed.ForEach(e => cs.Add(new Line(e.Source.Point, e.Target.Point).ToNurbsCurve()));
+            return Curve.JoinCurves(cs)[0];
+            */
         }
+
+        public override string ToString()
+        {
+            return String.Format("NFace {0}", Id);
+        }
+
+        public Attributes GetAttributesInstance()
+        {
+            return Attributes;
+        }
+
+        public void SetAttribute(string key, object val)
+        {
+            Attributes.Set(key, val);
+        }
+
+        public T GetAttribute<T>(string key)
+        {
+            return Attributes.Get<T>(key);
+        }
+
+        public bool TryGetAttribute<T>(string key, out T val)
+        {
+            return Attributes.TryGet<T>(key, out val);
+        }
+
     }
 }
