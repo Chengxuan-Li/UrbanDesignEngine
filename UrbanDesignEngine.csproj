@@ -75,6 +75,7 @@
     <Compile Include="DataStructure\Attributes.cs" />
     <Compile Include="DataStructure\GHIOCurveParam.cs" />
     <Compile Include="DataStructure\GHIOParam.cs" />
+    <Compile Include="DataStructure\GHIOPointParam.cs" />
     <Compile Include="DataStructure\GHIOPreviewGeometricParam.cs" />
     <Compile Include="DataStructure\HasReferenceGeometry.cs" />
     <Compile Include="DataStructure\HasScriptRuntimeGeometry.cs" />

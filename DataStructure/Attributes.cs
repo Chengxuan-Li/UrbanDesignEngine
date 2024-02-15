@@ -78,7 +78,7 @@ namespace UrbanDesignEngine.DataStructure
             val = default;
             if (Content.ContainsKey(key))
             {
-                val = (T)Content[key];
+                val = (T)Content[key]; // bug if T is string and value is NurbsCurve
                 return !(val == null);
             } else
             {

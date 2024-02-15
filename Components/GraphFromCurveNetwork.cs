@@ -34,8 +34,8 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("UDEGraph", "G", "Graph generated from the network of curves", GH_ParamAccess.item);
-            pManager.AddGenericParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
-            pManager.AddPointParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
+            pManager.AddGenericParameter("GraphEdges", "GCs", "Graph connections", GH_ParamAccess.list);
+            pManager.AddGenericParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
             pManager.AddCurveParameter("GraphPlanarFaces", "PFs", "Graph planar faces", GH_ParamAccess.list);
         }
 
@@ -52,9 +52,12 @@ namespace UrbanDesignEngine.Components
 
             graph.SolveFaces();
             DA.SetData(0, graph.GHIOParam);
-            List<GHIOCurveParam<NetworkEdge>> edges = new List<GHIOCurveParam<NetworkEdge>>();
-            graph.Graph.Edges.ToList().ForEach(e => edges.Add(e.gHIOParam));
-            DA.SetDataList(1, edges);
+            List<GHIOCurveParam<NetworkEdge>> edgesGHIOParam = new List<GHIOCurveParam<NetworkEdge>>();
+            List<GHIOPointParam<NetworkNode>> nodesGHIOParam = new List<GHIOPointParam<NetworkNode>>();
+            graph.Graph.Edges.ToList().ForEach(e => edgesGHIOParam.Add(e.gHIOParam));
+            graph.Graph.Vertices.ToList().ForEach(v => nodesGHIOParam.Add(v.gHIOParam));
+            DA.SetDataList(1, edgesGHIOParam);
+            DA.SetDataList(2, nodesGHIOParam);
             //DA.SetDataList(2, graph.NetworkNodesGeometry);
             //DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
         }

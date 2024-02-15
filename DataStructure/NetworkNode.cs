@@ -10,7 +10,7 @@ using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkNode : IComparable<NetworkNode>, IEquatable<NetworkNode>, IAttributable
+    public class NetworkNode : HasScriptRuntimeGeometry<Point>, IComparable<NetworkNode>, IEquatable<NetworkNode>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkNode, GHIOPointParam<NetworkNode>, Point>
     {
         public Point3d Point;
         public NetworkGraph Graph;
@@ -21,6 +21,10 @@ namespace UrbanDesignEngine.DataStructure
         public int Generation = -1;
 
         public int Id;
+
+        public override Point Geometry => new Point(Point);
+
+        public GHIOPointParam<NetworkNode> gHIOParam => new GHIOPointParam<NetworkNode>() { ScriptClassVariable = this };
 
         /// <summary>
         /// The list of directional angles from this point in the direction of each adjacent edge

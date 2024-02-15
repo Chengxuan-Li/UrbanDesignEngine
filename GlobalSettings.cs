@@ -18,5 +18,6 @@ namespace UrbanDesignEngine
     {
         public static Color PreviewColor = Color.OrangeRed;
         public static int Thickness = 3;
+        public static int PointRadius = 4;
     }
 }

@@ -118,6 +118,10 @@ namespace UrbanDesignEngine.DataStructure
 
         public Attributes GetAttributesInstance()
         {
+            Attributes.Set("Type", GetType().ToString());
+            Attributes.Set("Id", Id.ToString());
+            Attributes.Set("SourceNodeId", Source.Id.ToString());
+            Attributes.Set("TargetNodeId", Target.Id.ToString());
             return Attributes;
         }
 
