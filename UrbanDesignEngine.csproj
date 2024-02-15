@@ -71,6 +71,7 @@
     <Compile Include="Components\GraphFromCurveNetworkWithAttributes.cs" />
     <Compile Include="Components\OffsetWithDirectionControl.cs" />
     <Compile Include="Components\UnwrapUDEScriptVariable.cs" />
+    <Compile Include="Components\VariableOffset.cs" />
     <Compile Include="Constraints\AngleConstraint.cs" />
     <Compile Include="Constraints\ProximityConstraint.cs" />
     <Compile Include="DataStructure\Attributes.cs" />

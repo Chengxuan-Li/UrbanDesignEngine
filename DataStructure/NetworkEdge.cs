@@ -26,7 +26,15 @@ namespace UrbanDesignEngine.DataStructure
             {
                 if (Attributes.Contains("UnderlyingCurve"))
                 {
-                    return Attributes.Get<Curve>("UnderlyingCurve");
+                    Curve curve = Attributes.Get<Curve>("UnderlyingCurve");
+                    if (curve.PointAtStart.DistanceTo(Source.Point) <= GlobalSettings.AbsoluteTolerance)
+                    {
+                        return curve;
+                    } else
+                    {
+                        curve.Reverse();
+                        return curve;
+                    }
                 } else
                 {
                     return new Line(Source.Point, Target.Point).ToNurbsCurve();
