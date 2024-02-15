@@ -94,24 +94,14 @@ namespace UrbanDesignEngine.DataStructure
             return attributes;
         }
 
-        public Attributes GetAttributesInstance()
-        {
-            return this;
-        }
+        public Attributes AttributesInstance => this;
 
-        public void SetAttribute(string key, object val)
+        public void Concat(Attributes other)
         {
-            Set(key, val);
-        }
-
-        public T GetAttribute<T>(string key)
-        {
-            return Get<T>(key);
-        }
-
-        public bool TryGetAttribute<T>(string key, out T val)
-        {
-            return TryGet<T>(key, out val);
+            foreach(KeyValuePair<string, object> keyValuePair in other.Content)
+            {
+                Set(keyValuePair.Key, keyValuePair.Value);
+            }
         }
 
     }

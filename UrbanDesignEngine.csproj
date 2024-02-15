@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\BuildCurveReference.cs" />
     <Compile Include="Components\QueryUDEAttributesForValue.cs" />
     <Compile Include="Components\GetUDEAttributesKeys.cs" />
     <Compile Include="Components\SetUDEAttributes.cs" />
@@ -87,6 +88,8 @@
     <Compile Include="DataStructure\NetworkGraph.cs" />
     <Compile Include="DataStructure\NetworkNode.cs" />
     <Compile Include="DataStructure\InFileAttributes.cs" />
+    <Compile Include="DataStructure\ReferenceCurveGeometry.cs" />
+    <Compile Include="DataStructure\ReferencePointGeometry.cs" />
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Components\GraphFromCurveNetwork.cs" />
     <Compile Include="Growth\AngleControlledGrowth.cs" />
@@ -109,6 +112,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

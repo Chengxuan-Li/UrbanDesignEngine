@@ -116,29 +116,18 @@ namespace UrbanDesignEngine.DataStructure
             return String.Format("NEdge {0}: ({1}, {2})", Id, Source.Id, Target.Id);
         }
 
-        public Attributes GetAttributesInstance()
+        public Attributes AttributesInstance
         {
-            Attributes.Set("Type", GetType().ToString());
-            Attributes.Set("Id", Id.ToString());
-            Attributes.Set("SourceNodeId", Source.Id.ToString());
-            Attributes.Set("TargetNodeId", Target.Id.ToString());
-            return Attributes;
+            get
+            {
+                Attributes.Set("Type", GetType().ToString());
+                Attributes.Set("Id", Id.ToString());
+                Attributes.Set("SourceNodeId", Source.Id.ToString());
+                Attributes.Set("TargetNodeId", Target.Id.ToString());
+                return Attributes;
+            }
         }
 
-        public void SetAttribute(string key, object val)
-        {
-            Attributes.Set(key, val);
-        }
-
-        public T GetAttribute<T>(string key)
-        {
-            return Attributes.Get<T>(key);
-        }
-
-        public bool TryGetAttribute<T>(string key, out T val)
-        {
-            return Attributes.TryGet<T>(key, out val);
-        }
 
     }
 

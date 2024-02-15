@@ -45,10 +45,10 @@ namespace UrbanDesignEngine.Components
         {
            ScriptVariableGetter svg = ScriptVariableGetter.AllAttributableScriptVariableClassesGetter(this, DA, 0, true);
 
-            VariableGetterStatus result = svg.GetAllAttributable(out IAttributable sv);
+            VariableGetterStatus result = svg.GetVariableFromAllAttributableTypes(out IAttributable sv);
             
             if (result != VariableGetterStatus.Success) return;
-            DA.SetData(0, sv.GetAttributesInstance().GHIOParam);
+            DA.SetData(0, sv.AttributesInstance.GHIOParam);
             // TODO: let all goo-lable, unwrappable svs implement a IGH_GeometricGoo to have Geo and GeoRef if possible
         }
 

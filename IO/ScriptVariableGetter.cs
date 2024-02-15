@@ -31,7 +31,14 @@ namespace UrbanDesignEngine.IO
             };
         }
 
-        public VariableGetterStatus GetAllAttributable(out IAttributable result)
+        /*
+        public VariableGetterStatus GetVariablesListFromAllAttributableTypes(out List<IAttributable> result)
+        {
+            result = new List<IAttributable>();
+            // TODO
+        }*/
+
+        public VariableGetterStatus GetVariableFromAllAttributableTypes(out IAttributable result)
         {
             result = default;
             // Add classes manually ... lol

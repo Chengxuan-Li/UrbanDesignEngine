@@ -1,6 +1,7 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UrbanDesignEngine.Utilities;
 using UrbanDesignEngine.DataStructure;
@@ -25,8 +26,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddCurveParameter("Curves", "Crvs", "Curves", GH_ParamAccess.list);
-            pManager.AddScriptVariableParameter("UDEAttributes", "Attr", "UDE Attribute class definitions", GH_ParamAccess.list);
+            pManager.AddScriptVariableParameter("UDECurveReferences", "CrvRefs", "UDECurveReferences", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("UDEGraph", "G", "Graph generated from the network of curves", GH_ParamAccess.item);
-            pManager.AddLineParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
-            pManager.AddPointParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
+            pManager.AddGenericParameter("GraphConnections", "GCs", "Graph connections", GH_ParamAccess.list);
+            pManager.AddGenericParameter("GraphNodes", "GNs", "Graph nodes", GH_ParamAccess.list);
             pManager.AddCurveParameter("GraphPlanarFaces", "PFs", "Graph planar faces", GH_ParamAccess.list);
         }
 
@@ -47,17 +47,23 @@ namespace UrbanDesignEngine.Components
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<Curve> curves = new List<Curve>();
-            if (!DA.GetDataList(0, curves)) return;
-            List<Attributes> attributesList;
-            ScriptVariableGetter.GetScriptVariableList<Attributes>(this, DA, 1, true, out attributesList);
+
+            ScriptVariableGetter.GetScriptVariableList<ReferenceCurveGeometry>(this, DA, 0, true, out List<ReferenceCurveGeometry> svs);
+
+            List<Attributes> attributesList = new List<Attributes>();
+            svs.ForEach(s => curves.Add(s.PreviewGeometry));
+            svs.ForEach(s => attributesList.Add(s.AttributesInstance));
             
 
-            NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves);
+            NetworkGraph graph = NetworkCurvesIntersection.NetworkGraphFromCurves(curves, attributesList);
             graph.SolveFaces();
             DA.SetData(0, graph.GHIOParam);
-            DA.SetDataList(1, graph.NetworkEdgesSimpleGeometry);
-            DA.SetDataList(2, graph.NetworkNodesGeometry);
-            DA.SetDataList(3, graph.NetworkFacesSimpleGeometry);
+            List<GHIOCurveParam<NetworkEdge>> edgesGHIOParam = new List<GHIOCurveParam<NetworkEdge>>();
+            List<GHIOPointParam<NetworkNode>> nodesGHIOParam = new List<GHIOPointParam<NetworkNode>>();
+            graph.Graph.Edges.ToList().ForEach(e => edgesGHIOParam.Add(e.gHIOParam));
+            graph.Graph.Vertices.ToList().ForEach(v => nodesGHIOParam.Add(v.gHIOParam));
+            DA.SetDataList(1, edgesGHIOParam);
+            DA.SetDataList(2, nodesGHIOParam);
         }
 
         /// <summary>

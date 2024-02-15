@@ -18,6 +18,16 @@ namespace UrbanDesignEngine.DataStructure
     {
         public Guid Guid;
         public RhinoDoc doc;
-        public T PreviewGeometry => (T)doc.Objects.FindId(Guid).Geometry;
+        public virtual T PreviewGeometry
+        {
+            get
+            {
+                GeometryBase geo = doc.Objects.FindId(Guid).Geometry;
+                if (IsTypeValid) return geo as T;
+                return null;
+            }
+        }
+
+        public virtual bool IsTypeValid => (doc.Objects.FindId(Guid).Geometry as T) != null ;
     }
 }

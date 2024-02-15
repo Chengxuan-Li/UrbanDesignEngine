@@ -302,25 +302,8 @@ namespace UrbanDesignEngine.DataStructure
             return dualGraph;
         }
 
-        public Attributes GetAttributesInstance()
-        {
-            return Attributes;
-        }
+        public Attributes AttributesInstance => Attributes;
 
-        public void SetAttribute(string key, object val)
-        {
-            Attributes.Set(key, val);
-        }
-
-        public T GetAttribute<T>(string key)
-        {
-            return Attributes.Get<T>(key);
-        }
-
-        public bool TryGetAttribute<T>(string key, out T val)
-        {
-            return Attributes.TryGet<T>(key, out val);
-        }
 
         public GHIOParam<NetworkGraph> GHIOParam => new GHIOParam<NetworkGraph>(this);
     }
