@@ -91,7 +91,7 @@ namespace UrbanDesignEngine
         }
 
         //temporary
-        List<double> GenerateBreakParams(List<double> lengthsCumSum)
+        public List<double> GenerateBreakParams(List<double> lengthsCumSum)
         {
             List<double> parameters = new List<double>();
             double minSep = 15.0;
@@ -147,7 +147,9 @@ namespace UrbanDesignEngine
             };
             Func<double> prop = () =>
             {
-                return random.NextDouble() * lengthsCumSum[lengthsCumSum.Count - 1];
+                double p = random.NextDouble() * lengthsCumSum[lengthsCumSum.Count - 1];
+                int index = lengthsCumSum.FindIndex(l => Math.Abs(l - p) <= snapDist);
+                return (index == -1) ? p : lengthsCumSum[index];
             };
             List<double> states = new List<double>();
             Exploration<double>(states, prop, minSepCheck, maxSepCheck);
@@ -178,6 +180,8 @@ namespace UrbanDesignEngine
             }
             return false;
         }
+
+
     }
 
     public static class GeometryHelper

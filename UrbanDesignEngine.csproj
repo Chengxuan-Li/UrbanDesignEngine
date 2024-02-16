@@ -59,6 +59,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\SolutionState.cs" />
+    <Compile Include="Algorithms\SolutionExplorer.cs" />
     <Compile Include="Components\BuildCurveReference.cs" />
     <Compile Include="Components\QueryUDEAttributesForValue.cs" />
     <Compile Include="Components\GetUDEAttributesKeys.cs" />
