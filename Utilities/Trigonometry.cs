@@ -41,7 +41,7 @@ namespace UrbanDesignEngine.Utilities
         /// </summary>
         /// <param name="angleA"></param>
         /// <param name="angleB"></param>
-        /// <returns></returns>
+        /// <returns>The difference between the two angles in [0, 2*pi)</returns>
         public static double AngleDifference(double angleA, double angleB)
         {
             angleA = angleA % (2 * Math.PI);

@@ -98,11 +98,13 @@
     <Compile Include="IO\VariableGetter.cs" />
     <Compile Include="LSystem.cs" />
     <Compile Include="LSystemComponent.cs" />
+    <Compile Include="Maths\MathsHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="TessellateBlock.cs" />
     <Compile Include="Utilities\AngleInterval.cs" />
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />
     <Compile Include="Utilities\DataManagement.cs" />
