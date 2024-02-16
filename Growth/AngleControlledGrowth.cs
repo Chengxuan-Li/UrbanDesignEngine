@@ -29,11 +29,11 @@ namespace UrbanDesignEngine.Growth
             double nextAngle = random.NextDouble() * 2 * Math.PI;
             bool valid = true;
             Angles = new List<double>();
-            Node.Graph.AdjacentVertices(Node).ToList().ForEach(n => Angles.Add(Trigonometry.Angle(Node, n)));
+            Node.Graph.Graph.AdjacentVertices(Node).ToList().ForEach(n => Angles.Add(Trigonometry.Angle(Node, n)));
 
             foreach (double angle in Angles)
             {
-                if (Trigonometry.Angle(angle, nextAngle) < MinimumAngle)
+                if (Trigonometry.AngleDifference(angle, nextAngle) < MinimumAngle)
                 {
                     valid = false;
                     break;

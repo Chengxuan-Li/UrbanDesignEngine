@@ -19,7 +19,7 @@ namespace UrbanDesignEngine.Constraints
         {
             List<double> qualifiedDistances = new List<double>();
             List<NetworkNode> qualifiedNodes = new List<NetworkNode>();
-            foreach (NetworkNode n in node.Graph.Vertices.ToList())
+            foreach (NetworkNode n in node.Graph.Graph.Vertices.ToList())
             {
                 double distance = n.Point.DistanceTo(node.Point);
                 if (distance < snapDistance)

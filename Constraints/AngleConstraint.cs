@@ -12,7 +12,7 @@ namespace UrbanDesignEngine.Constraints
     {
         public static bool MinimumAngle(NetworkNode currentNode, NetworkNode newNode, double minAngle)
         {
-            List<NetworkNode> adjacentNodes = currentNode.Graph.AdjacentVertices(currentNode).ToList();
+            List<NetworkNode> adjacentNodes = currentNode.Graph.Graph.AdjacentVertices(currentNode).ToList();
             double angle;
             bool valid = true;
             foreach (NetworkNode node in adjacentNodes)

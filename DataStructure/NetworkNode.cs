@@ -10,10 +10,11 @@ using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkNode : IComparable<NetworkNode>, IEquatable<NetworkNode>
+    public class NetworkNode : HasScriptRuntimeGeometry<Point>, IComparable<NetworkNode>, IEquatable<NetworkNode>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkNode, GHIOPointParam<NetworkNode>, Point>
     {
         public Point3d Point;
-        public UndirectedGraph<NetworkNode, NetworkEdge> Graph;
+        public NetworkGraph Graph;
+        public Attributes Attributes = new Attributes();
         public List<NetworkFace> Faces = new List<NetworkFace>();
         public bool IsActive => PossibleGrowthsLeft > 0;
         public int PossibleGrowthsLeft = 2;
@@ -21,17 +22,57 @@ namespace UrbanDesignEngine.DataStructure
 
         public int Id;
 
+        public override Point Geometry => new Point(Point);
+
+        public GHIOPointParam<NetworkNode> gHIOParam => new GHIOPointParam<NetworkNode>() { ScriptClassVariable = this };
+
+        /// <summary>
+        /// The list of directional angles from this point in the direction of each adjacent edge
+        /// </summary>
         public List<double> Angles
         {
             get
             {
                 List<double> angles = new List<double>();
-                Graph.AdjacentEdges(this).ToList().ForEach(e => angles.Add(Trigonometry.Angle(this, e.TryGetOtherNode(this))));
+                Graph.Graph.AdjacentEdges(this).ToList().ForEach(e => angles.Add(Trigonometry.Angle(this, e.TryGetOtherNode(this))));
                 return angles;
             }
         }
 
-        public NetworkNode(Point3d point, UndirectedGraph<NetworkNode, NetworkEdge> graph, int id)
+        public List<int> AdjacentNodeIds
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Graph.AdjacentVertices(this).ToList().ForEach(v => ids.Add(v.Id));
+                return ids;
+            }
+        }
+
+        public List<int> AdjacentEdgeIds
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Graph.Graph.AdjacentEdges(this).ToList().ForEach(e => ids.Add(e.Id));
+                return ids;
+            }
+        }
+
+        public List<int> AdjacentFaceIds
+        {
+            get
+            {
+                List<int> ids = new List<int>();
+                Faces.ToList().ForEach(f => ids.Add(f.Id));
+                return ids;
+            }
+        }
+
+
+
+
+        public NetworkNode(Point3d point, NetworkGraph graph, int id)
         {
             Point = point;
             Graph = graph;
@@ -43,6 +84,9 @@ namespace UrbanDesignEngine.DataStructure
             if (other == null)
             {
                 return -1;
+            } else if (this.Id == other.Id)
+            {
+                return 0;
             } else if (Point.DistanceTo(other.Point) <= GlobalSettings.AbsoluteTolerance)
             {
                 return 0;
@@ -61,11 +105,10 @@ namespace UrbanDesignEngine.DataStructure
         /// 
         /// </summary>
         /// <param name="edge"></param>
-        /// <param name="traverseDirection">direction in which the face loop is traversing; true of anti-closewise; otherwise false</param>
         /// <param name="nextEdge"></param>
         /// <param name="nextEdgeTraverseDirection"></param>
         /// <returns></returns>
-        public bool NextEdge(NetworkEdge edge, bool traverseDirection, out NetworkEdge nextEdge, out bool nextEdgeTraverseDirection)
+        public bool NextEdge(NetworkEdge edge, out NetworkEdge nextEdge, out bool nextEdgeTraverseDirection)
         {
             NetworkNode otherNode;
             nextEdge = null;
@@ -73,21 +116,43 @@ namespace UrbanDesignEngine.DataStructure
             if (!edge.OtherNode(this, out otherNode)) return false;
             double angle = Trigonometry.Angle(this, otherNode);
             NetworkEdge smaller;
-            NetworkEdge bigger;
             if (Angles.Count == 0)
             {
                 return false;
             }
-            DataManagement.Nearest<double, NetworkEdge>(angle, Angles, Graph.AdjacentEdges(this).ToList(), out smaller, out bigger);
-            if (traverseDirection) // anti-clockwise face loop
+            if (Angles.Count == 1)
             {
+                nextEdge = edge;
+                nextEdgeTraverseDirection = nextEdge.IsSource(this);
+            } else
+            {
+                DataManagement.Nearest<double, NetworkEdge>(angle, Angles, Graph.Graph.AdjacentEdges(this).ToList(), out smaller, out NetworkEdge bigger);
                 nextEdge = smaller;
-            } else // clock-wise face loop
-            {
-                nextEdge = bigger;
+                nextEdgeTraverseDirection = nextEdge.IsSource(this);
             }
-            nextEdgeTraverseDirection = nextEdge.IsSource(this);
             return true;
+        }
+
+        public override string ToString()
+        {
+            return String.Format("NNode {0}", Id);
+        }
+
+        public Attributes AttributesInstance => Attributes;
+
+
+    }
+
+    public class NetworkNodeEqualityComparer : IEqualityComparer<NetworkNode>
+    {
+        public bool Equals(NetworkNode x, NetworkNode y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(NetworkNode obj)
+        {
+            return obj.Id;
         }
     }
 }
