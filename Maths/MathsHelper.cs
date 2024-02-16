@@ -24,6 +24,8 @@ namespace UrbanDesignEngine.Maths
             return () => vals[weightsCumSum.FindIndex(w => w >= random.NextDouble())];
             
         }
+
+
     }
 
     public class Distribution

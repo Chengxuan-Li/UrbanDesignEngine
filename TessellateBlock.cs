@@ -21,6 +21,7 @@ namespace UrbanDesignEngine
     {
         public List<Polyline> SidePlotBoundaries;
         public List<Polyline> SideBlockBoundaries;
+        
 
         public TessellateBlock(List<Polyline> sidePlotBoundaries)
         {
@@ -38,6 +39,144 @@ namespace UrbanDesignEngine
         {
 
 
+        }
+    }
+
+    public class PlotsBoundarySide
+    {
+        public Polyline PlotsBoundary;
+        public Polyline BlockBoundary;
+
+        public List<Line> PlotsBoundarySegments => PlotsBoundary.GetSegments().ToList();
+
+        public List<double> ProjectedLengths
+        {
+            get
+            {
+                List<double> lengths = new List<double>();
+                Vector3d vec = new Vector3d(-BlockBoundary.First + BlockBoundary.Last);
+                foreach(Line line in PlotsBoundarySegments)
+                {
+                    double angle = Vector3d.VectorAngle(vec, new Vector3d(-line.From + line.To));
+                    lengths.Add(line.Length * Math.Cos(angle));
+                }
+                return lengths;
+            }
+        }
+
+        public double ProjectedLengthSum => ProjectedLengths.Sum();
+
+        public List<double> ProjectedLengthsCumulated
+        {
+            get
+            {
+                List<double> lengths = new List<double>();
+                double sum = 0;
+                foreach(double length in ProjectedLengths)
+                {
+                    lengths.Add(length + sum);
+                    sum = sum + length;
+                }
+                return lengths;
+            }
+        }
+
+        public Point3d LengthToPoint(double length)
+        {
+            int index = ProjectedLengthsCumulated.FindIndex(x => x >= length);
+            double diff = length - (ProjectedLengthsCumulated[index] - ProjectedLengths[index]);
+            Vector3d direction = PlotsBoundarySegments[index].Direction;
+            direction.Unitize();
+            return PlotsBoundarySegments[index].From + direction * diff;
+        }
+
+        //temporary
+        List<double> GenerateBreakParams(List<double> lengthsCumSum)
+        {
+            List<double> parameters = new List<double>();
+            double minSep = 15.0;
+            double maxSep = 50;
+            double snapDist = 5.0;
+            Random random = new Random();
+            bool pass = false;
+            int iterations = 0;
+            int maxIterations = 30;
+            Predicate<List<double>> minSepCheck = (dd) =>
+            {
+                var d = dd.ToList();
+                d.Sort();
+                if (d.Count >= 1)
+                {
+                    List<double> dplus = new List<double>();
+                    dplus.Add(0);
+                    dplus.AddRange(d);
+                    dplus.Add(lengthsCumSum[lengthsCumSum.Count - 1]);
+
+                    for (int i = 0; i < dplus.Count - 1; i++)
+                    {
+                        if (dplus[i + 1] - dplus[i] < minSep)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            };
+            Predicate<List<double>> maxSepCheck = (dd) =>
+            {
+                var d = dd.ToList();
+                d.Sort();
+                if (d.Count >= 1)
+                {
+                    List<double> dplus = new List<double>();
+                    dplus.Add(0);
+                    dplus.AddRange(d);
+                    dplus.Add(lengthsCumSum[lengthsCumSum.Count - 1]);
+
+                    for (int i = 0; i < dplus.Count - 1; i++)
+                    {
+                        if (dplus[i + 1] - dplus[i] > maxSep)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            };
+            Func<double> prop = () =>
+            {
+                return random.NextDouble() * lengthsCumSum[lengthsCumSum.Count - 1];
+            };
+            List<double> states = new List<double>();
+            Exploration<double>(states, prop, minSepCheck, maxSepCheck);
+            states.Sort();
+            return states;
+        }
+
+        public static bool Exploration<T>(List<T> states, Func<T> propagation /*add input in func*/, Predicate<List<T>> runtimeCompliance, Predicate<List<T>> resultCompliance)
+        {
+            int maxAttempts = 20;
+            int attempt = 0;
+            while (attempt < maxAttempts)
+            {
+                states.Add(propagation.Invoke());
+                if (runtimeCompliance.Invoke(states))
+                {
+                    if (resultCompliance.Invoke(states))
+                    {
+                        return true;
+                    }
+                    if (Exploration<T>(states, propagation, runtimeCompliance, resultCompliance))
+                    {
+                        return true;
+                    }
+                }
+                states.RemoveAt(states.Count - 1);
+                attempt++;
+            }
+            return false;
         }
     }
 
