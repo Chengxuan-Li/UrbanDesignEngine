@@ -59,8 +59,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\SolutionState.cs" />
-    <Compile Include="Algorithms\SolutionExplorer.cs" />
+    <Compile Include="Learning\ISolvable.cs" />
+    <Compile Include="Learning\SolutionStage.cs" />
+    <Compile Include="Learning\SolutionState.cs" />
+    <Compile Include="Learning\SolutionExplorer.cs" />
     <Compile Include="Components\BuildCurveReference.cs" />
     <Compile Include="Components\QueryUDEAttributesForValue.cs" />
     <Compile Include="Components\GetUDEAttributesKeys.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="DataStructure\ReferencePointGeometry.cs" />
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Components\GraphFromCurveNetwork.cs" />
+    <Compile Include="Learning\Gradient.cs" />
     <Compile Include="Growth\AngleControlledGrowth.cs" />
     <Compile Include="IO\ScriptVariableGetter.cs" />
     <Compile Include="IO\VariableGetter.cs" />
