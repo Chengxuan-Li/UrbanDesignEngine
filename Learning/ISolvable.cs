@@ -11,8 +11,6 @@ namespace UrbanDesignEngine.Learning
         // TODO
         // Dummy
         T Duplicate();
-
-        T DefaultState { get; }
         T StateParametersInitialise();
     }
 }

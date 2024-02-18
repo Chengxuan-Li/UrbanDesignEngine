@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.34114.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanDesignEngine", "UrbanDesignEngine.csproj", "{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDESolverTest", "..\UDESolverTest\UDESolverTest.csproj", "{9AF7593F-2BB0-4EE2-B9C3-4115C11233F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{928E72CA-9413-4EF0-BD55-DCB9C7F24FBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF7593F-2BB0-4EE2-B9C3-4115C11233F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF7593F-2BB0-4EE2-B9C3-4115C11233F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF7593F-2BB0-4EE2-B9C3-4115C11233F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF7593F-2BB0-4EE2-B9C3-4115C11233F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,23 +10,26 @@ namespace UrbanDesignEngine.Learning
     {
         public SolutionStageParameter SolutionStageParameter = SolutionStageParameter.Default;
 
+        public string Name = "Unnamed Solution Stage";
+
         public SolutionStageContinuity SolutionStageContinuity => SolutionStageParameter.SolutionStageContinuity;
 
         public FitnessLearningMethod FitnessLearningMethod => SolutionStageParameter.FitnessLearningMethod;
 
-        public SearchingPattern SearchPatter => SolutionStageParameter.SearchingPattern;
+        public SearchingPattern SearchingPattern => SolutionStageParameter.SearchingPattern;
+
 
         public int MaxIterations => SolutionStageParameter.MaxIterations;
 
         public int NumberOfDuplicatedSingles => SolutionStageParameter.NumDuplicate;
 
-        public Dictionary<SolutionStage<T>, Predicate<SolutionState<T>>> StageTransferRules;
+        public Dictionary<SolutionStage<T>, Predicate<SolutionState<T>>> StageTransferRules = new Dictionary<SolutionStage<T>, Predicate<SolutionState<T>>>();
 
-        public List<Action<SolutionState<T>>> CurrentPropagationActions;
+        public List<Action<SolutionState<T>>> CurrentPropagationActions = new List<Action<SolutionState<T>>>();
 
-        public List<Predicate<SolutionState<T>>> CurrentRuntimeComplianceCheckers;
+        public List<Predicate<SolutionState<T>>> CurrentRuntimeComplianceCheckers = new List<Predicate<SolutionState<T>>>();
 
-        public List<Predicate<SolutionState<T>>> StageFinalComplianceChechers;
+        public List<Predicate<SolutionState<T>>> StageFinalComplianceChechers = new List<Predicate<SolutionState<T>>>();
 
         public List<SolutionState<T>> SolutionStates = new List<SolutionState<T>>();
 
@@ -37,7 +40,7 @@ namespace UrbanDesignEngine.Learning
             {
                 if (stagePredicatePair.Value.Invoke(state))
                 {
-                    nextStage = stagePredicatePair.Key;
+                    nextStage = stagePredicatePair.Key.DuplicateSettings();
                     break;
                 }
             }
@@ -55,6 +58,7 @@ namespace UrbanDesignEngine.Learning
         /// Thus, this instance will not, by definition, support
         /// MultipleRandom search pattern and if supplied, it will
         /// use a SingleDuplicateRandom search pattern instead.
+        /// NOTE 20240218: EVERYTING IS NOW SINGLE - TODO in future
         /// </summary>
         /// <param name="parameter"></param>
         public SolutionStage(SolutionStageParameter parameter)
@@ -62,7 +66,8 @@ namespace UrbanDesignEngine.Learning
             SolutionStageParameter = parameter;
             if (parameter.SearchingPattern == SearchingPattern.MultipleRandom)
             {
-                parameter.SearchingPattern = SearchingPattern.SingleDuplicatedRandom;
+                // parameter.SearchingPattern = SearchingPattern.SingleDuplicatedRandom; // TODO add this functionality
+                parameter.SearchingPattern = SearchingPattern.SingleRandom;
             }
         }
 
@@ -136,11 +141,25 @@ namespace UrbanDesignEngine.Learning
             }
         }
 
-        public SolutionStageSolverStatus Solve()
+        public List<SolutionStageSolverStatus> Solve()
         {
-            foreach (SolutionState<T> state in SolutionStates)
+            if (SearchingPattern == SearchingPattern.SingleRandom)
             {
-                state.Propagate()
+                SolutionState<T> state = SolutionStates[0];
+                SolutionStageSolverStatus status = SolutionStateSearch(ref state);
+                SolutionStates[0] = state;
+                return new List<SolutionStageSolverStatus> { status };
+            } else
+            {
+                List<SolutionStageSolverStatus> result = new List<SolutionStageSolverStatus>();
+                for (int i = 0; i < SolutionStates.Count; i++)
+                {
+                    SolutionState<T> state = SolutionStates[i];
+                    SolutionStageSolverStatus status = SolutionStateSearch(ref state);
+                    SolutionStates[i] = state;
+                    result.Add(status);
+                }
+                return result;
             }
         }
 
@@ -213,6 +232,17 @@ namespace UrbanDesignEngine.Learning
             return SolutionStageSolverStatus.ExceededIterationLimit;
         }
 
+        public SolutionStage<T> DuplicateSettings()
+        {
+            SolutionStage<T> dup = new SolutionStage<T>(SolutionStageParameter);
+            dup.CurrentPropagationActions = CurrentPropagationActions;
+            dup.CurrentRuntimeComplianceCheckers = CurrentRuntimeComplianceCheckers;
+            dup.StageFinalComplianceChechers = StageFinalComplianceChechers;
+            dup.Name = Name;
+            dup.StageTransferRules = StageTransferRules;
+            return dup;
+        }
+
     }
 
     public enum SolutionStageContinuity
@@ -260,5 +290,176 @@ namespace UrbanDesignEngine.Learning
         public FitnessLearningMethod FitnessLearningMethod = FitnessLearningMethod.GradientAscent;
 
         public SearchingPattern SearchingPattern = SearchingPattern.MultipleRandom;
+    }
+
+
+    public class SolutionStageUnitTest
+    {
+
+        public SolutionStageUnitTest()
+        {
+
+            SolvableUnitTest sut = new SolvableUnitTest();
+            SolutionState<SolvableUnitTest> state = new SolutionState<SolvableUnitTest>(sut);
+            var sge = new SolutionStage<SolvableUnitTest>(state, new SolutionStageParameter() { SolutionStageContinuity = SolutionStageContinuity.StageAndContinue, SearchingPattern = SearchingPattern.SingleDuplicatedRandom });
+            sge.Name = "SG1";
+            sge.CurrentPropagationActions.Add(x => x.TargetObject.P1_AddRandomInt.Invoke(x.TargetObject));
+            sge.CurrentRuntimeComplianceCheckers.Add(x => x.TargetObject.P1_Runtime.Invoke(x.TargetObject));
+            sge.StageFinalComplianceChechers.Add(x => x.TargetObject.P1_Final.Invoke(x.TargetObject));
+
+            var sg1 = new SolutionStage<SolvableUnitTest>(state, new SolutionStageParameter() { SolutionStageContinuity = SolutionStageContinuity.StageAndContinue, SearchingPattern = SearchingPattern.SingleDuplicatedRandom });
+            sg1.Name = "SG1";
+            sg1.CurrentPropagationActions.Add(x => x.TargetObject.P1_AddRandomInt.Invoke(x.TargetObject));
+            sg1.CurrentRuntimeComplianceCheckers.Add(x => x.TargetObject.P1_Runtime.Invoke(x.TargetObject));
+            sg1.StageFinalComplianceChechers.Add(x => x.TargetObject.P1_Final.Invoke(x.TargetObject));
+
+
+            var sg2 = new SolutionStage<SolvableUnitTest>(new SolutionStageParameter() { SolutionStageContinuity = SolutionStageContinuity.StageAndContinue, SearchingPattern = SearchingPattern.SingleRandom });
+            sg2.Name = "SG2";
+            sg2.CurrentPropagationActions.Add(x => x.TargetObject.P2_Add2ToRandomItemExceptBounds.Invoke(x.TargetObject));
+            sg2.CurrentRuntimeComplianceCheckers.Add(x => x.TargetObject.P2_Runtime.Invoke(x.TargetObject));
+            sg2.StageFinalComplianceChechers.Add(x => x.TargetObject.P2_Final.Invoke(x.TargetObject));
+
+            var sgf = new SolutionStage<SolvableUnitTest>(new SolutionStageParameter() { SolutionStageContinuity = SolutionStageContinuity.Final, SearchingPattern = SearchingPattern.SingleRandom });
+            sgf.Name = "SGF";
+            sgf.CurrentPropagationActions.Add(x => x.TargetObject.P1_AddRandomInt.Invoke(x.TargetObject));
+            sgf.CurrentRuntimeComplianceCheckers.Add(x => x.TargetObject.P1_Runtime.Invoke(x.TargetObject));
+            sgf.StageFinalComplianceChechers.Add(x => x.TargetObject.P1_Final.Invoke(x.TargetObject));
+
+
+
+            sg1.StageTransferRules.Add(sg1, sut.ToSG1);
+            sg1.StageTransferRules.Add(sg2, sut.ToSG2);
+            sg1.StageTransferRules.Add(sgf, sut.ToSGF);
+            sg2.StageTransferRules.Add(sg1, sut.ToSG1);
+            sg2.StageTransferRules.Add(sg2, sut.ToSG2);
+            sg2.StageTransferRules.Add(sgf, sut.ToSGF);
+
+
+
+        }
+
+    }
+
+    public class SolvableUnitTest : ISolvable<SolvableUnitTest>
+    {
+
+        public List<int> values = new List<int> {0, 100};
+        public int CountEven
+        {
+            get
+            {
+                int i = 0;
+                values.ForEach(v => i += (v % 2 == 0) ? 1 : 0);
+                return i;
+            }
+        }
+
+        public int MinGap
+        {
+            get
+            {
+                values.Sort();
+                int gap = 1000;
+                for (int i = 0; i < values.Count - 1; i ++)
+                {
+                    gap = Math.Min(values[i + 1] - values[i], gap);
+                }
+                return gap;
+            }
+        }
+
+        public int MinGapBefore;
+
+        public int CountEvenBefore;
+        
+        public int CountDivisibleBy4
+        {
+            get
+            {
+                int i = 0;
+                values.ForEach(v => i += (v % 4 == 0) ? 1 : 0);
+                return i;
+            }
+        }
+        public Action<SolvableUnitTest> P1_AddRandomInt => s =>
+        {
+            Random random = new Random();
+            MinGapBefore = MinGap;
+            int i = 0;
+            while (s.values.Contains(i))
+            {
+                i = random.Next(1, 100);
+            }
+            s.values.Add(i);
+            s.values.Sort();
+        };
+
+        public Action<SolvableUnitTest> P2_Add2ToRandomItemExceptBounds => s =>
+        {
+            Random random = new Random();
+            int c = s.values.Count;
+            s.CountEvenBefore = s.CountEven;
+            int i = 1;
+            if (c > 2)
+            {
+                i = random.Next(1, c - 1);
+                s.values[i] += 2;
+            }
+        };
+
+        public Predicate<SolvableUnitTest> P1_Runtime => s =>
+        {
+            return s.CountEven == s.values.Count;
+        };
+
+        public Predicate<SolvableUnitTest> P2_Runtime => s =>
+        {
+            return s.CountDivisibleBy4 == s.values.Count;
+        };
+
+        public Predicate<SolvableUnitTest> P1_Final => s =>
+        {
+            if (s.MinGapBefore >= 10)
+            {
+                return s.MinGap <= s.MinGapBefore / 2;
+            } else
+            {
+                return s.MinGap <= 4;
+            }
+        };
+
+        public Predicate<SolvableUnitTest> P2_Final => s =>
+        {
+            s.values.Sort();
+            for (int i = 0; i < s.values.Count - 1; i++)
+            {
+                if (s.values[i] == s.values[i + 1])
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        public Predicate<SolutionState<SolvableUnitTest>> ToSG1 => s => s.StageInstanceReference.Name == "SG2";
+
+        public Predicate<SolutionState<SolvableUnitTest>> ToSG2 => s => s.StageInstanceReference.Name == "SG1" && s.TargetObject.MinGap > 4;
+
+        public Predicate<SolutionState<SolvableUnitTest>> ToSGF => s => s.TargetObject.MinGap <= 4;
+
+
+        public SolvableUnitTest Duplicate()
+        {
+            var sut = new SolvableUnitTest();
+            sut.values = values.ToList();
+            return sut;
+
+        }
+
+        public SolvableUnitTest StateParametersInitialise()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
