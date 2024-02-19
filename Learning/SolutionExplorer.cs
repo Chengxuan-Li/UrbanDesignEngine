@@ -6,22 +6,20 @@ using System.Threading.Tasks;
 
 namespace UrbanDesignEngine.Learning
 {
-    public class SolutionExplorer<SG, T> where SG : SolutionStage<SolutionState<T>> where T: ISolvable<T>
+    public class SolutionExplorer<T> where T : ISolvable<T>
     {
         public int MaxIterations = 10;
-        S initialState;
 
-        public SolutionExplorer(S solutionState)
+        public SolutionExplorer()
         {
-            if (!solutionState.IsInitiated) solutionState.Initialise();
-            initialState = solutionState;
+
         }
 
-        public bool Solve()
+        public void Solve()
         {
-            S state = (S)initialState.Duplicate();
-            return Explore(ref state);
+
         }
 
+    }
 
 }

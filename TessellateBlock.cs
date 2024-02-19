@@ -14,47 +14,191 @@ using UrbanDesignEngine.Growth;
 using UrbanDesignEngine.IO;
 using UrbanDesignEngine.Maths;
 using UrbanDesignEngine.Utilities;
+using UrbanDesignEngine.Learning;
 
 namespace UrbanDesignEngine
 {
-    public class TessellateBlock
+
+    public class TessellateBlockSolution
     {
-        public List<Polyline> SidePlotBoundaries;
-        public List<Polyline> SideBlockBoundaries;
-        
 
-        public TessellateBlock(List<Polyline> sidePlotBoundaries)
+        public TessellateBlockSolution(List<Polyline> pls)
         {
-            SidePlotBoundaries = sidePlotBoundaries;
-            SideBlockBoundaries = new List<Polyline>();
-            sidePlotBoundaries.ForEach(b => SideBlockBoundaries.Add(new Polyline(new List<Point3d> { b.First, b.Last })));
-        }
-        public TessellateBlock(List<Polyline> sidePlotBoundaries, List<Polyline> sideBlockBoundaries)
-        {
-            SidePlotBoundaries = sidePlotBoundaries;
-            SideBlockBoundaries = sideBlockBoundaries;
-        }
-
-        public void Solve()
-        {
-
+            TessellateBlock tsb = new TessellateBlock(pls);
+            
 
         }
     }
 
+
+
+    /// <summary>
+    /// The generic type input for SolutionStatus to solve;
+    /// this represents an intermediate state of block tessellation,
+    /// including the initial state.
+    /// The idea of tessellation is as follows:
+    /// 1.  Select points on the boundary, subject to conditions such as
+    ///     Mininum gap (~10m)
+    ///     Maximum gap (30+m)
+    /// 2.  Draw lines following the principle directions determined by
+    /// the original input of the block, avoiding overlap lines
+    /// 3.  Solve for the occasions where lines in step (2) do intersect,
+    /// generating plots of appropriate size, either:
+    ///     a)  results in an appropriate block + a larger block, latter
+    ///         to be subdivided
+    ///     b)  results in two larger blocks of appropriate shape and size
+    ///         both of which are to be subdivided later
+    /// 4.  Loop until all divided areas having appropriate shape and size
+    /// </summary>
+    public class TessellateBlock : ISolvable<TessellateBlock>
+    {
+        #region InputParamsHolder
+        public List<PlotsBoundarySide> OriginalSides = new List<PlotsBoundarySide>();
+        public List<double> PrincipleAngles = new List<double>();
+        public List<double> PrincipileAngleWeights = new List<double>();
+
+        public TessellateBlock(List<Polyline> sides)
+        {
+            List<Line> lines = new List<Line>();
+            foreach (Polyline side in sides)
+            {
+                PlotsBoundarySide pside = new PlotsBoundarySide(side);
+                pside.ParentBlock = this;
+                OriginalSides.Add(pside);
+                lines.AddRange(side.GetSegments());
+            }
+            GeometryHelper.LinesPrincipleDirections(lines, out PrincipleAngles, out PrincipileAngleWeights);
+        }
+        #endregion
+
+        public int IntersectComponents(Line line, out List<int> sidesId, out List<int> segsId, out List<double> paramsSorted)
+        {
+            List<int> intSides = new List<int>();
+            List<int> intSegs = new List<int>();
+            List<double> intParams = new List<double>();
+            for (int i = 0; i < RuntimeSides.Count; i++)
+            {
+                PlotsBoundarySide side = RuntimeSides[i];
+                for (int j = 0; i < side.PlotsBoundarySegments.Count; j++)
+                {
+                    Line segment = side.PlotsBoundarySegments[j];
+                    double a;
+                    bool intersecting = Intersection.LineLine(line, segment, out a, out _, GlobalSettings.AbsoluteTolerance, true);
+                    if (intersecting)
+                    {
+                        intParams.Add(a);
+                        intSides.Add(i);
+                        intSegs.Add(j);
+                    }
+                }
+            }
+
+            List<int> sidesSorted;
+            List<int> segsSorted;
+            DataManagement.SortByKeys<double, int>(intParams, intSides, out paramsSorted, out sidesSorted);
+            DataManagement.SortByKeys<double, int>(intParams, intSegs, out paramsSorted, out segsSorted);
+            sidesId = sidesSorted;
+            segsId = segsSorted;
+            return intParams.Count;
+        }
+
+
+
+
+
+
+
+        #region SolvableParameters
+        public List<PlotsBoundarySide> RuntimeSides = new List<PlotsBoundarySide>();
+
+
+        #endregion
+
+        #region PredicatesActionsFuncs
+        public static Action<TessellateBlock> P1Propagate_GenBreakParam => tb =>
+        {
+            tb.RuntimeSides.ForEach(s => PlotsBoundarySide.GenerateBreakParameter.Invoke(s));
+        };
+
+        public static Predicate<TessellateBlock> P1Runtime_MinGap => tb =>
+        {
+            foreach (var side in tb.RuntimeSides)
+            {
+                if (!PlotsBoundarySide.BPRuntimeMinimumGap(side))
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        public static Predicate<TessellateBlock> P1Final_MaxGap => tb =>
+        {
+            foreach (var side in tb.RuntimeSides)
+            {
+                if (!PlotsBoundarySide.BPFinal(side))
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        public static Action<TessellateBlock> P2Propagate_GenLineDivide=> tb =>
+        {
+
+        };
+
+        public static Predicate<TessellateBlock> P2Runtime_DivGeoValidity => tb =>
+        {
+            return false; // TODO
+        };
+
+        public static Predicate<TessellateBlock> P2Final_DivAreaValidity => tb =>
+        {
+            return false; // TODO
+        };
+
+        public static Predicate<TessellateBlock> PFFinal_AllAreaQualified => tb =>
+        {
+            return false; // TODO
+        };
+
+        #endregion
+
+        #region ISolvable
+        public TessellateBlock Duplicate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TessellateBlock StateParametersInitialise()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
+
+
     public class PlotsBoundarySide
     {
-        public Polyline PlotsBoundary;
-        public Polyline BlockBoundary;
+        public Polyline BoundaryLine;
+        public Vector3d LengthProjectionVector => new Vector3d(-BoundaryLine.First + BoundaryLine.Last);
+        public TessellateBlock ParentBlock;
+        
+        public PlotsBoundarySide(Polyline sidePl)
+        {
+            BoundaryLine = sidePl;
+        }
 
-        public List<Line> PlotsBoundarySegments => PlotsBoundary.GetSegments().ToList();
+        public List<Line> PlotsBoundarySegments => BoundaryLine.GetSegments().ToList();
 
         public List<double> ProjectedLengths
         {
             get
             {
                 List<double> lengths = new List<double>();
-                Vector3d vec = new Vector3d(-BlockBoundary.First + BlockBoundary.Last);
+                Vector3d vec = new Vector3d(LengthProjectionVector);
                 foreach(Line line in PlotsBoundarySegments)
                 {
                     double angle = Vector3d.VectorAngle(vec, new Vector3d(-line.From + line.To));
@@ -81,15 +225,155 @@ namespace UrbanDesignEngine
             }
         }
 
-        public Point3d LengthToPoint(double length)
+        public Point3d LengthToPoint(double lengthParameter)
         {
-            int index = ProjectedLengthsCumulated.FindIndex(x => x >= length);
-            double diff = length - (ProjectedLengthsCumulated[index] - ProjectedLengths[index]);
+            int index = ProjectedLengthsCumulated.FindIndex(x => x >= lengthParameter);
+            double diff = lengthParameter - (ProjectedLengthsCumulated[index] - ProjectedLengths[index]);
             Vector3d direction = PlotsBoundarySegments[index].Direction;
             direction.Unitize();
             return PlotsBoundarySegments[index].From + direction * diff;
         }
+        
+        public int LengthToSegment(double lengthParameter)
+        {
+            return ProjectedLengthsCumulated.FindIndex(x => x >= lengthParameter);
+        }
 
+        public  Vector3d IncisionDirection(double lengthParameter)
+        {
+            double avoidAngleDiff = Math.PI / 3.0;
+            int index = ProjectedLengthsCumulated.FindIndex(x => x >= lengthParameter);
+            double diff = lengthParameter - (ProjectedLengthsCumulated[index] - ProjectedLengths[index]);
+            List<double> anglesToAvoid = new List<double>();
+            double currentDirection = Trigonometry.Angle(PlotsBoundarySegments[index].From, PlotsBoundarySegments[index].To);
+            if (diff <= GlobalSettings.AbsoluteTolerance)
+            {
+                // point is on the starting end of the segment - the direction of this and the prev segment should be avoided
+                anglesToAvoid.Add(currentDirection);
+                anglesToAvoid.Add(currentDirection < Math.PI ? currentDirection + Math.PI : currentDirection - Math.PI);
+                if (index >= 1)
+                {
+                    var ang = Trigonometry.Angle(PlotsBoundarySegments[index - 1].From, PlotsBoundarySegments[index - 1].To);
+                    anglesToAvoid.Add(ang);
+                    anglesToAvoid.Add(ang < Math.PI ? ang + Math.PI : ang - Math.PI);
+                }
+            } else if ((ProjectedLengthsCumulated[index] - lengthParameter) <= GlobalSettings.AbsoluteTolerance)
+            {
+                anglesToAvoid.Add(currentDirection);
+                if (index < PlotsBoundarySegments.Count - 1)
+                {
+                    var ang = Trigonometry.Angle(PlotsBoundarySegments[index + 1].From, PlotsBoundarySegments[index + 1].To);
+                    anglesToAvoid.Add(ang);
+                    anglesToAvoid.Add(ang < Math.PI ? ang + Math.PI : ang - Math.PI);
+                }
+            }
+
+            List<double> pAngles = ParentBlock.PrincipleAngles.ToList();
+            List<double> pWeights = ParentBlock.PrincipleAngles.ToList();
+
+            for (int i = 0; i < pAngles.Count; i++)
+            {
+                foreach (double angleToAvoid in anglesToAvoid)
+                {
+                    if (Math.Abs(pAngles[i] - angleToAvoid) <= avoidAngleDiff)
+                    {
+                        pWeights[i] = 0.0;
+                    }
+                }
+            }
+
+            var wrpk = Maths.MathsHelper.WeightedRandomPick<double>(pAngles, pWeights);
+            double resultAngle = currentDirection;
+            while (Trigonometry.OnLeftSideOf(currentDirection, resultAngle) == 1)
+            {
+                resultAngle = wrpk.Invoke();
+            }
+            return new Vector3d(Math.Cos(resultAngle), Math.Sin(resultAngle), 0);
+
+        }
+
+        public Line IncisionLine(double lengthParameter, Vector3d direction, double length)
+        {
+            return new Line(LengthToPoint(lengthParameter), LengthToPoint(lengthParameter) + direction * length);
+        }
+
+        public double IncisionLineMaxLength(double lengthParameter, Vector3d direction)
+        {
+            Line maximumLine = new Line(LengthToPoint(lengthParameter), LengthToPoint(lengthParameter) + direction * 99999);
+            List<double> parameters;
+            if (ParentBlock.IntersectComponents(maximumLine, out var _, out var __, out parameters) >= 2)
+            {
+                return maximumLine.PointAt(parameters[1]).DistanceTo(maximumLine.From);
+            }
+            return -1;
+        }
+
+        #region BreakParams
+
+        public List<double> BreakParameters = new List<double>();
+        public List<double> BracketedSortedParameters
+        {
+            get
+            {
+                List<double> parameters = BreakParameters.ToList();
+                parameters.Add(parameterStart);
+                parameters.Add(parameterEnd);
+                parameters.Sort();
+                return parameters;
+            }
+        }
+        public double parameterStart => 0.0;
+
+        public double parameterEnd => ProjectedLengthSum;
+
+        public static Action<PlotsBoundarySide> GenerateBreakParameter => pbs =>
+        {
+            double snapDistance = 5.0;
+            double p = new Random().NextDouble() * pbs.parameterEnd;
+            int index = pbs.ProjectedLengthsCumulated.FindIndex(x => Math.Abs(p - x) <= snapDistance);
+            if (index < 0)
+            {
+                pbs.BreakParameters.Add(p);
+            }
+            else
+            {
+                if (!pbs.BreakParameters.Contains(pbs.ProjectedLengthsCumulated[index]))
+                {
+                    pbs.BreakParameters.Add(pbs.ProjectedLengthsCumulated[index]);
+                }
+            }
+        };
+
+        public static Predicate<PlotsBoundarySide> BPRuntimeMinimumGap => pbs =>
+        {
+            double minGap = 12; 
+           
+            for (int i = 0; i < pbs.BracketedSortedParameters.Count - 1; i++)
+            {
+                if (pbs.BracketedSortedParameters[i + 1] - pbs.BracketedSortedParameters[i] < minGap)
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        public static Predicate<PlotsBoundarySide> BPFinal => pbs =>
+        {
+            double maxGap = 45;
+
+            for (int i = 0; i < pbs.BracketedSortedParameters.Count - 1; i++)
+            {
+                if (pbs.BracketedSortedParameters[i + 1] - pbs.BracketedSortedParameters[i] > maxGap)
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        #endregion
+        /*
         //temporary
         public List<double> GenerateBreakParams(List<double> lengthsCumSum)
         {
@@ -156,8 +440,8 @@ namespace UrbanDesignEngine
             states.Sort();
             return states;
         }
-
-        public static bool Exploration<T>(List<T> states, Func<T> propagation /*add input in func*/, Predicate<List<T>> runtimeCompliance, Predicate<List<T>> resultCompliance)
+        
+        public static bool Exploration<T>(List<T> states, Func<T> propagation , Predicate<List<T>> runtimeCompliance, Predicate<List<T>> resultCompliance)
         {
             int maxAttempts = 20;
             int attempt = 0;
@@ -180,7 +464,7 @@ namespace UrbanDesignEngine
             }
             return false;
         }
-
+        */
 
     }
 

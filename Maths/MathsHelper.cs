@@ -8,9 +8,9 @@ namespace UrbanDesignEngine.Maths
 {
     public static class MathsHelper
     {
-        public static Func<T> WeightedRandomPick<T>(List<T> vals, List<double> weights, int seed)
+        public static Func<T> WeightedRandomPick<T>(List<T> vals, List<double> weights)
         {
-            Random random = new Random(seed);
+            Random random = new Random();
             double weightSum = weights.Sum();
             List<double> weightsNormalised = weights.ConvertAll(w => w / weightSum);
             List<double> weightsCumSum = new List<double>();
