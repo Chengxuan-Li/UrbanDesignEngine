@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\TessellateBlockTest.cs" />
     <Compile Include="Learning\ISolvable.cs" />
     <Compile Include="Learning\SolutionStage.cs" />
     <Compile Include="Learning\SolutionState.cs" />
