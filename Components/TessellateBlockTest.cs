@@ -3,6 +3,7 @@ using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 
+
 namespace UrbanDesignEngine.Components
 {
     public class TessellateBlockTest : GH_Component
@@ -86,10 +87,13 @@ namespace UrbanDesignEngine.Components
             tessellationParameters.MinGap = minGap;
             tessellationParameters.MaxGap = maxGap;
             tt.TessellationParameters = tessellationParameters;
-            
-            while (tt.Divisions.Count < targetCount)
+
+            TessellationTest.SolutionStat result = TessellationTest.SolutionStat.continu;
+            while (tt.Divisions.Count < targetCount && result != TessellationTest.SolutionStat.finished)
             {
-                tt.Solve();
+                new TessellationTest(pl, new List<TessellationTest>());
+                tt.TessellationParameters = tessellationParameters;
+                result = tt.Solve();
             }
             
             List<Curve> crvs = new List<Curve>();

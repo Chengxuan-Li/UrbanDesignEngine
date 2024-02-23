@@ -3,35 +3,35 @@
   <Class Name="UrbanDesignEngine.DataStructure.Attributes" BaseTypeListCollapsed="true">
     <Position X="11" Y="1.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAQiAABABAAACgAAAAACAALAIAAAABAAAQgAA=</HashCode>
+      <HashCode>EAAAAAAAQgCABABAAAAgAAAAAAAALAAAAAABAAAQgAA=</HashCode>
       <FileName>DataStructure\Attributes.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
-  <Class Name="UrbanDesignEngine.DataStructure.GHIOCurveParam&lt;ScriptVariable&gt;" Collapsed="true">
-    <Position X="1.75" Y="4" Width="1.5" />
+  <Class Name="UrbanDesignEngine.DataStructure.GHIOCurveParam&lt;ScriptVariable&gt;">
+    <Position X="0.75" Y="9.75" Width="3.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
       <FileName>DataStructure\GHIOCurveParam.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="UrbanDesignEngine.DataStructure.GHIOParam&lt;ScriptClass&gt;" Collapsed="true">
-    <Position X="3" Y="1.25" Width="1.5" />
+  <Class Name="UrbanDesignEngine.DataStructure.GHIOParam&lt;ScriptClass&gt;">
+    <Position X="2.25" Y="0.5" Width="4" />
     <TypeIdentifier>
       <HashCode>AAAACgQAAAIAAAAAAAgAAAAgAAAAIBAAACAICAEIAAE=</HashCode>
       <FileName>DataStructure\GHIOParam.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="UrbanDesignEngine.DataStructure.GHIOPointParam&lt;ScriptVariable&gt;" Collapsed="true">
-    <Position X="4" Y="4" Width="1.5" />
+  <Class Name="UrbanDesignEngine.DataStructure.GHIOPointParam&lt;ScriptVariable&gt;">
+    <Position X="4.5" Y="9.75" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
       <FileName>DataStructure\GHIOPointParam.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="UrbanDesignEngine.DataStructure.GHIOPreviewGeometricParam&lt;ScriptClass, G&gt;" Collapsed="true">
-    <Position X="3" Y="2.5" Width="1.5" />
+  <Class Name="UrbanDesignEngine.DataStructure.GHIOPreviewGeometricParam&lt;ScriptClass, G&gt;">
+    <Position X="2.25" Y="5.5" Width="4" />
     <TypeIdentifier>
       <HashCode>gAAAAAAAAAAIAIAAAAAIADAAAEAACAAAAABAAAAECQA=</HashCode>
       <FileName>DataStructure\GHIOPreviewGeometricParam.cs</FileName>
@@ -41,13 +41,13 @@
   <Class Name="UrbanDesignEngine.DataStructure.HasReferenceGeometry&lt;T&gt;" BaseTypeListCollapsed="true">
     <Position X="15.25" Y="1.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAAABAAAAAAAAIAAAAA=</HashCode>
       <FileName>DataStructure\HasReferenceGeometry.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="UrbanDesignEngine.DataStructure.HasScriptRuntimeGeometry&lt;T&gt;" Collapsed="true">
-    <Position X="3" Y="5.25" Width="1.5" />
+    <Position X="11.75" Y="8.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAgAA=</HashCode>
       <FileName>DataStructure\HasScriptRuntimeGeometry.cs</FileName>
@@ -62,17 +62,17 @@
     </TypeIdentifier>
   </Class>
   <Class Name="UrbanDesignEngine.DataStructure.NetworkEdge">
-    <Position X="0.75" Y="7.25" Width="2" />
+    <Position X="9.5" Y="10.75" Width="2" />
     <InheritanceLine Type="UrbanDesignEngine.DataStructure.HasScriptRuntimeGeometry&lt;T&gt;" ManuallyRouted="true" FixedToPoint="true">
       <Path>
-        <Point X="3.75" Y="5.798" />
-        <Point X="3.75" Y="6.9" />
-        <Point X="1.417" Y="6.9" />
-        <Point X="1.417" Y="7.25" />
+        <Point X="12.5" Y="9.298" />
+        <Point X="12.5" Y="6.9" />
+        <Point X="10.167" Y="6.9" />
+        <Point X="10.167" Y="10.75" />
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
-      <HashCode>BAACCAAgAigAACAEiACAICAQQCAAAAoAIEAAACAAgAA=</HashCode>
+      <HashCode>BAACCAAgAgiAACAEiAAAICAQQAAAAAgAIEAAACAAgAA=</HashCode>
       <FileName>DataStructure\NetworkEdge.cs</FileName>
     </TypeIdentifier>
     <Lollipop Orientation="Right" Position="0.1" />
@@ -95,7 +95,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AQACAQAAACAgAJAFgACAAYAQACAEAAsAAAAABAAAAAA=</HashCode>
+      <HashCode>AQACAQAAAACgAJAFgACAAYAQAAAEAAkAAAAABAAAAAA=</HashCode>
       <FileName>DataStructure\NetworkFace.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
@@ -103,15 +103,15 @@
   <Class Name="UrbanDesignEngine.DataStructure.NetworkGraph" BaseTypeListCollapsed="true">
     <Position X="18.75" Y="2.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>ACAAAACAQCSABAgQgACggEAQQCAAAAoAEGEAAAIBDQA=</HashCode>
+      <HashCode>ACAAAACAQASABAgQgACggEAQQAAAAAgAEGEAAAIBDQA=</HashCode>
       <FileName>DataStructure\NetworkGraph.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="UrbanDesignEngine.DataStructure.NetworkNode">
-    <Position X="8.5" Y="7.25" Width="1.5" />
+    <Position X="17.25" Y="10.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAACAIAAACAAgSQEkACAAAAQACAAAAoAAEEACAAAgBA=</HashCode>
+      <HashCode>AAACAIAAAACAgSQEkAAAAAAQAAAAAAgAAEEACAAAgBA=</HashCode>
       <FileName>DataStructure\NetworkNode.cs</FileName>
     </TypeIdentifier>
     <Lollipop Orientation="Right" Position="0.1" />
@@ -127,7 +127,7 @@
   <Interface Name="UrbanDesignEngine.DataStructure.IAttributable">
     <Position X="13.5" Y="4.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAACAAAAAAAACAAAAAACAAAAIAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\IAttributable.cs</FileName>
     </TypeIdentifier>
   </Interface>

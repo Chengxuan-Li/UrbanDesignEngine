@@ -37,7 +37,17 @@ namespace UrbanDesignEngine
             // All parameters must have the correct access type. If you want 
             // to import lists or trees of values, modify the ParamAccess flag.
             pManager.AddIntegerParameter("Iterations", "Iterations", "Iterations", GH_ParamAccess.item);
+            pManager.AddNumberParameter("MinDistance", "MinDist", "Minimum Distance", GH_ParamAccess.item);
+            pManager.AddNumberParameter("MaxDistance", "MaxDist", "Maximum Distance", GH_ParamAccess.item);
+            pManager.AddNumberParameter("SnapDistance", "SnapDist", "Snap Distance", GH_ParamAccess.item);
+            pManager.AddNumberParameter("MinimumAngle", "MinAngle", "Minimum Angle", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("NumGenAttempt", "NumGenAttempt", "Number of attempts for generation", GH_ParamAccess.item);
 
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
+            pManager[3].Optional = true;
+            pManager[4].Optional = true;
+            pManager[5].Optional = true;
 
             // If you want to change properties of certain parameters, 
             // you can use the pManager instance to access them by index:
@@ -73,29 +83,24 @@ namespace UrbanDesignEngine
             // When data cannot be extracted from a parameter, we should abort this method.
             if (!DA.GetData(0, ref iterations)) return;
 
-
-            /* We should now validate the data and warn the user if invalid data is supplied.
-            if (radius0 < 0.0)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Inner radius must be bigger than or equal to zero");
-                return;
-            }
-            if (radius1 <= radius0)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Outer radius must be bigger than the inner radius");
-                return;
-            }
-            if (turns <= 0)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Spiral turn count must be bigger than or equal to one");
-                return;
-            }*/
-
-            // We're set to create the spiral now. To keep the size of the SolveInstance() method small, 
-            // The actual functionality will be in a different method:
+            double minDistance = 1;
+            DA.GetData(1, ref minDistance);
+            double maxDistance = 20;
+            DA.GetData(2, ref maxDistance);
+            double snapDistance = 5;
+            DA.GetData(3, ref snapDistance);
+            double minimumAngle = 2.8 / 6.0 * Math.PI;
+            DA.GetData(4, ref minimumAngle);
+            int numAttempt = 5;
+            DA.GetData(5, ref numAttempt);
 
             LSystem lSystem = new LSystem(new Point3d(0, 0, 0));
             lSystem.Iterations = iterations;
+            lSystem.MinDistance = minDistance;
+            lSystem.MaxDistance = maxDistance;
+            lSystem.SnapDistance = snapDistance;
+            lSystem.MinimumAngle = minimumAngle;
+            lSystem.NumAttempt = numAttempt;
             lSystem.Solve();
             List<Line> lines = new List<Line>();
             lSystem.Graph.Graph.Edges.ToList().ForEach(e => lines.Add(new Line(e.Source.Point, e.Target.Point)));

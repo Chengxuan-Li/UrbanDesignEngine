@@ -23,7 +23,7 @@ namespace UrbanDesignEngine
         public double SnapDistance = 5;
         public double MinimumAngle = 2.8 / 6.0 * Math.PI;
         public int NumAttempt = 5;
-        Random random = new Random();
+        Random random = new Random();                                                                                                                                                                  
         public List<Curve> FaceCurves
         {
             get
@@ -85,7 +85,6 @@ namespace UrbanDesignEngine
                         bool intersects = SweepLineIntersection.TempLineNetworkIntersection(newLine, lines, out parameters);
                         if (intersects)
                         {
-                            
                             result = newLine.PointAt(parameters.Min());
                         }
                         var resultNode = new NetworkNode(result, node.Graph, Graph.NextNodeId);
