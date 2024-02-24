@@ -41,13 +41,17 @@ namespace UrbanDesignEngine
             pManager.AddNumberParameter("MaxDistance", "MaxDist", "Maximum Distance", GH_ParamAccess.item);
             pManager.AddNumberParameter("SnapDistance", "SnapDist", "Snap Distance", GH_ParamAccess.item);
             pManager.AddNumberParameter("MinimumAngle", "MinAngle", "Minimum Angle", GH_ParamAccess.item);
+            pManager.AddNumberParameter("MaximumAngle", "MaxAngle", "Maximum Angle", GH_ParamAccess.item);
             pManager.AddIntegerParameter("NumGenAttempt", "NumGenAttempt", "Number of attempts for generation", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("NumPossibleGrowths", "NumPossibleGrowths", "NumPossibleGrowths", GH_ParamAccess.item);
 
             pManager[1].Optional = true;
             pManager[2].Optional = true;
             pManager[3].Optional = true;
             pManager[4].Optional = true;
             pManager[5].Optional = true;
+            pManager[6].Optional = true;
+            pManager[7].Optional = true;
 
             // If you want to change properties of certain parameters, 
             // you can use the pManager instance to access them by index:
@@ -91,8 +95,13 @@ namespace UrbanDesignEngine
             DA.GetData(3, ref snapDistance);
             double minimumAngle = 2.8 / 6.0 * Math.PI;
             DA.GetData(4, ref minimumAngle);
+            double maximumAngle = Math.PI;
+            DA.GetData(5, ref maximumAngle);
             int numAttempt = 5;
-            DA.GetData(5, ref numAttempt);
+            DA.GetData(6, ref numAttempt);
+            int numPossibleGrowth = 2;
+            DA.GetData(7, ref numPossibleGrowth);
+
 
             LSystem lSystem = new LSystem(new Point3d(0, 0, 0));
             lSystem.Iterations = iterations;
@@ -100,7 +109,10 @@ namespace UrbanDesignEngine
             lSystem.MaxDistance = maxDistance;
             lSystem.SnapDistance = snapDistance;
             lSystem.MinimumAngle = minimumAngle;
+            lSystem.MaximumAngle = maximumAngle;
             lSystem.NumAttempt = numAttempt;
+            lSystem.NumPossibleGrowth = numPossibleGrowth;
+
             lSystem.Solve();
             List<Line> lines = new List<Line>();
             lSystem.Graph.Graph.Edges.ToList().ForEach(e => lines.Add(new Line(e.Source.Point, e.Target.Point)));

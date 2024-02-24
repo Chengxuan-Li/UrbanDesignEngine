@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Maths
 {
@@ -25,7 +26,30 @@ namespace UrbanDesignEngine.Maths
             
         }
 
+        public static Func<Point3d, int> PointLineRelation(Line line)
+        {
+            var lineEquation = LineEquation(line);
+            if (double.IsNaN(lineEquation.Invoke(0)) || double.IsInfinity(lineEquation.Invoke(0)))
+            {
+                return p => (p.X > line.From.X) ? 1 : (p.X == line.From.X) ? 0 : -1;
+            } else
+            {
+                return p => (p.Y > lineEquation.Invoke(p.X)) ? 1 : (p.Y == lineEquation.Invoke(p.X)) ? 0 : -1;
+            }
+        }
 
+        public static Func<double, double> LineEquation(Line line)
+        {
+            double dy = line.To.Y - line.From.Y;
+            double dx = line.To.X - line.From.X;
+            if (dx == 0)
+            {
+                return x => (x == line.From.X) ? double.PositiveInfinity : double.NaN;
+            } else
+            {
+                return x => (x - line.From.X) * dy / dx + line.From.Y;
+            }
+        }
     }
 
     public class Distribution

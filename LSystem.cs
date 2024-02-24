@@ -22,7 +22,10 @@ namespace UrbanDesignEngine
         public double MaxDistance = 20;
         public double SnapDistance = 5;
         public double MinimumAngle = 2.8 / 6.0 * Math.PI;
+        public double MaximumAngle = Math.PI;
         public int NumAttempt = 5;
+        public int NumPossibleGrowth = 2;
+
         Random random = new Random();                                                                                                                                                                  
         public List<Curve> FaceCurves
         {
@@ -69,7 +72,7 @@ namespace UrbanDesignEngine
         {
             if (node.IsActive)
             {
-                AngleControlledGrowth angleControlledGrowth = new AngleControlledGrowth(node, MinimumAngle);
+                AngleControlledGrowth angleControlledGrowth = new AngleControlledGrowth(node, MinimumAngle, MaximumAngle);
                 angleControlledGrowth.random = random;
                 Point3d result;
                 int currentAttempt = 0;
@@ -88,9 +91,11 @@ namespace UrbanDesignEngine
                             result = newLine.PointAt(parameters.Min());
                         }
                         var resultNode = new NetworkNode(result, node.Graph, Graph.NextNodeId);
+                        resultNode.PossibleGrowthsLeft = NumPossibleGrowth;
                         if (ProximityConstraint.Snap(resultNode, SnapDistance))
                         {
                             NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Equals(resultNode));
+                            snapped.PossibleGrowthsLeft = NumPossibleGrowth;
                             if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
                         } else
                         {

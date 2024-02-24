@@ -14,12 +14,14 @@ namespace UrbanDesignEngine.Growth
         public NetworkNode Node;
         public List<double> Angles = new List<double>();
         public double MinimumAngle;
+        public double MaximumAngle;
         public Random random = new Random();
 
-        public AngleControlledGrowth(NetworkNode node, double minimumAngle)
+        public AngleControlledGrowth(NetworkNode node, double minimumAngle, double maximumAngle)
         {
             Node = node;
             MinimumAngle = minimumAngle;
+            MaximumAngle = maximumAngle;
             
         }
 
@@ -31,6 +33,8 @@ namespace UrbanDesignEngine.Growth
             Angles = new List<double>();
             Node.Graph.Graph.AdjacentVertices(Node).ToList().ForEach(n => Angles.Add(Trigonometry.Angle(Node, n)));
 
+
+
             foreach (double angle in Angles)
             {
                 if (Trigonometry.AngleDifference(angle, nextAngle) < MinimumAngle)
@@ -39,6 +43,15 @@ namespace UrbanDesignEngine.Growth
                     break;
                 }
             }
+
+            
+
+
+            if (Angles.Count > 0 && Angles.Min<double, double>(x => Trigonometry.AngleDifference(x, nextAngle)) > MaximumAngle)
+            {
+                valid = false;
+            }
+
             result = new Point3d(
                     Node.Point.X + distance * Math.Cos(nextAngle),
                     Node.Point.Y + distance * Math.Sin(nextAngle),
