@@ -101,6 +101,20 @@ namespace UrbanDesignEngine.DataStructure
             return CompareTo(other) == 0;
         }
 
+        public List<NetworkEdge> AllButAdjacentEdges
+        {
+            get
+            {
+                List<NetworkEdge> edges = new List<NetworkEdge>();
+                List<NetworkEdge> adjEdges = Graph.Graph.AdjacentEdges(this).ToList();
+                Graph.Graph.Edges.ToList().ForEach(e =>
+                    {
+                        if (!adjEdges.Contains(e)) edges.Add(e);
+                    });
+                return edges;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

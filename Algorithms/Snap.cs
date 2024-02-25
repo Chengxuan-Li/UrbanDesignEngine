@@ -14,6 +14,14 @@ namespace UrbanDesignEngine.Algorithms
     /// <summary>
     /// Snap algorithm. See Kelly and McCabe, "Citygen: An Interactive System for Procedural City Generation"
     /// </summary>
+    
+    public enum SnapResult
+    {
+        NoSnap = 0,
+        Ends = 2,
+        Midway = 1,
+    }
+
     public class Snap
     {
         public double R = 1.0;
@@ -156,11 +164,13 @@ namespace UrbanDesignEngine.Algorithms
   
         }
 
-        public bool Solve(out double distance, out Point3d point, out int lineIndex)
+        public SnapResult Solve(out double distance, out Point3d point, out int lineIndex)
         {
             List<double> dists = new List<double>();
             List<Point3d> pts = new List<Point3d>();
             List<int> lineIndices = new List<int>();
+            List<SnapResult> results = new List<SnapResult>(); 
+
 
             for (int i = 0; i < Obstacles.Count; i++)
             {
@@ -169,6 +179,7 @@ namespace UrbanDesignEngine.Algorithms
                 double distTemp;
                 Point3d pt = Point3d.Origin;
                 Point3d ptTemp;
+                SnapResult result = SnapResult.NoSnap;
                 bool performTest3 = true;
                 bool snapPtFound = false;
                 if (Test1(line.From, out distTemp))
@@ -177,6 +188,7 @@ namespace UrbanDesignEngine.Algorithms
                     dist = distTemp;
                     performTest3 = false;
                     snapPtFound = true;
+                    result = SnapResult.Ends;
                 }
                 if (Test1(line.To, out distTemp))
                 {
@@ -186,6 +198,7 @@ namespace UrbanDesignEngine.Algorithms
                         pt = line.To;
                         performTest3 = false;
                         snapPtFound = true;
+                        result = SnapResult.Ends;
                     }
                 }
                 if (Test2(line, out distTemp, out ptTemp))
@@ -196,16 +209,18 @@ namespace UrbanDesignEngine.Algorithms
                         pt = ptTemp;
                         performTest3 = false;
                         snapPtFound = true;
-
+                        result = SnapResult.Midway;
                     }
                 }
                 if (performTest3)
                 {
-                    if (Test3(line, out distTemp, out ptTemp))
+                    var result3 = Test3(line, out distTemp, out ptTemp);
+                    if (result3 != SnapResult.NoSnap)
                     {
                         dist = distTemp;
                         pt = ptTemp;
                         snapPtFound = true;
+                        result = result3;
                     }
                 }
 
@@ -214,6 +229,7 @@ namespace UrbanDesignEngine.Algorithms
                     dists.Add(dist);
                     pts.Add(pt);
                     lineIndices.Add(i);
+                    results.Add(result);
                 }
 
             }
@@ -224,13 +240,13 @@ namespace UrbanDesignEngine.Algorithms
                 distance = dists[argMin];
                 point = pts[argMin];
                 lineIndex = lineIndices[argMin];
-                return true;
+                return results[argMin];
             } else
             {
                 distance = -1;
                 point = Point3d.Origin;
                 lineIndex = -1;
-                return false;
+                return SnapResult.NoSnap;
             }
         }
 
@@ -296,7 +312,7 @@ namespace UrbanDesignEngine.Algorithms
         /// <summary>
         /// Determine if the intended target point is sufficiently away from proximate segments
         /// </summary>
-        bool Test3(Line line, out double distance, out Point3d point)
+        SnapResult Test3(Line line, out double distance, out Point3d point)
         {
             distance = -1;
             point = Point3d.Origin;
@@ -305,10 +321,13 @@ namespace UrbanDesignEngine.Algorithms
             {
                 distance = line.ClosestPoint(Source, true).DistanceTo(Source);
                 point = line.ClosestPoint(IntendedTarget, true);
-                return line.ClosestPoint(IntendedTarget, true).DistanceTo(IntendedTarget) < R;
+                return line.ClosestPoint(IntendedTarget, true).DistanceTo(IntendedTarget) > R ? SnapResult.NoSnap
+                    : (line.ClosestPoint(IntendedTarget, true).EpsilonEquals(line.From, GlobalSettings.AbsoluteTolerance)
+                    || line.ClosestPoint(IntendedTarget, true).EpsilonEquals(line.To, GlobalSettings.AbsoluteTolerance)
+                    )? SnapResult.Ends : SnapResult.Midway;
             } else
             {
-                return false;
+                return SnapResult.NoSnap;
             }
         }
     }

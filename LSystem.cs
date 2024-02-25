@@ -25,8 +25,9 @@ namespace UrbanDesignEngine
         public double MaximumAngle = Math.PI;
         public int NumAttempt = 5;
         public int NumPossibleGrowth = 2;
-
-        Random random = new Random();                                                                                                                                                                  
+        public int CalculationTimeLimit = 3000;
+        public Random random = new Random();
+                                                                                                                                                                
         public List<Curve> FaceCurves
         {
             get
@@ -37,12 +38,14 @@ namespace UrbanDesignEngine
             }
         }
 
+        public void SetSeed(int seed)
+        {
+            random = new Random(seed);
+        }
 
         int currentIteration = 0;
         public LSystem()
         {
-
-
         }
 
         public LSystem(Point3d origin)
@@ -52,18 +55,30 @@ namespace UrbanDesignEngine
 
         public void Solve()
         {
-            while (currentIteration < Iterations)
+            var task = Task.Run(() => { 
+                while (currentIteration < Iterations)
+                {
+                    GrowAll();
+                    currentIteration++;
+                }
+            });
+            bool isCompletedSuccessfully = task.Wait(TimeSpan.FromMilliseconds(CalculationTimeLimit));
+
+            if (isCompletedSuccessfully)
             {
-                GrowAll();
-                currentIteration++;
+                
             }
-            //Graph.SolveFaces();
-            // TODO make all edges, faces, nodes a unique index
-            
+            else
+            {
+                return;
+                //throw new TimeoutException("The function has taken longer than the maximum time allowed.");
+            }
+
         }
 
         void GrowAll()
         {
+
             Graph.Graph.Vertices.ToList().ForEach(v => Grow(v));
 
         }
@@ -92,11 +107,28 @@ namespace UrbanDesignEngine
                         }
                         var resultNode = new NetworkNode(result, node.Graph, Graph.NextNodeId);
                         resultNode.PossibleGrowthsLeft = NumPossibleGrowth;
-                        if (ProximityConstraint.Snap(resultNode, SnapDistance))
+                        // actually angle constraint should come after the snap constraint ?
+
+                        Snap snap = new Snap(node.Point, resultNode.Point, node.AllButAdjacentEdges.ConvertAll(e => new Line(e.Source.Point, e.Target.Point)), SnapDistance);
+                        var snapResult = snap.Solve(out double _, out Point3d snapPoint, out int lineId);
+                        if (snapResult != SnapResult.NoSnap)
                         {
-                            NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Equals(resultNode));
-                            snapped.PossibleGrowthsLeft = NumPossibleGrowth;
-                            if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
+                            if (snapResult == SnapResult.Ends)
+                            {
+                                NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Point.EpsilonEquals(snapPoint, GlobalSettings.AbsoluteTolerance));
+                                snapped.PossibleGrowthsLeft = NumPossibleGrowth;
+                                if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
+                            } else if (snapResult == SnapResult.Midway)
+                            {
+                                NetworkNode snapped = new NetworkNode(snapPoint, Graph, Graph.NextNodeId);
+                                int snappedId = Graph.AddNetworkNode(snapped);
+                                snapped = Graph.Graph.Vertices.ToList()[snappedId];
+                                snapped.PossibleGrowthsLeft = node.PossibleGrowthsLeft;
+                                // this part is changed (above) to avoid （no vertex exception）
+                                Graph.AddNetworkEdge(new NetworkEdge(node.AllButAdjacentEdges[lineId].Source, snapped, Graph, Graph.NextEdgeId));
+                                Graph.AddNetworkEdge(new NetworkEdge(node.AllButAdjacentEdges[lineId].Target, snapped, Graph, Graph.NextEdgeId));
+                                Graph.Graph.RemoveEdge(node.AllButAdjacentEdges[lineId]);
+                            }
                         } else
                         {
                             Graph.AddNetworkNode(resultNode);

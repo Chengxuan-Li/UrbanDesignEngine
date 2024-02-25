@@ -33,7 +33,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddBooleanParameter("HasSnapEvent", "HSE", "Has Snap Event", GH_ParamAccess.item);
+            pManager.AddTextParameter("HasSnapEvent", "HSE", "Has Snap Event", GH_ParamAccess.item);
             pManager.AddNumberParameter("Distance", "Dist", "Distance", GH_ParamAccess.item);
             pManager.AddPointParameter("Point", "Pt", "Point to snap to", GH_ParamAccess.item);
             pManager.AddIntegerParameter("LineId", "LID", "Index of the line that causes snap event", GH_ParamAccess.item);
@@ -54,8 +54,8 @@ namespace UrbanDesignEngine.Components
             if (!DA.GetDataList(2, obstacles)) return;
             if (!DA.GetData(3, ref r)) return;
             Algorithms.Snap snap = new Algorithms.Snap(source, intendedTarget, obstacles, r);
-            bool result = snap.Solve(out double distance, out Point3d pt, out int id);
-            DA.SetData(0, result);
+            var result = snap.Solve(out double distance, out Point3d pt, out int id);
+            DA.SetData(0, result.ToString());
             DA.SetData(1, distance);
             DA.SetData(2, pt);
             DA.SetData(3, id);

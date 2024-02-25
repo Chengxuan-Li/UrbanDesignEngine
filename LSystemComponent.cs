@@ -44,6 +44,8 @@ namespace UrbanDesignEngine
             pManager.AddNumberParameter("MaximumAngle", "MaxAngle", "Maximum Angle", GH_ParamAccess.item);
             pManager.AddIntegerParameter("NumGenAttempt", "NumGenAttempt", "Number of attempts for generation", GH_ParamAccess.item);
             pManager.AddIntegerParameter("NumPossibleGrowths", "NumPossibleGrowths", "NumPossibleGrowths", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Seed", "Seed", "Seed", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("CalculationTimeLimit", "CalcTimeLim", "Calculation Time Limit in Milliseconds", GH_ParamAccess.item);
 
             pManager[1].Optional = true;
             pManager[2].Optional = true;
@@ -52,6 +54,8 @@ namespace UrbanDesignEngine
             pManager[5].Optional = true;
             pManager[6].Optional = true;
             pManager[7].Optional = true;
+            pManager[8].Optional = true;
+            pManager[9].Optional = true;
 
             // If you want to change properties of certain parameters, 
             // you can use the pManager instance to access them by index:
@@ -101,6 +105,10 @@ namespace UrbanDesignEngine
             DA.GetData(6, ref numAttempt);
             int numPossibleGrowth = 2;
             DA.GetData(7, ref numPossibleGrowth);
+            int seed = 0;
+            DA.GetData(8, ref seed);
+            int timeLimit = 3000;
+            DA.GetData(9, ref timeLimit);
 
 
             LSystem lSystem = new LSystem(new Point3d(0, 0, 0));
@@ -112,6 +120,8 @@ namespace UrbanDesignEngine
             lSystem.MaximumAngle = maximumAngle;
             lSystem.NumAttempt = numAttempt;
             lSystem.NumPossibleGrowth = numPossibleGrowth;
+            lSystem.SetSeed(seed);
+            lSystem.CalculationTimeLimit = timeLimit;
 
             lSystem.Solve();
             List<Line> lines = new List<Line>();
