@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms\Snap.cs" />
+    <Compile Include="Components\LSystemFromGraph.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
     <Compile Include="Learning\ISolvable.cs" />
@@ -107,8 +108,8 @@
     <Compile Include="Growth\AngleControlledGrowth.cs" />
     <Compile Include="IO\ScriptVariableGetter.cs" />
     <Compile Include="IO\VariableGetter.cs" />
-    <Compile Include="LSystem.cs" />
-    <Compile Include="LSystemComponent.cs" />
+    <Compile Include="Algorithms\LSystem.cs" />
+    <Compile Include="Components\LSystemAtOrigin.cs" />
     <Compile Include="Maths\MathsHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

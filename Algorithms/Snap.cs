@@ -297,7 +297,7 @@ namespace UrbanDesignEngine.Algorithms
                 else
                 {
                     // disjoint
-                    distance = lineExtended.PointAt(a).DistanceTo(line.PointAt(b));
+                    distance = Source.DistanceTo(line.PointAt(b));
                     point = line.PointAt(b);
                     return distance <= R;
                 }

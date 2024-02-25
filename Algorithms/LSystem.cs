@@ -53,6 +53,11 @@ namespace UrbanDesignEngine
             Graph.AddNetworkNode(origin);
         }
 
+        public LSystem(NetworkGraph graph)
+        {
+            Graph = graph.Duplicate();
+        }
+
         public void Solve()
         {
             var task = Task.Run(() => { 
@@ -99,12 +104,14 @@ namespace UrbanDesignEngine
                         List<Line> lines = Graph.NetworkEdgesSimpleGeometry;
                         List<int> indices = new List<int>();
                         Line newLine = new Line(node.Point, result);
+                        /*
                         List<double> parameters;
                         bool intersects = SweepLineIntersection.TempLineNetworkIntersection(newLine, lines, out parameters);
                         if (intersects)
                         {
                             result = newLine.PointAt(parameters.Min());
                         }
+                        */
                         var resultNode = new NetworkNode(result, node.Graph, Graph.NextNodeId);
                         resultNode.PossibleGrowthsLeft = NumPossibleGrowth;
                         // actually angle constraint should come after the snap constraint ?
@@ -116,18 +123,26 @@ namespace UrbanDesignEngine
                             if (snapResult == SnapResult.Ends)
                             {
                                 NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Point.EpsilonEquals(snapPoint, GlobalSettings.AbsoluteTolerance));
-                                snapped.PossibleGrowthsLeft = NumPossibleGrowth;
-                                if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
-                            } else if (snapResult == SnapResult.Midway)
+                                if (angleControlledGrowth.PostGenerationCompliance(snapped.Point))
+                                {
+                                    snapped.PossibleGrowthsLeft = NumPossibleGrowth - 1;
+                                    if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
+                                }
+                            }
+                            else if (snapResult == SnapResult.Midway)
                             {
                                 NetworkNode snapped = new NetworkNode(snapPoint, Graph, Graph.NextNodeId);
-                                int snappedId = Graph.AddNetworkNode(snapped);
-                                snapped = Graph.Graph.Vertices.ToList()[snappedId];
-                                snapped.PossibleGrowthsLeft = node.PossibleGrowthsLeft;
-                                // this part is changed (above) to avoid （no vertex exception）
-                                Graph.AddNetworkEdge(new NetworkEdge(node.AllButAdjacentEdges[lineId].Source, snapped, Graph, Graph.NextEdgeId));
-                                Graph.AddNetworkEdge(new NetworkEdge(node.AllButAdjacentEdges[lineId].Target, snapped, Graph, Graph.NextEdgeId));
-                                Graph.Graph.RemoveEdge(node.AllButAdjacentEdges[lineId]);
+                                if (angleControlledGrowth.PostGenerationCompliance(snapped.Point))
+                                {
+                                    int snappedId = Graph.AddNetworkNode(snapped);
+                                    snapped = Graph.Graph.Vertices.ToList()[snappedId];
+                                    snapped.PossibleGrowthsLeft = node.PossibleGrowthsLeft - 1;// ADD -1
+                                    // this part is changed (above) to avoid （no vertex exception）
+                                    Graph.AddNetworkEdge(new NetworkEdge(node.AllButAdjacentEdges[lineId].Source, snapped, Graph, Graph.NextEdgeId));
+                                    Graph.AddNetworkEdge(new NetworkEdge(node.AllButAdjacentEdges[lineId].Target, snapped, Graph, Graph.NextEdgeId));
+                                    Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
+                                    Graph.Graph.RemoveEdge(node.AllButAdjacentEdges[lineId]);
+                                }
                             }
                         } else
                         {

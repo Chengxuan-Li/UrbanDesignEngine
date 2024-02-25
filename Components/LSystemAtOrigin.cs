@@ -3,6 +3,7 @@ using Rhino.Geometry;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using UrbanDesignEngine.Algorithms;
 
 // In order to load the result of this wizard, you will also need to
 // add the output bin/ folder of this project to the list of loaded
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 
 namespace UrbanDesignEngine
 {
-    public class LSystemComponent : GH_Component
+    public class LSystemAtOrigin : GH_Component
     {
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -20,8 +21,8 @@ namespace UrbanDesignEngine
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public LSystemComponent()
-          : base("LSystem", "LSys",
+        public LSystemAtOrigin()
+          : base("LSystemAtOrigin", "LSys",
               "L System Urban Modeler",
               "UrbanDesignEngine", "Models")
         {

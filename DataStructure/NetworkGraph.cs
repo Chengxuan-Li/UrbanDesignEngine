@@ -158,6 +158,28 @@ namespace UrbanDesignEngine.DataStructure
         public int NextEdgeId => Graph.EdgeCount;
         public int NextFaceId => NetworkFaces.Count;
 
+
+        public NetworkGraph Duplicate()
+        {
+            NetworkGraph g = new NetworkGraph();
+            g.Attributes = this.Attributes.Duplicate();
+            g.Graph = this.Graph.Clone();
+
+            // note that because the NetworkNode.Graph and NetworkEdge.Graph fields
+            // are custom, they are not copied and should be manually assigned
+            for (int i = 0; i < g.Graph.Vertices.Count(); i++)
+            {
+                g.Graph.Vertices.ToList()[i].Graph = g;
+            }
+            for (int i = 0; i < g.Graph.Edges.Count(); i++)
+            {
+                g.Graph.Edges.ToList()[i].Graph = g;
+            }
+            return g;
+        }
+
+
+
         /// <summary>
         /// Adds a node into a network
         /// </summary>
