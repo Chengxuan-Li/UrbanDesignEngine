@@ -63,8 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms\KellyMcCabeLotSubdivision.cs" />
+    <Compile Include="Algorithms\ShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />
+    <Compile Include="Components\ShortestPathComponent.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
     <Compile Include="Learning\ISolvable.cs" />
