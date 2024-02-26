@@ -66,7 +66,7 @@ namespace UrbanDesignEngine.Utilities
             // here we need a simplification - to be improved later!
             // incurve - multiple intersections - outcurve => incurve - last intersection - outcurve
             // acknowledged: multiple intersection should have the ideal resultant curve as sth like in-out-in-out-out
-            // this will need point-curve-side checks to determin which side a point (on the subcurve of the other curve) lies.
+            // this will need point-curve-side checks to determine which side a point (on the subcurve of the other curve) lies.
             // to be improved in the future!
             //          --        ----- --------        ------------------- out curve
             //           |        |   | |      |        |
@@ -166,7 +166,13 @@ namespace UrbanDesignEngine.Utilities
 
             if (startTaped)
             {
-                paramEnd = cisn.ToList()[0].ParameterB;
+                if (cisn.ToList()[0].IsOverlap)
+                {
+                    paramEnd = baseCurve.Domain.Max;
+                } else
+                {
+                    paramEnd = cisn.ToList()[0].ParameterB;
+                }
                 var splitted = baseCurveExtended.Split(new List<double> { baseCurve.Domain.Min, paramEnd });
                 return Curve.JoinCurves(new List<Curve> { splitted[1], tapeCurves[0] })[0];
             }
@@ -174,13 +180,22 @@ namespace UrbanDesignEngine.Utilities
 
             if (endTaped)
             {
-                paramStart = cisp.ToList()[cisp.Count - 1].ParameterA;
+                if (cisp.ToList()[cisp.Count - 1].IsOverlap)
+                {
+                    paramStart = baseCurve.Domain.Min;
+                }
+                else
+                {
+                    paramStart = cisp.ToList()[cisp.Count - 1].ParameterA;
+                }
                 var splitted = baseCurveExtended.Split(new List<double> { paramStart, baseCurve.Domain.Max });
                 return Curve.JoinCurves(new List<Curve> { splitted[1], tapeCurves[0] })[0];
             }
 
-            paramStart = cisp.ToList()[cisp.Count - 1].ParameterA;
-            paramEnd = cisn.ToList()[0].ParameterB;
+            paramStart = cisp.ToList()[cisp.Count - 1].IsOverlap ? baseCurve.Domain.Min
+                : cisp.ToList()[cisp.Count - 1].ParameterA;
+            paramEnd = cisn.ToList()[0].IsOverlap ? baseCurve.Domain.Max
+                : cisn.ToList()[0].ParameterB;
 
             return baseCurveExtended.Split(new List<double> { paramStart, paramEnd })[1];
         }
