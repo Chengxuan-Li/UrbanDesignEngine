@@ -123,7 +123,9 @@ namespace UrbanDesignEngine
                             if (snapResult == SnapResult.Ends)
                             {
                                 NetworkNode snapped = Graph.Graph.Vertices.ToList().Find(v => v.Point.EpsilonEquals(snapPoint, GlobalSettings.AbsoluteTolerance));
-                                if (angleControlledGrowth.PostGenerationCompliance(snapped.Point))
+                                // post generation angle compliance
+                                // post generation length compliance (minLength > snapDistance)
+                                if (angleControlledGrowth.PostGenerationCompliance(snapped.Point) && snapped.Point.DistanceTo(node.Point) >= SnapDistance)
                                 {
                                     snapped.PossibleGrowthsLeft = NumPossibleGrowth - 1;
                                     if (!snapped.Equals(node)) Graph.AddNetworkEdge(new NetworkEdge(node, snapped, Graph, Graph.NextEdgeId));
@@ -132,7 +134,9 @@ namespace UrbanDesignEngine
                             else if (snapResult == SnapResult.Midway)
                             {
                                 NetworkNode snapped = new NetworkNode(snapPoint, Graph, Graph.NextNodeId);
-                                if (angleControlledGrowth.PostGenerationCompliance(snapped.Point))
+                                // post generation angle compliance
+                                // post generation length compliance (minLength > snapDistance)
+                                if (angleControlledGrowth.PostGenerationCompliance(snapped.Point) && snapped.Point.DistanceTo(node.Point) >= SnapDistance)
                                 {
                                     int snappedId = Graph.AddNetworkNode(snapped);
                                     snapped = Graph.Graph.Vertices.ToList()[snappedId];

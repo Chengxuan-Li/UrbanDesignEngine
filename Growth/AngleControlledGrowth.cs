@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UrbanDesignEngine.DataStructure;
 using UrbanDesignEngine.Utilities;
+using UrbanDesignEngine.Maths;
 using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Growth
@@ -26,6 +27,28 @@ namespace UrbanDesignEngine.Growth
             MinimumAngle = minimumAngle;
             MaximumAngle = maximumAngle;
             
+        }
+
+        public bool Next(double distance, bool newAlgorithm, out Point3d result)
+        {
+            if (newAlgorithm)
+            {
+                Angles = new List<double>();
+                Node.Graph.Graph.AdjacentVertices(Node).ToList().ForEach(n => Angles.Add(Trigonometry.Angle(Node, n)));
+                MultiInterval interval = new MultiInterval();
+                foreach (double angle in Angles)
+                {
+                    interval.Union(Trigonometry.AdjustInterval(new SolutionInterval(angle - MaximumAngle, angle - MinimumAngle)));
+                    interval.Union(Trigonometry.AdjustInterval(new SolutionInterval(angle + MinimumAngle, angle + MaximumAngle)));
+                }
+
+                TruncatedSolutionSpaceRandomGeneration // TODO 0227
+
+                return Next(distance, out result); // TODO 0227
+            } else
+            {
+                return Next(distance, out result);
+            }
         }
 
         public bool Next(double distance, out Point3d result)

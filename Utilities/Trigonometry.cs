@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UrbanDesignEngine.DataStructure;
+using UrbanDesignEngine.Maths;
 using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Utilities
@@ -90,6 +91,25 @@ namespace UrbanDesignEngine.Utilities
                 {
                     return 1;
                 }    
+            }
+        }
+
+        public static MultiInterval AdjustInterval(SolutionInterval interval)
+        {
+            double min = interval.Min;
+            double max = interval.Max;
+            min = min % (2.0 * Math.PI);
+            max = max % (2.0 * Math.PI);
+            
+            if (min < max)
+            {
+                return new MultiInterval(new SolutionInterval(min, max));
+            } else
+            {
+                var interval1 = new MultiInterval(new SolutionInterval(0, max));
+                var interval2 = new SolutionInterval(min, Math.PI * 2.0);
+                interval1.Union(interval2);
+                return interval1;
             }
         }
     }

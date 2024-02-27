@@ -7,8 +7,180 @@ using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Maths
 {
+    public enum IntervalRelation
+    {
+        Disjoint = 0,
+        Touches = 1,
+        Contains = 2,
+        Within = 3,
+        Identical = 9,
+        Error = 999,
+    }
+    public class SolutionInterval
+    {
+        public double Min => a > b ? b : a;
+        public double Max => a > b ? a : b;
+
+        double a;
+        double b;
+
+        public SolutionInterval(double p1, double p2)
+        {
+            a = p1;
+            b = p2;
+        }
+
+        public bool Contains(SolutionInterval interval)
+        {
+            if (interval.Min >= Min && interval.Max <= Max)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
+        public List<SolutionInterval> Union(SolutionInterval interval)
+        {
+            if (interval.Min > Max || interval.Max < Min)
+            {
+                return new List<SolutionInterval> { this, interval };
+            } else
+            {
+                return new List<SolutionInterval> { new SolutionInterval(Math.Min(Min, interval.Min), Math.Max(Max, interval.Max)) };
+            }
+        }
+
+        public IntervalRelation Relation(SolutionInterval interval)
+        {
+            if (interval.Min == Min && interval.Max == Max)
+            {
+                return IntervalRelation.Identical;
+            }
+
+            if (interval.Min > Max)
+            {
+                return IntervalRelation.Disjoint; 
+            } else if (interval.Max < Min)
+            {
+                return IntervalRelation.Disjoint;
+            } else if (interval.Max <= Max && interval.Min <= Min)
+            {
+                return IntervalRelation.Touches;
+            } else if (interval.Min >= Min && interval.Max >= Max)
+            {
+                return IntervalRelation.Touches;
+            } else if (interval.Max >= Max && interval.Min <= Min)
+            {
+                return IntervalRelation.Within;
+            } else if (interval.Max <= Max && interval.Min >= Min)
+            {
+                return IntervalRelation.Contains;
+            } else
+            {
+                return IntervalRelation.Error;
+            }
+        }
+
+        public override string ToString()
+        {
+            return String.Format("i[{0}, {1}]", Min, Max);
+        }
+    }
+
+    public class MultiInterval
+    {
+        public List<SolutionInterval> Intervals = new List<SolutionInterval>();
+
+        public List<double> IntervalBounds
+        {
+            get
+            {
+                List<double> ps = new List<double>();
+                Intervals.ForEach(i =>
+                {
+                    ps.Add(i.Min);
+                    ps.Add(i.Max);
+                });
+                return ps;
+            }
+        }
+
+        public MultiInterval()
+        {
+
+        }
+
+        public MultiInterval(SolutionInterval interval)
+        {
+            Intervals.Add(interval);
+        }
+        
+        public void Union(MultiInterval multiIntervalToUnion)
+        {
+            if (Intervals.Count == 0)
+            {
+                Intervals = multiIntervalToUnion.Intervals.ToList();
+                return;
+            }
+            foreach (var interval in multiIntervalToUnion.Intervals)
+            {
+                Union(interval);
+            }
+        }
+
+        public void Union(SolutionInterval intervalToUnion)
+        {
+            if (Intervals.Count == 0)
+            {
+                Intervals.Add(intervalToUnion);
+                return;
+            }
+
+            int i = 0;
+            bool added = false;
+            while (i < Intervals.Count)
+            {
+                if (Intervals[i].Relation(intervalToUnion) == IntervalRelation.Contains || Intervals[i].Relation(intervalToUnion) == IntervalRelation.Identical)
+                {
+                    added = true;
+                    break;
+                }
+
+                if (Intervals[i].Relation(intervalToUnion) == IntervalRelation.Disjoint)
+                {
+                    if (intervalToUnion.Max < Intervals[i].Min)
+                    {
+                        Intervals.Insert(i, intervalToUnion);
+                        added = true;
+                        break;
+                    } else
+                    {
+                        i++;
+                    }
+                } else if (Intervals[i].Relation(intervalToUnion) == IntervalRelation.Touches || Intervals[i].Relation(intervalToUnion) == IntervalRelation.Within)
+                {
+                    intervalToUnion = intervalToUnion.Union(Intervals[i])[0];
+                    Intervals.RemoveAt(i);
+                }
+            }
+            if (!added)
+            {
+                Intervals.Add(intervalToUnion);
+            }
+        }
+
+        public override string ToString()
+        {
+            return String.Join(", ", Intervals.ToList());
+        }
+    }
+
     public static class MathsHelper
     {
+        //public static Func<double> TruncatedSolutionSpaceRandomGeneration(Interval fullSolutionSpace, List<Interval> )
+
         public static Func<T> WeightedRandomPick<T>(List<T> vals, List<double> weights)
         {
             Random random = new Random();
