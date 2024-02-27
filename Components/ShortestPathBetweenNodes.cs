@@ -8,12 +8,12 @@ using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
-    public class ShortestPathComponent : GH_Component
+    public class ShortestPathBetweenNodes : GH_Component
     {
         /// <summary>
         /// Initializes a new instance of the ShortestPathComponent class.
         /// </summary>
-        public ShortestPathComponent()
+        public ShortestPathBetweenNodes()
           : base("ShortestPath", "SP",
               "Shortest Path using Dijkstra algorithm",
               "UrbanDesignEngine", "Graph")

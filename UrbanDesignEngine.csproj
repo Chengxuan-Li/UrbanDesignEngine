@@ -66,7 +66,8 @@
     <Compile Include="Algorithms\ShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />
-    <Compile Include="Components\ShortestPathComponent.cs" />
+    <Compile Include="Components\ShortestPathBetweenPoints.cs" />
+    <Compile Include="Components\ShortestPathBetweenNodes.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
     <Compile Include="Learning\ISolvable.cs" />
@@ -119,6 +120,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Radiance\SkyMatrix.cs" />
     <Compile Include="TessellateBlock.cs" />
     <Compile Include="Utilities\AngleInterval.cs" />
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />
@@ -156,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Energy\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

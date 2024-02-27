@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UrbanDesignEngine.DataStructure;
 using QuikGraph.Algorithms.Observers;
+using Rhino;
+using Rhino.Geometry;
 
 namespace UrbanDesignEngine.Algorithms
 {
@@ -83,5 +85,418 @@ namespace UrbanDesignEngine.Algorithms
             return distanceObserver.Distances;
         }
 
+        public bool DistanceTo(NetworkNode node, out double distance)
+        {
+            distance = -1;
+            if (Distances().ContainsKey(node))
+            {
+                return Distances().TryGetValue(node, out distance);
+            } else
+            {
+                return false;
+            }
+        }
+
+        void InitialAndEndDistances(NetworkEdge edge, Point3d testPoint, out double viaSource, out double viaTarget)
+        {
+            double pS;
+            double pT;
+            double pTP;
+            Curve crv = edge.UnderlyingCurve;
+            crv.ClosestPoint(edge.Source.Point, out pS);
+            crv.ClosestPoint(edge.Target.Point, out pT);
+            crv.ClosestPoint(testPoint, out pTP);
+            viaSource = crv.GetLength(new Interval(pS, pTP));
+            viaTarget = crv.GetLength(new Interval(pTP, pT));
+        }
+
+        public void SolveShortestPathForPoints(Point3d fromPoint, List<Point3d> toPoints, out List<double> distances, out List<List<NetworkEdge>> edgePaths, out List<Curve> crvs)
+        {
+            List<double> distsFrom = Graph.Graph.Edges.ToList().ConvertAll(e =>
+            {
+                return e.UnderlyingCurve.ClosestPoint(fromPoint, out double t) ? e.UnderlyingCurve.PointAt(t).DistanceTo(fromPoint) : 99999999;
+            });
+
+            int fromEdgeId = distsFrom.IndexOf(distsFrom.Min());
+
+            NetworkEdge fromEdge = Graph.Graph.Edges.ToList()[fromEdgeId];
+
+            InitialAndEndDistances(fromEdge, fromPoint, out double fromDistanceViaSource, out double fromDistanceViaTarget);
+
+
+            List<int> toEdgeIds = new List<int>();
+
+            List<NetworkEdge> toEdges = new List<NetworkEdge>();
+
+            List<double> toDistanceViaSourceList = new List<double>();
+            List<double> toDistanceViaTargetList = new List<double>();
+
+           
+            List<double> distsSS = new List<double>(); // distances via fromEdge.Source and toEdge.Source
+            List<double> distsST = new List<double>(); // distances via fromEdge.Source and toEdge.Target
+            List<double> distsTS = new List<double>(); // distances via fromEdge.Target and toEdge.Source
+            List<double> distsTT = new List<double>(); // distances via fromEdge.Target and toEdge.Target
+
+            List<List<NetworkEdge>> pathsSS = new List<List<NetworkEdge>>(); // NetworkEdges via fromEdge.Source and toEdge.Source
+            List<List<NetworkEdge>> pathsST = new List<List<NetworkEdge>>(); // NetworkEdges via fromEdge.Source and toEdge.Target
+            List<List<NetworkEdge>> pathsTS = new List<List<NetworkEdge>>(); // NetworkEdges via fromEdge.Target and toEdge.Source
+            List<List<NetworkEdge>> pathsTT = new List<List<NetworkEdge>>(); // NetworkEdges via fromEdge.Target and toEdge.Target
+
+            List<double> distsChosen = new List<double>();
+            List<List<NetworkEdge>> pathsChosen = new List<List<NetworkEdge>>();
+
+            for (int i = 0; i < toPoints.Count; i++)
+            {
+                Point3d toPoint = toPoints[i];
+
+                List<double> distsTo = Graph.Graph.Edges.ToList().ConvertAll(e =>
+                {
+                    return e.UnderlyingCurve.ClosestPoint(toPoint, out double t) ? e.UnderlyingCurve.PointAt(t).DistanceTo(toPoint) : 99999999;
+                });
+
+                toEdgeIds.Add(distsTo.IndexOf(distsTo.Min()));
+                toEdges.Add(Graph.Graph.Edges.ToList()[distsTo.IndexOf(distsTo.Min())]);
+            }
+            for (int i = 0; i < toPoints.Count; i++)
+            {
+                InitialAndEndDistances(toEdges[i], toPoints[i], out double vS, out double vT);
+                toDistanceViaSourceList.Add(vS);
+                toDistanceViaTargetList.Add(vT);
+            }
+
+            // via fromEdge.Source
+            Solve(fromEdge.Source);
+
+            for (int i = 0; i < toPoints.Count; i++)
+            {
+                Point3d toPoint = toPoints[i];
+                double d;
+                List<NetworkEdge> ps;
+
+                NetworkEdge toEdge = Graph.Graph.Edges.ToList()[toEdgeIds[i]];
+
+                if (DistanceTo(toEdge.Source, out d))
+                {
+                    distsSS.Add(d);
+                    pathsSS.Add(PathTo(toEdge.Source, out ps) ? ps : new List<NetworkEdge>());
+                } else
+                {
+                    distsSS.Add(99999999);
+                    pathsSS.Add(new List<NetworkEdge>());
+                }
+
+                if (DistanceTo(toEdge.Target, out d))
+                {
+                    distsST.Add(d);
+                    pathsST.Add(PathTo(toEdge.Target, out ps) ? ps : new List<NetworkEdge>());
+                } else
+                {
+                    distsST.Add(99999999);
+                    pathsST.Add(new List<NetworkEdge>());
+                }    
+            }
+
+            Dispose();
+
+            // via fromEdge.Target
+            Solve(fromEdge.Target);
+
+            for (int i = 0; i < toPoints.Count; i++)
+            {
+                Point3d toPoint = toPoints[i];
+                double d;
+                List<NetworkEdge> ps;
+
+                NetworkEdge toEdge = Graph.Graph.Edges.ToList()[toEdgeIds[i]];
+
+                if (DistanceTo(toEdge.Source, out d))
+                {
+                    distsTS.Add(d);
+                    pathsTS.Add(PathTo(toEdge.Source, out ps) ? ps : new List<NetworkEdge>());
+                }
+                else
+                {
+                    distsTS.Add(99999999);
+                    pathsTS.Add(new List<NetworkEdge>());
+                }
+
+                if (DistanceTo(toEdge.Target, out d))
+                {
+                    distsTT.Add(d);
+                    pathsTT.Add(PathTo(toEdge.Target, out ps) ? ps : new List<NetworkEdge>());
+                }
+                else
+                {
+                    distsTT.Add(99999999);
+                    pathsTT.Add(new List<NetworkEdge>());
+                }
+            }
+
+            Dispose();
+
+
+            var subcrvs = new List<List<Curve>>();
+            for (int i = 0; i < distsSS.Count; i++)
+            {
+                double k;
+                subcrvs.Add(new List<Curve>());
+                double ss = distsSS[i] + fromDistanceViaSource + toDistanceViaSourceList[i];
+                double st = distsST[i] + fromDistanceViaSource + toDistanceViaTargetList[i];
+                double ts = distsTS[i] + fromDistanceViaTarget + toDistanceViaSourceList[i];
+                double tt = distsTT[i] + fromDistanceViaTarget + toDistanceViaTargetList[i];
+                if (ss < st && ss < ts && ss < tt)
+                {
+                    distsChosen.Add(ss);
+                    pathsChosen.Add(pathsSS[i]);
+
+                    fromEdge.UnderlyingCurve.ClosestPoint(fromPoint, out double t);
+                    subcrvs[i].Add(new Line(fromPoint, fromEdge.UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                    if (t == 1 || t == 0)
+                    {
+                        if (fromEdge.UnderlyingCurve.PointAt(t).EpsilonEquals(fromEdge.Source.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        } else
+                        {
+                            subcrvs[i].Add(fromEdge.UnderlyingCurve);
+                        }
+                    } else
+                    {
+                        var splitted = fromEdge.UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(fromEdge.Source.Point, out k) && c.PointAt(k).EpsilonEquals(fromEdge.Source.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+  
+
+                    pathsSS[i].ForEach(p => subcrvs[i].Add(p.UnderlyingCurve));
+
+
+                    toEdges[i].UnderlyingCurve.ClosestPoint(toPoints[i], out t);
+                    if (t == 1 || t == 0)
+                    {
+                        if (toEdges[i].UnderlyingCurve.PointAt(t).EpsilonEquals(toEdges[i].Source.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(toEdges[i].UnderlyingCurve);
+                        }
+                    } else
+                    {
+                        var splitted = toEdges[i].UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(toEdges[i].Source.Point, out k) & c.PointAt(k).EpsilonEquals(toEdges[i].Source.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+                    subcrvs[i].Add(new Line(toPoints[i], toEdges[i].UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                } else if (st < ss && st < ts && st < tt)
+                {
+                    distsChosen.Add(st);
+                    pathsChosen.Add(pathsST[i]);
+
+                    fromEdge.UnderlyingCurve.ClosestPoint(fromPoint, out double t);
+                    subcrvs[i].Add(new Line(fromPoint, fromEdge.UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                    if (t == 1 || t == 0)
+                    {
+                        if (fromEdge.UnderlyingCurve.PointAt(t).EpsilonEquals(fromEdge.Source.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(fromEdge.UnderlyingCurve);
+                        }
+                    }
+                    else
+                    {
+                        var splitted = fromEdge.UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(fromEdge.Source.Point, out k) && c.PointAt(k).EpsilonEquals(fromEdge.Source.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+
+                    pathsST[i].ForEach(p => subcrvs[i].Add(p.UnderlyingCurve));
+
+
+                    toEdges[i].UnderlyingCurve.ClosestPoint(toPoints[i], out t);
+                    if (t == 1 || t == 0)
+                    {
+                        if (toEdges[i].UnderlyingCurve.PointAt(t).EpsilonEquals(toEdges[i].Target.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(toEdges[i].UnderlyingCurve);
+                        }
+                    }
+                    else
+                    {
+                        var splitted = toEdges[i].UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(toEdges[i].Target.Point, out k) & c.PointAt(k).EpsilonEquals(toEdges[i].Target.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+                    subcrvs[i].Add(new Line(toPoints[i], toEdges[i].UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                }
+                else if (ts < ss && ts < st && ts < tt)
+                {
+                    distsChosen.Add(ts);
+                    pathsChosen.Add(pathsTS[i]);
+
+                    fromEdge.UnderlyingCurve.ClosestPoint(fromPoint, out double t);
+                    subcrvs[i].Add(new Line(fromPoint, fromEdge.UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                    if (t == 1 || t == 0)
+                    {
+                        if (fromEdge.UnderlyingCurve.PointAt(t).EpsilonEquals(fromEdge.Target.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(fromEdge.UnderlyingCurve);
+                        }
+                    }
+                    else
+                    {
+                        var splitted = fromEdge.UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(fromEdge.Target.Point, out k) && c.PointAt(k).EpsilonEquals(fromEdge.Target.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+
+                    pathsTS[i].ForEach(p => subcrvs[i].Add(p.UnderlyingCurve));
+
+                    toEdges[i].UnderlyingCurve.ClosestPoint(toPoints[i], out t);
+                    if (t == 1 || t == 0)
+                    {
+                        if (toEdges[i].UnderlyingCurve.PointAt(t).EpsilonEquals(toEdges[i].Source.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(toEdges[i].UnderlyingCurve);
+                        }
+                    }
+                    else
+                    {
+                        var splitted = toEdges[i].UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(toEdges[i].Source.Point, out k) & c.PointAt(k).EpsilonEquals(toEdges[i].Source.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+                    subcrvs[i].Add(new Line(toPoints[i], toEdges[i].UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                }
+                else
+                {
+                    distsChosen.Add(tt);
+                    pathsChosen.Add(pathsTT[i]);
+
+                    fromEdge.UnderlyingCurve.ClosestPoint(fromPoint, out double t);
+                    subcrvs[i].Add(new Line(fromPoint, fromEdge.UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                    if (t == 1 || t == 0)
+                    {
+                        if (fromEdge.UnderlyingCurve.PointAt(t).EpsilonEquals(fromEdge.Target.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(fromEdge.UnderlyingCurve);
+                        }
+                    }
+                    else
+                    {
+                        var splitted = fromEdge.UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(fromEdge.Target.Point, out k) && c.PointAt(k).EpsilonEquals(fromEdge.Target.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+
+                    pathsTT[i].ForEach(p => subcrvs[i].Add(p.UnderlyingCurve));
+
+                    toEdges[i].UnderlyingCurve.ClosestPoint(toPoints[i], out t);
+                    if (t == 1 || t == 0)
+                    {
+                        if (toEdges[i].UnderlyingCurve.PointAt(t).EpsilonEquals(toEdges[i].Target.Point, GlobalSettings.AbsoluteTolerance))
+                        {
+
+                        }
+                        else
+                        {
+                            subcrvs[i].Add(toEdges[i].UnderlyingCurve);
+                        }
+                    }
+                    else
+                    {
+                        var splitted = toEdges[i].UnderlyingCurve.Split(t).ToList();
+                        foreach (Curve c in splitted)
+                        {
+                            if (c.ClosestPoint(toEdges[i].Target.Point, out k) & c.PointAt(k).EpsilonEquals(toEdges[i].Target.Point, GlobalSettings.AbsoluteTolerance))
+                            {
+                                subcrvs[i].Add(c);
+                                break;
+                            }
+                        }
+                    }
+                    subcrvs[i].Add(new Line(toPoints[i], toEdges[i].UnderlyingCurve.PointAt(t)).ToNurbsCurve());
+
+                }
+            }
+
+            distances = distsChosen.ToList();
+            edgePaths = pathsChosen.ToList();
+
+            List<Curve> joinedCrvs = new List<Curve>();
+            subcrvs.ForEach(sc => joinedCrvs.Add(Curve.JoinCurves(sc)[0]));
+
+            crvs = joinedCrvs;
+            crvs = Curve.JoinCurves(subcrvs[0]).ToList();
+        }
     }
 }
