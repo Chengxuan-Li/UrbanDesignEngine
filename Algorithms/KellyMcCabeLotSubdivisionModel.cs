@@ -15,6 +15,8 @@ namespace UrbanDesignEngine.Algorithms
         public double MaximumAreaTarget = 800;
         public double MinimumAreaTarget = 80;
         public double DivisibleThreshold = 8;
+        public int MaxLocalAttempts = 3;
+        public double DivisionLineMaxDeviation = 4.0;
 
         public static KellyMcCabeSubdivitionSetting Default()
         {
@@ -38,16 +40,40 @@ namespace UrbanDesignEngine.Algorithms
 
         public double DivisibleThreshold => Setting.DivisibleThreshold;
 
+        public int MaxLocalAttempts => Setting.MaxLocalAttempts;
+
+        public double DivisionLineMaxDeviation => Setting.DivisionLineMaxDeviation;
+
         public Polyline Boundary;
 
-        public KellyMcCabeLotSubdivisionModel(Polyline boundary)
+        public List<Line> BoundaryLines => Boundary.GetSegments().ToList();
+
+        public List<bool> HasStreetAccess
         {
-            Boundary = boundary;
+            get
+            {
+                List<bool> access = new List<bool>();
+                BoundaryLines.ForEach(b => access.Add(true));
+                return access;
+            }
         }
 
-        public void Solve()
-        {
+        public KellyMcCabeSubdivisionState InitialState => new KellyMcCabeSubdivisionState(Random) { Setting = this.Setting, BoundaryLines = this.BoundaryLines, HasStreetAccess = this.HasStreetAccess, AssociatedModel = this };
 
+        public Random Random;
+
+        public KellyMcCabeLotSubdivisionModel(Polyline boundary, Random random)
+        {
+            Boundary = boundary;
+            Random = random;
+        }
+
+        public KellyMcCabeModelResult Solve(out List<KellyMcCabeSubdivisionState> states)
+        {
+            KellyMcCabeSubdivisionState state = InitialState;
+            KellyMcCabeModelResult result = state.Solve();
+            states = state.States;
+            return result;
         }
 
     }
@@ -62,8 +88,13 @@ namespace UrbanDesignEngine.Algorithms
 
         public double DivisibleThreshold => Setting.DivisibleThreshold;
 
+        public int MaxLocalAttempts => Setting.MaxLocalAttempts;
+
+        public double DivisionLineMaxDeviation => Setting.DivisionLineMaxDeviation;
+
         public Random Random;
 
+        public List<KellyMcCabeSubdivisionState> States = new List<KellyMcCabeSubdivisionState>();
 
         public KellyMcCabeLotSubdivisionModel AssociatedModel;
 
@@ -99,6 +130,8 @@ namespace UrbanDesignEngine.Algorithms
             }
         }
 
+        public bool IsFinal = false;
+
         public KellyMcCabeSubdivisionState(Random random)
         {
             Random = random;
@@ -108,12 +141,32 @@ namespace UrbanDesignEngine.Algorithms
 
         public KellyMcCabeModelResult Solve()
         {
-            int maxIterations = 10;
-            Line line = BoundaryLinePicker.Invoke();
-            DivideLine(line, 4, out Line result);
-            DivisionLineIntersect(result, out var stateA, out var stateB);
-            // 0228 TODO
-
+            if (Finalised == KellyMcCabeModelResult.Invalid) return KellyMcCabeModelResult.Invalid;
+            if (Finalised == KellyMcCabeModelResult.Success)
+            {
+                States.Add(this);
+                return KellyMcCabeModelResult.Success;
+            }
+            int numAttempt = 0;
+            while (numAttempt < MaxLocalAttempts)
+            {
+                Line line = BoundaryLinePicker.Invoke();
+                if (!DivideLine(line, DivisionLineMaxDeviation, out Line result)) return KellyMcCabeModelResult.Invalid;
+                DivisionLineIntersect(result, out var stateA, out var stateB);
+                KellyMcCabeModelResult resultA = stateA.Solve();
+                if (resultA == KellyMcCabeModelResult.Success)
+                {
+                    KellyMcCabeModelResult resultB = stateB.Solve();
+                    
+                    if (resultB == KellyMcCabeModelResult.Success)
+                    {
+                        States.AddRange(stateA.States);
+                        States.AddRange(stateB.States);
+                        return KellyMcCabeModelResult.Success;
+                    }
+                }
+                numAttempt++;
+            }
             return KellyMcCabeModelResult.Invalid;
         }
 
@@ -123,11 +176,15 @@ namespace UrbanDesignEngine.Algorithms
             if (line.Length >= Setting.DivisibleThreshold)
             {
                 double pos = Random.NextDouble() * maxDeviation * 2 + (line.Length / 2 - maxDeviation);
+                Vector3d v = new Vector3d(-line.From + line.To);
+                v.Unitize();
+                Point3d p = line.From + v * pos;
                 Vector3d vec = new Vector3d(-line.From + line.To);
                 vec.Rotate(Math.PI / 2.0, Vector3d.ZAxis);
                 vec.Unitize();
-                vec = vec * 9999;
-                result = new Line(line.PointAt(pos), vec);
+                vec = vec * 999;
+                result = new Line(p - vec, vec + p);
+
                 return true;
             } else
             {
@@ -200,9 +257,9 @@ namespace UrbanDesignEngine.Algorithms
                 }
             }
 
-            stateA = new KellyMcCabeSubdivisionState(Random) { BoundaryLines = segmentsA.ToList(), HasStreetAccess = accessA.ToList(), AssociatedModel = this.AssociatedModel};
+            stateA = new KellyMcCabeSubdivisionState(Random) { Setting = this.Setting, BoundaryLines = segmentsA.ToList(), HasStreetAccess = accessA.ToList(), AssociatedModel = this.AssociatedModel };
 
-            stateB = new KellyMcCabeSubdivisionState(Random) { BoundaryLines = segmentsB.ToList(), HasStreetAccess = accessB.ToList(), AssociatedModel = this.AssociatedModel };
+            stateB = new KellyMcCabeSubdivisionState(Random) { Setting = this.Setting, BoundaryLines = segmentsB.ToList(), HasStreetAccess = accessB.ToList(), AssociatedModel = this.AssociatedModel };
 
 
 

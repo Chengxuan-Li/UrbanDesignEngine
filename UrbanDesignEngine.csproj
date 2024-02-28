@@ -65,6 +65,7 @@
     <Compile Include="Algorithms\KellyMcCabeLotSubdivisionModel.cs" />
     <Compile Include="Algorithms\ShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
+    <Compile Include="Components\KellyMcCabeLotSubdivision.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />
     <Compile Include="Components\ShortestPathBetweenPoints.cs" />
     <Compile Include="Components\ShortestPathBetweenNodes.cs" />
