@@ -62,7 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\KellyMcCabeLotSubdivision.cs" />
+    <Compile Include="Algorithms\KellyMcCabeLotSubdivisionModel.cs" />
     <Compile Include="Algorithms\ShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />

@@ -304,6 +304,66 @@ namespace UrbanDesignEngine.Maths
                 return x => (x - line.From.X) * dy / dx + line.From.Y;
             }
         }
+
+        public static Func<double, double> LinearIntepolation(double x1, double y1, double x2, double y2)
+        {
+            double k = (y2 - y1) / (x2 - x1);
+            return x => y1 + k * (x - x1);
+        }
+
+        public static Func<double, double> FiniteIntegral(Func<double, double> func, double start, double end, double step)
+        {
+            // needs validation
+            List<double> xs = new List<double>();
+            List<double> ys = new List<double>();
+
+            if (end < start)
+            {
+                double d = end;
+                end = start;
+                start = d;
+            }
+
+            double current = start;
+            while (current < end)
+            {
+                xs.Add(current);
+                ys.Add(func.Invoke(current));
+                current += step;
+            }
+
+            List<double> cumYs = new List<double>();
+            double sum = 0;
+            for (int i = 0; i < ys.Count; i++)
+            {
+                sum = sum + ys[i];
+                cumYs.Add(sum * step);
+            }
+
+            return x =>
+            {
+                if (x <= start)
+                {
+                    return cumYs[0];
+                }
+                else if (x >= end)
+                {
+                    return cumYs.Last();
+                }
+                else
+                {
+                    for (int i = 0; i < xs.Count; i++)
+                    {
+                        if (xs[i] >= x)
+                        {
+                            return i == 0 ? cumYs[0] : cumYs[i - 1];
+                        }
+                    }
+                    return cumYs.Last();
+                }
+            };
+
+        }
     }
 
     public class Distribution
