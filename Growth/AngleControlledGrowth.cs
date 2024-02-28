@@ -36,15 +36,36 @@ namespace UrbanDesignEngine.Growth
                 Angles = new List<double>();
                 Node.Graph.Graph.AdjacentVertices(Node).ToList().ForEach(n => Angles.Add(Trigonometry.Angle(Node, n)));
                 MultiInterval interval = new MultiInterval();
-                foreach (double angle in Angles)
+                double nextAngle;
+                if (Angles.Count == 0)
                 {
-                    interval.Union(Trigonometry.AdjustInterval(new SolutionInterval(angle - MaximumAngle, angle - MinimumAngle)));
-                    interval.Union(Trigonometry.AdjustInterval(new SolutionInterval(angle + MinimumAngle, angle + MaximumAngle)));
+                    nextAngle = random.NextDouble() * Math.PI * 2.0;
+                } else
+                {
+                    foreach (double angle in Angles)
+                    {
+                        interval.Union(Trigonometry.AdjustInterval(new SolutionInterval(angle - MaximumAngle, angle - MinimumAngle)));
+                        interval.Union(Trigonometry.AdjustInterval(new SolutionInterval(angle + MinimumAngle, angle + MaximumAngle)));
+                    }
+
+                    //MultiInterval full = new MultiInterval(new SolutionInterval(0, Math.PI * 2.0));
+                    //full.Subtraction(interval);
+                    nextAngle = interval.NextRandomDouble(random);
                 }
 
-                TruncatedSolutionSpaceRandomGeneration // TODO 0227
+                /*
+                if (Angles.Count == 1)
+                {
+                    nextAngle = random.NextDouble() > 0.75 ? Math.PI : nextAngle; // Add functionality
+                }*/
 
-                return Next(distance, out result); // TODO 0227
+                result = new Point3d(
+                    Node.Point.X + distance * Math.Cos(nextAngle),
+                    Node.Point.Y + distance * Math.Sin(nextAngle),
+                    0);
+
+                return true;
+
             } else
             {
                 return Next(distance, out result);

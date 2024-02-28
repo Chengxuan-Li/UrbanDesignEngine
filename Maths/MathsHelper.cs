@@ -21,6 +21,8 @@ namespace UrbanDesignEngine.Maths
         public double Min => a > b ? b : a;
         public double Max => a > b ? a : b;
 
+        public double Length => Max - Min;
+
         double a;
         double b;
 
@@ -83,6 +85,11 @@ namespace UrbanDesignEngine.Maths
             }
         }
 
+        public double NextDouble(Random random)
+        {
+            return random.NextDouble() * Length + Min;
+        }
+
         public override string ToString()
         {
             return String.Format("i[{0}, {1}]", Min, Max);
@@ -142,13 +149,14 @@ namespace UrbanDesignEngine.Maths
             bool added = false;
             while (i < Intervals.Count)
             {
-                if (Intervals[i].Relation(intervalToUnion) == IntervalRelation.Contains || Intervals[i].Relation(intervalToUnion) == IntervalRelation.Identical)
+                IntervalRelation relation = Intervals[i].Relation(intervalToUnion);
+                if (relation == IntervalRelation.Contains || relation == IntervalRelation.Identical)
                 {
                     added = true;
                     break;
                 }
 
-                if (Intervals[i].Relation(intervalToUnion) == IntervalRelation.Disjoint)
+                if (relation == IntervalRelation.Disjoint)
                 {
                     if (intervalToUnion.Max < Intervals[i].Min)
                     {
@@ -159,7 +167,7 @@ namespace UrbanDesignEngine.Maths
                     {
                         i++;
                     }
-                } else if (Intervals[i].Relation(intervalToUnion) == IntervalRelation.Touches || Intervals[i].Relation(intervalToUnion) == IntervalRelation.Within)
+                } else if (relation == IntervalRelation.Touches || relation == IntervalRelation.Within)
                 {
                     intervalToUnion = intervalToUnion.Union(Intervals[i])[0];
                     Intervals.RemoveAt(i);
@@ -169,6 +177,66 @@ namespace UrbanDesignEngine.Maths
             {
                 Intervals.Add(intervalToUnion);
             }
+        }
+
+        public void Subtraction(SolutionInterval intervalToRemove)
+        {
+            int i = 0;
+            while (i < Intervals.Count)
+            {
+                IntervalRelation relation = Intervals[i].Relation(intervalToRemove);
+                if (relation == IntervalRelation.Disjoint)
+                {
+                    i++;
+                } else if (relation == IntervalRelation.Within)
+                {
+                    Intervals.RemoveAt(i);
+                } else if (relation == IntervalRelation.Identical)
+                {
+                    Intervals.RemoveAt(i);
+                    break;
+                } else if (relation == IntervalRelation.Touches)
+                {
+                    double min = Intervals[i].Min;
+                    double max = Intervals[i].Max;
+                    if (min < intervalToRemove.Min)
+                    {
+                        Intervals.RemoveAt(i);
+                        Intervals.Insert(i, new SolutionInterval(min, intervalToRemove.Min));
+                        i++;
+                    } else
+                    {
+                        Intervals.RemoveAt(i);
+                        Intervals.Insert(i, new SolutionInterval(intervalToRemove.Max, max));
+                        break;
+                    }
+                } else // relation == IntervalRelation.Contains
+                {
+                    double min = Intervals[i].Min;
+                    double max = Intervals[i].Max;
+                    Intervals.RemoveAt(i);
+                    Intervals.Insert(i, new SolutionInterval(min, intervalToRemove.Min));
+                    Intervals.Insert(i + 1, new SolutionInterval(intervalToRemove.Max, max));
+                    break;
+                }
+            }
+        }
+
+        public void Subtraction(MultiInterval multiInterval)
+        {
+            foreach (var interval in multiInterval.Intervals)
+            {
+                Subtraction(interval);
+            }
+        }
+
+        public double NextRandomDouble(Random random)
+        {
+            List<double> weights = new List<double>();
+            Intervals.ForEach(i => weights.Add(i.Length));
+            var generator = MathsHelper.WeightedRandomPick(Intervals, weights, random);
+            var interval = generator.Invoke();
+            return interval.NextDouble(random);
         }
 
         public override string ToString()
@@ -195,7 +263,21 @@ namespace UrbanDesignEngine.Maths
             }
 
             return () => vals[weightsCumSum.FindIndex(w => w >= random.NextDouble())];
-            
+        }
+
+        public static Func<T> WeightedRandomPick<T>(List<T> vals, List<double> weights, Random random)
+        {
+            double weightSum = weights.Sum();
+            List<double> weightsNormalised = weights.ConvertAll(w => w / weightSum);
+            List<double> weightsCumSum = new List<double>();
+            double sum = 0;
+            foreach (double wn in weightsNormalised)
+            {
+                weightsCumSum.Add(wn + sum);
+                sum += wn;
+            }
+
+            return () => vals[weightsCumSum.FindIndex(w => w >= random.NextDouble())];
         }
 
         public static Func<Point3d, int> PointLineRelation(Line line)

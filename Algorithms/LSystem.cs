@@ -92,14 +92,15 @@ namespace UrbanDesignEngine
         {
             if (node.IsActive)
             {
-                AngleControlledGrowth angleControlledGrowth = new AngleControlledGrowth(node, MinimumAngle, MaximumAngle);
-                angleControlledGrowth.random = random;
+
                 Point3d result;
                 int currentAttempt = 0;
                 while (currentAttempt < NumAttempt)
                 {
+                    AngleControlledGrowth angleControlledGrowth = new AngleControlledGrowth(node, MinimumAngle, MaximumAngle);
+                    angleControlledGrowth.random = random;
                     if (!node.IsActive) break;
-                    if (angleControlledGrowth.Next(random.NextDouble() * (MaxDistance - MinDistance) + MinDistance, out result))
+                    if (angleControlledGrowth.Next(random.NextDouble() * (MaxDistance - MinDistance) + MinDistance, false, out result))
                     {
                         List<Line> lines = Graph.NetworkEdgesSimpleGeometry;
                         List<int> indices = new List<int>();
