@@ -71,6 +71,7 @@
     <Compile Include="Components\ShortestPathBetweenNodes.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
+    <Compile Include="DataStructure\IDuplicable.cs" />
     <Compile Include="Learning\ISolvable.cs" />
     <Compile Include="Learning\SolutionStage.cs" />
     <Compile Include="Learning\SolutionState.cs" />

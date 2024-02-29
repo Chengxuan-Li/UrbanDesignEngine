@@ -10,7 +10,7 @@ using UrbanDesignEngine.Utilities;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkNode : HasScriptRuntimeGeometry<Point>, IComparable<NetworkNode>, IEquatable<NetworkNode>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkNode, GHIOPointParam<NetworkNode>, Point>
+    public class NetworkNode : HasScriptRuntimeGeometry<Point>, IComparable<NetworkNode>, IEquatable<NetworkNode>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkNode, GHIOPointParam<NetworkNode>, Point>, IDuplicableComponent<NetworkNode, NetworkGraph>
     {
         public Point3d Point;
         public NetworkGraph Graph;
@@ -154,6 +154,10 @@ namespace UrbanDesignEngine.DataStructure
 
         public Attributes AttributesInstance => Attributes;
 
+        public NetworkNode Duplicate(NetworkGraph graph)
+        {
+            return new NetworkNode(Point, graph, Id);
+        }
 
     }
 

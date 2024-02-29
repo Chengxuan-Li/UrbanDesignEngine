@@ -13,7 +13,7 @@ using Grasshopper.Kernel.Data;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkGraph : IAttributable
+    public class NetworkGraph : IAttributable, IDuplicable<NetworkGraph>
     {
         public Attributes Attributes = new Attributes();
         public UndirectedGraph<NetworkNode, NetworkEdge> Graph = new UndirectedGraph<NetworkNode, NetworkEdge>();

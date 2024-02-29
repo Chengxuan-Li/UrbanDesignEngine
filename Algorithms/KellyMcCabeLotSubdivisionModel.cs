@@ -142,6 +142,8 @@ namespace UrbanDesignEngine.Algorithms
         public KellyMcCabeModelResult Solve()
         {
             if (Finalised == KellyMcCabeModelResult.Invalid) return KellyMcCabeModelResult.Invalid;
+            if (Weights.Sum() <= GlobalSettings.AbsoluteTolerance) return KellyMcCabeModelResult.Invalid;
+
             if (Finalised == KellyMcCabeModelResult.Success)
             {
                 States.Add(this);

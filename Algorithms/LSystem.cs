@@ -56,6 +56,10 @@ namespace UrbanDesignEngine
         public LSystem(NetworkGraph graph)
         {
             Graph = graph.Duplicate();
+            for (int i = 0; i < Graph.Graph.Vertices.Count(); i++)
+            {
+                Graph.Graph.Vertices.ElementAt(i).PossibleGrowthsLeft = NumPossibleGrowth; // refresh the growth value to fix issue ?
+            }
         }
 
         public void Solve()

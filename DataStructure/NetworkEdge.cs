@@ -9,7 +9,7 @@ using Rhino.Geometry;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkEdge : HasScriptRuntimeGeometry<Curve>, IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkEdge, GHIOCurveParam<NetworkEdge>, Curve>
+    public class NetworkEdge : HasScriptRuntimeGeometry<Curve>, IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkEdge, GHIOCurveParam<NetworkEdge>, Curve>, IDuplicableComponent<NetworkEdge, NetworkGraph>
     {
         NetworkNode NodeA;
         NetworkNode NodeB;
@@ -136,6 +136,10 @@ namespace UrbanDesignEngine.DataStructure
             }
         }
 
+        public NetworkEdge Duplicate(NetworkGraph graph)
+        {
+            return new NetworkEdge(graph.Graph.Vertices.ToList().Find(v => NodeA.Id == v.Id), graph.Graph.Vertices.ToList().Find(v => NodeB.Id == v.Id), graph, Id);
+        }
 
     }
 
