@@ -127,8 +127,29 @@
   <data name="GraphFromCurveAttr" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\favicon (2).ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="KellyMcCabe" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\KellyMcCabe.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LSysGraph" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LSysGraph.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LSysPt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LSysPt.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Offset" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\favicon (3).ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="QGraph" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\QGraph.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SNAP" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SNAP.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SPNode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SPNode.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SPPt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SPPt.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Unwrap" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\favicon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

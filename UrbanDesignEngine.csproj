@@ -164,6 +164,27 @@
   <ItemGroup>
     <Folder Include="Energy\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SPNode.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SPPt.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\QGraph.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\KellyMcCabe.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SNAP.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LSysPt.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\LSysGraph.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
