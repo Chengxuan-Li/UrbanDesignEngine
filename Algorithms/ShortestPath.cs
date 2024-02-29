@@ -238,13 +238,39 @@ namespace UrbanDesignEngine.Algorithms
             var subcrvs = new List<List<Curve>>();
             for (int i = 0; i < distsSS.Count; i++)
             {
+
+
+
                 double k;
                 subcrvs.Add(new List<Curve>());
                 double ss = distsSS[i] + fromDistanceViaSource + toDistanceViaSourceList[i];
                 double st = distsST[i] + fromDistanceViaSource + toDistanceViaTargetList[i];
                 double ts = distsTS[i] + fromDistanceViaTarget + toDistanceViaSourceList[i];
                 double tt = distsTT[i] + fromDistanceViaTarget + toDistanceViaTargetList[i];
-                if (ss < st && ss < ts && ss < tt)
+
+                if (fromEdgeId == toEdgeIds[i]) // same edge start and end
+                {
+                    fromEdge.UnderlyingCurve.ClosestPoint(fromPoint, out double t1);
+                    fromEdge.UnderlyingCurve.ClosestPoint(toPoints[i], out double t2);
+
+                    if (t1 == 1 && t2 == 0 || t1 == 0 && t2 == 1)
+                    {
+                        distsChosen.Add(fromDistanceViaSource + toDistanceViaSourceList[i] + fromEdge.UnderlyingCurve.GetLength());
+                        pathsChosen.Add(new List<NetworkEdge> { fromEdge });
+                        subcrvs[i].Add(new Line(fromPoint, fromEdge.UnderlyingCurve.PointAt(t1)).ToNurbsCurve());
+                        subcrvs[i].Add(fromEdge.UnderlyingCurve.ToNurbsCurve());
+                        subcrvs[i].Add(new Line(toPoints[i], fromEdge.UnderlyingCurve.PointAt(t2)).ToNurbsCurve());
+                    } else
+                    {
+                        distsChosen.Add(fromDistanceViaSource + toDistanceViaSourceList[i] + fromEdge.UnderlyingCurve.GetLength(new Interval(t1, t2)));
+                        pathsChosen.Add(new List<NetworkEdge> { fromEdge });
+                        var splitted = fromEdge.UnderlyingCurve.Split(new List<double> { t1, t2 }).ToList();
+                        Curve crv = (t1 == 0 || t2 == 0) ? splitted[0] : splitted[1];
+                        subcrvs[i].Add(new Line(fromPoint, fromEdge.UnderlyingCurve.PointAt(t1)).ToNurbsCurve());
+                        subcrvs[i].Add(crv);
+                        subcrvs[i].Add(new Line(toPoints[i], fromEdge.UnderlyingCurve.PointAt(t2)).ToNurbsCurve());
+                    }
+                } else if (ss < st && ss < ts && ss < tt)
                 {
                     distsChosen.Add(ss);
                     pathsChosen.Add(pathsSS[i]);
