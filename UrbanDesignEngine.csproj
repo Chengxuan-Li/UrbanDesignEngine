@@ -35,12 +35,20 @@
     <Reference Include="AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
       <HintPath>packages\AForge.2.2.5\lib\AForge.dll</HintPath>
     </Reference>
+    <Reference Include="AForge.Math, Version=2.2.5.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL">
+      <HintPath>packages\AForge.Math.2.2.5\lib\AForge.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MathNet.Numerics.4.15.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
     <Reference Include="QuikGraph, Version=2.5.0.0, Culture=neutral, PublicKeyToken=46bd58b0789759cb, processorArchitecture=MSIL">
       <HintPath>packages\QuikGraph.2.5.0\lib\net45\QuikGraph.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
@@ -124,6 +132,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Radiance\SkyMatrix.cs" />
+    <Compile Include="Tensor\CurveTensorField.cs" />
+    <Compile Include="Tensor\LineTensorField.cs" />
+    <Compile Include="Tensor\ObjectTensorField.cs" />
+    <Compile Include="Tensor\PolylineTensorField.cs" />
+    <Compile Include="Tensor\RadialTensorField.cs" />
+    <Compile Include="Tensor\SimpleTensorField.cs" />
     <Compile Include="TessellateBlock.cs" />
     <Compile Include="Utilities\AngleInterval.cs" />
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />
