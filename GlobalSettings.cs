@@ -21,4 +21,10 @@ namespace UrbanDesignEngine
         public static int Thickness = 3;
         public static int PointRadius = 4;
     }
+
+    public static class TensorFieldSettings
+    {
+        public static double EvaluationNeighbourDistance = 0.1;
+        public static double EvaluationNeighbourWeight = 0.25;
+    }
 }

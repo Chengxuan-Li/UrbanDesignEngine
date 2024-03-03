@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
 using Rhino;
 using Rhino.Geometry;
+using UrbanDesignEngine.DataStructure;
 
 
 
@@ -60,8 +61,8 @@ namespace UrbanDesignEngine.Tensor
         }
     }
 
-
-    public class SimpleTensorField
+    //Add GHIOParam
+    public class SimpleTensorField// : IDuplicable<SimpleTensorField
     {
         //public Matrix<double> Matrix = Matrix<double>.Build.Dense(2, 2, 0);
 
@@ -82,7 +83,7 @@ namespace UrbanDesignEngine.Tensor
 
         public BoundingBox Boundary = new BoundingBox(new Point3d(-9999, -9999, 0), new Point3d(9999, 9999, 0));
 
-        public Predicate<int> ActivationHierarchy => h => h >= 0; 
+        public Predicate<int> ActivationHierarchy = h => h >= 0; 
 
         public SimpleTensorField()
         {
@@ -106,6 +107,25 @@ namespace UrbanDesignEngine.Tensor
             return 1.0;
         }
 
+        public virtual bool ContextAwareEvaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
+        {
+            double d = TensorFieldSettings.EvaluationNeighbourDistance;
+            double w = TensorFieldSettings.EvaluationNeighbourWeight;
+            Evaluate(hierarchy, point, out Vector3d currentMajorVector, out Vector3d currentMinorVector, out double currentScalar);
+            Point3d lu = currentMajorVector * d + currentMinorVector * d + point;
+            Point3d lb = -currentMajorVector * d + currentMinorVector * d + point;
+            Point3d ru = currentMajorVector * d - currentMinorVector * d + point;
+            Point3d rb = -currentMajorVector * d - currentMinorVector * d + point;
+            Evaluate(hierarchy, lu, out Vector3d luMajorVector, out Vector3d luMinorVector, out double luScalar);
+            Evaluate(hierarchy, lb, out Vector3d lbMajorVector, out Vector3d lbMinorVector, out double lbScalar);
+            Evaluate(hierarchy, ru, out Vector3d ruMajorVector, out Vector3d ruMinorVector, out double ruScalar);
+            Evaluate(hierarchy, rb, out Vector3d rbMajorVector, out Vector3d rbMinorVector, out double rbScalar);
+            majorVector = (currentMajorVector + w * luMajorVector + w * lbMajorVector + w * ruMajorVector + w * rbMajorVector) / (4.0 * w + 1.0);
+            minorVector = (currentMinorVector + w * luMinorVector + w * lbMinorVector + w * ruMinorVector + w * rbMinorVector) / (4.0 * w + 1.0);
+            scalar = (currentScalar + w * luScalar + w * lbScalar + w * ruScalar + w * rbScalar) / (4.0 * w + 1.0);
+            return ActivationHierarchy.Invoke(hierarchy);
+        }
+
         public virtual bool Evaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
         {
             scalar = 1 / Distance(point) * Decay(point);
@@ -120,6 +140,12 @@ namespace UrbanDesignEngine.Tensor
             return Boundary.Contains(point);
         }
 
-      
+
+        /*
+        public virtual SimpleTensorField Duplicate()
+        {
+            return new SimpleTensorField() { vector = vector, Boundary = Boundary, ActivationHierarchy = ActivationHierarchy, TensorFieldType = TensorFieldType };
+        }
+        */
     }
 }

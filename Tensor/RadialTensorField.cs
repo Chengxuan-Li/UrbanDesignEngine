@@ -11,11 +11,12 @@ namespace UrbanDesignEngine.Tensor
 {
     public class RadialTensorField : ObjectTensorField<Point>
     {
-        public RadialTensorField(Point3d point, double range) : base(new Point(point), range)
+        public RadialTensorField(Point3d point, double range, double extent) : base(new Point(point), range, extent)
         {
             geometry = new Point(point);
             TensorFieldType = TensorFieldType.PointAttractor;
-            Range = range;
+            DecayRange = range;
+            Extent = extent;
         }
 
         public override double Distance(Point3d point)

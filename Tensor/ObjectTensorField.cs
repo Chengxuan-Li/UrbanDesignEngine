@@ -14,26 +14,28 @@ namespace UrbanDesignEngine.Tensor
     {
         protected T geometry;
         public T Geometry => geometry;
-        public double Range;
+        public double DecayRange;
+        public double Extent;
         public void SetGeometry(T geo)
         {
             geometry = geo;
         }
 
-        public ObjectTensorField(T geo, double range)
+        public ObjectTensorField(T geo, double range, double extent)
         {
             geometry = geo;
-            Range = range;
+            DecayRange = range;
+            Extent = extent;
         }
 
         public override double Decay(Point3d point)
         {
-            return DecayFuncs.Gaussian(Range).Invoke(Distance(point));
+            return DecayFuncs.Gaussian(DecayRange).Invoke(Distance(point));
         }
 
         public override bool Contains(Point3d point)
         {
-            return Distance(point) <= Range;
+            return Distance(point) <= Extent;
         }
 
         public abstract override double Distance(Point3d point);

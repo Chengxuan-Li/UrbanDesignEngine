@@ -11,12 +11,13 @@ namespace UrbanDesignEngine.Tensor
     {
         public Polyline Polyline;
 
-        public PolylineTensorField(Polyline polyline, double range) : base(polyline.ToPolylineCurve(), range)
+        public PolylineTensorField(Polyline polyline, double range, double extent) : base(polyline.ToPolylineCurve(), range, extent)
         {
             Polyline = polyline;
             geometry = polyline.ToNurbsCurve();
             TensorFieldType = TensorFieldType.PolylineAttractor;
-            Range = range;
+            DecayRange = range;
+            Extent = extent;
         }
 
         public override double Distance(Point3d point)

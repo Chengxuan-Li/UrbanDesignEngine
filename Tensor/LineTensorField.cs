@@ -10,12 +10,13 @@ namespace UrbanDesignEngine.Tensor
     public class LineTensorField : ObjectTensorField<Curve>
     {
         public Line Line;
-        public LineTensorField(Line line, double range) : base(line.ToNurbsCurve(), range)
+        public LineTensorField(Line line, double range, double extent) : base(line.ToNurbsCurve(), range, extent)
         {
             Line = line;
             geometry = line.ToNurbsCurve();
             TensorFieldType = TensorFieldType.LineAttractor;
-            Range = range;
+            DecayRange = range;
+            Extent = extent;
         }
 
         public override double Distance(Point3d point)
