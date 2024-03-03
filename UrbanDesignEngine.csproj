@@ -125,7 +125,12 @@
     <Compile Include="IO\VariableGetter.cs" />
     <Compile Include="Algorithms\LSystem.cs" />
     <Compile Include="Components\LSystemAtOrigin.cs" />
+    <Compile Include="Maths\DecayFuncs.cs" />
+    <Compile Include="Maths\Distribution.cs" />
+    <Compile Include="Maths\IntervalRelation.cs" />
     <Compile Include="Maths\MathsHelper.cs" />
+    <Compile Include="Maths\MultiInterval.cs" />
+    <Compile Include="Maths\SolutionInterval.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -134,6 +139,7 @@
     <Compile Include="Radiance\SkyMatrix.cs" />
     <Compile Include="Tensor\CurveTensorField.cs" />
     <Compile Include="Tensor\LineTensorField.cs" />
+    <Compile Include="Tensor\MultipleTensorFields.cs" />
     <Compile Include="Tensor\ObjectTensorField.cs" />
     <Compile Include="Tensor\PolylineTensorField.cs" />
     <Compile Include="Tensor\RadialTensorField.cs" />

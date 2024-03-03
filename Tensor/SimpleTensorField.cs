@@ -76,6 +76,7 @@ namespace UrbanDesignEngine.Tensor
             Matrix[1, 1] = v11;
         }
         */
+        public TensorFieldType TensorFieldType = TensorFieldType.Homogeneous;
 
         Vector3d vector;
 
@@ -107,7 +108,7 @@ namespace UrbanDesignEngine.Tensor
 
         public virtual bool Evaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
         {
-            scalar = Distance(point) * Decay(point);
+            scalar = 1 / Distance(point) * Decay(point);
             majorVector = new Vector3d(vector);
             minorVector = new Vector3d(vector);
             minorVector.Rotate(Math.PI / 2.0, Vector3d.ZAxis);
