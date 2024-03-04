@@ -25,4 +25,9 @@ namespace UrbanDesignEngine.DataStructure
         T PreviewGeometry { get; }
 
     }
+
+    public interface IHasGeometryList<T> where T: GeometryBase
+    {
+        List<T> PreviewGeometryList { get; }
+    }
 }

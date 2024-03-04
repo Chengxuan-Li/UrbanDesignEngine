@@ -102,7 +102,7 @@
     <Compile Include="Constraints\AngleConstraint.cs" />
     <Compile Include="Constraints\ProximityConstraint.cs" />
     <Compile Include="DataStructure\Attributes.cs" />
-    <Compile Include="DataStructure\GHIOCurveParam.cs" />
+    <Compile Include="DataStructure\GHIOGraphCurveParam.cs" />
     <Compile Include="DataStructure\GHIOParam.cs" />
     <Compile Include="DataStructure\GHIOPointParam.cs" />
     <Compile Include="DataStructure\GHIOPreviewGeometricParam.cs" />

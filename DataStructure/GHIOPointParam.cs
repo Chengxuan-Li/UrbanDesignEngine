@@ -17,9 +17,9 @@ namespace UrbanDesignEngine.DataStructure
 {
     public class GHIOPointParam<ScriptVariable> : GHIOPreviewGeometricParam<ScriptVariable, Point> where ScriptVariable : IHasGeometry<Point>
     {
-        public override Action<GH_PreviewWireArgs, Point> DrawWires => (a, g) => a.Pipeline.DrawPoint(g.Location, PointStyle.RoundActivePoint, PreviewSettings.PointRadius, PreviewSettings.PreviewColor);
+        public override Action<GH_PreviewWireArgs, Point> DrawWires => (a, g) => a.Pipeline.DrawPoint(g.Location, PointStyle.RoundActivePoint, PreviewSettings.PointRadius, PreviewSettings.GraphPreviewColor);
 
-        public override Action<GH_PreviewMeshArgs, Point> DrawMeshes => (a, g) => a.Pipeline.DrawPoint(g.Location, PointStyle.RoundActivePoint, PreviewSettings.PointRadius, PreviewSettings.PreviewColor);
+        public override Action<GH_PreviewMeshArgs, Point> DrawMeshes => (a, g) => a.Pipeline.DrawPoint(g.Location, PointStyle.RoundActivePoint, PreviewSettings.PointRadius, PreviewSettings.GraphPreviewColor);
 
     }
 }

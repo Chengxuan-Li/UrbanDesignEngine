@@ -3,6 +3,7 @@ using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using UrbanDesignEngine.IO;
+using UrbanDesignEngine.Tensor;
 
 namespace UrbanDesignEngine.Components
 {
@@ -27,6 +28,9 @@ namespace UrbanDesignEngine.Components
             pManager.AddNumberParameter("DecayRange", "DR", "Decay range", GH_ParamAccess.item);
             pManager.AddNumberParameter("ExtentRadius", "ER", "Extent radius", GH_ParamAccess.item);
             pManager.AddNumberParameter("Factor", "Fac", "Multiplication factor", GH_ParamAccess.item);
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
+            pManager[3].Optional = true;
         }
 
         /// <summary>
@@ -35,6 +39,7 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("UDETensorField", "UTF", "UDETensorField instance", GH_ParamAccess.item);
+            pManager.AddCurveParameter("PHCrvsPreview", "PHCP", "Placeholder curves preview", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -43,6 +48,21 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            Point3d pt = default;
+            if (!DA.GetData(0, ref pt)) return;
+            double decayRange = 600;
+            DA.GetData(1, ref decayRange);
+            double extentRadius = 500;
+            DA.GetData(2, ref extentRadius);
+            double factor = 1;
+            DA.GetData(3, ref factor);
+
+            RadialTensorField tf = new RadialTensorField(pt, decayRange, extentRadius);
+            tf.Factor = factor;
+
+            DA.SetData(0, tf.GHIOParam);
+            DA.SetDataList(1, tf.PreviewGeometryList);
+            
         }
 
         /// <summary>

@@ -52,7 +52,7 @@ namespace UrbanDesignEngine.Components
 
             graph.SolveFaces();
             DA.SetData(0, graph.GHIOParam);
-            List<GHIOCurveParam<NetworkEdge>> edgesGHIOParam = new List<GHIOCurveParam<NetworkEdge>>();
+            List<GHIOGraphCurveParam<NetworkEdge>> edgesGHIOParam = new List<GHIOGraphCurveParam<NetworkEdge>>();
             List<GHIOPointParam<NetworkNode>> nodesGHIOParam = new List<GHIOPointParam<NetworkNode>>();
             graph.Graph.Edges.ToList().ForEach(e => edgesGHIOParam.Add(e.gHIOParam));
             graph.Graph.Vertices.ToList().ForEach(v => nodesGHIOParam.Add(v.gHIOParam));

@@ -15,7 +15,7 @@ using Rhino.Render;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public interface IHasGHIOPreviewGeometricParam<ScriptClass, T, G> where T : GHIOPreviewGeometricParam<ScriptClass, G> where ScriptClass : IHasGeometry<G> where G : GeometryBase  
+    public interface IHasGHIOPreviewGeometricParam<ScriptClass, T, G> where T : GHIOPreviewGeometricParam<ScriptClass, G> where ScriptClass : IHasGeometry<G> where G : GeometryBase
     {
         T gHIOParam { get; }
     }

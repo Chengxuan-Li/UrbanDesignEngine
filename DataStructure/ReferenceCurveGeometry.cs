@@ -16,11 +16,11 @@ using Rhino.Render;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class ReferenceCurveGeometry : HasReferenceGeometry<Curve>, IAttributable, IHasGHIOPreviewGeometricParam<ReferenceCurveGeometry, GHIOCurveParam<ReferenceCurveGeometry>, Curve>
+    public class ReferenceCurveGeometry : HasReferenceGeometry<Curve>, IAttributable, IHasGHIOPreviewGeometricParam<ReferenceCurveGeometry, GHIOGraphCurveParam<ReferenceCurveGeometry>, Curve>
     {
         public Attributes Attributes;
 
-        public GHIOCurveParam<ReferenceCurveGeometry> gHIOParam => new GHIOCurveParam<ReferenceCurveGeometry> { ScriptClassVariable = this };
+        public GHIOGraphCurveParam<ReferenceCurveGeometry> gHIOParam => new GHIOGraphCurveParam<ReferenceCurveGeometry> { ScriptClassVariable = this };
 
         public Attributes AttributesInstance => Attributes;
 

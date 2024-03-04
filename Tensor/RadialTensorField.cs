@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Rhino;
 using Rhino.Geometry;
 using UrbanDesignEngine.Maths;
+using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Tensor
 {
@@ -33,5 +34,7 @@ namespace UrbanDesignEngine.Tensor
             scalar = Distance(point) * Decay(point);
             return ActivationHierarchy.Invoke(hierarchy);
         }
+
+        public GHIOParam<RadialTensorField> GHIOParam => new GHIOParam<RadialTensorField>(this);
     }
 }

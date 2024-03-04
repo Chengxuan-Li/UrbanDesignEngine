@@ -21,6 +21,18 @@ namespace UrbanDesignEngine.Tensor
             geometry = geo;
         }
 
+        public override BoundingBox Boundary
+        {
+            get
+            {
+                var bbox = Geometry.GetBoundingBox(false);
+                bbox.Inflate(Extent);
+                bbox.Min = new Point3d(bbox.Min.X, bbox.Min.Y, 0.0);
+                bbox.Max = new Point3d(bbox.Max.X, bbox.Max.Y, 0.0);
+                return bbox;
+            }
+        }
+
         public ObjectTensorField(T geo, double range, double extent)
         {
             geometry = geo;
@@ -30,7 +42,7 @@ namespace UrbanDesignEngine.Tensor
 
         public override double Decay(Point3d point)
         {
-            return DecayFuncs.Gaussian(DecayRange).Invoke(Distance(point));
+            return Factor * DecayFuncs.Gaussian(DecayRange).Invoke(Distance(point));
         }
 
         public override bool Contains(Point3d point)

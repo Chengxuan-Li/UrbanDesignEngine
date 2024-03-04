@@ -17,7 +17,8 @@ namespace UrbanDesignEngine
 
     public static class PreviewSettings
     {
-        public static Color PreviewColor = Color.OrangeRed;
+        public static Color GraphPreviewColor = Color.OrangeRed;
+        public static Color TensorFieldPreviewColor = Color.DeepSkyBlue;
         public static int Thickness = 3;
         public static int PointRadius = 4;
     }
@@ -26,5 +27,6 @@ namespace UrbanDesignEngine
     {
         public static double EvaluationNeighbourDistance = 0.1;
         public static double EvaluationNeighbourWeight = 0.25;
+        public static double PreviewGeometryInterval = 10.0;
     }
 }

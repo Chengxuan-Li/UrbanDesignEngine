@@ -7,6 +7,7 @@ using MathNet.Numerics.LinearAlgebra;
 using Rhino;
 using Rhino.Geometry;
 using UrbanDesignEngine.DataStructure;
+using UrbanDesignEngine.IO;
 
 
 
@@ -62,7 +63,8 @@ namespace UrbanDesignEngine.Tensor
     }
 
     //Add GHIOParam
-    public class SimpleTensorField// : IDuplicable<SimpleTensorField
+    public class SimpleTensorField
+        // : IDuplicable<SimpleTensorField
     {
         //public Matrix<double> Matrix = Matrix<double>.Build.Dense(2, 2, 0);
 
@@ -79,11 +81,44 @@ namespace UrbanDesignEngine.Tensor
         */
         public TensorFieldType TensorFieldType = TensorFieldType.Homogeneous;
 
+        public double Factor = 1.0;
+
         Vector3d vector;
 
-        public BoundingBox Boundary = new BoundingBox(new Point3d(-9999, -9999, 0), new Point3d(9999, 9999, 0));
+        public virtual BoundingBox Boundary => new BoundingBox(new Point3d(-9999, -9999, 0), new Point3d(9999, 9999, 0));
 
-        public Predicate<int> ActivationHierarchy = h => h >= 0; 
+        public Predicate<int> ActivationHierarchy = h => h >= -1;
+
+        public List<Curve> PreviewGeometryList
+        {
+            get
+            {
+                double w = Boundary.Max.X - Boundary.Min.X;
+                double h = Boundary.Max.Y - Boundary.Min.Y;
+                int numW = (int)Math.Floor(w / TensorFieldSettings.PreviewGeometryInterval);
+                int numH = (int)Math.Floor(h / TensorFieldSettings.PreviewGeometryInterval);
+                List<Point3d> pts = new List<Point3d>();
+                List<Curve> crvs = new List<Curve>();
+                for (int i = 0; i < numW; i++)
+                {
+                    for (int j = 0; j < numH; j++)
+                    {
+                        Point3d pt = new Point3d(
+                            Boundary.Min.X + i * TensorFieldSettings.PreviewGeometryInterval,
+                            Boundary.Min.Y + j * TensorFieldSettings.PreviewGeometryInterval,
+                            0);
+                        pts.Add(pt);
+                    }
+                }
+                foreach (Point3d pt in pts)
+                {
+                    ContextAwareEvaluate(-1, pt, out Vector3d av, out Vector3d iv, out double sc);
+                    crvs.Add(new Line(pt, pt + av * (0.1 + sc)).ToNurbsCurve());
+                    crvs.Add(new Line(pt, pt + iv * (0.1 + sc)).ToNurbsCurve());
+                }
+                return crvs;
+            }
+        }
 
         public SimpleTensorField()
         {
@@ -104,7 +139,7 @@ namespace UrbanDesignEngine.Tensor
 
         public virtual double Decay(Point3d point)
         {
-            return 1.0;
+            return Factor * 1.0;
         }
 
         public virtual bool ContextAwareEvaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)

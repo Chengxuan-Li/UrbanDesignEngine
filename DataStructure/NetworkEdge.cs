@@ -9,7 +9,7 @@ using Rhino.Geometry;
 
 namespace UrbanDesignEngine.DataStructure
 {
-    public class NetworkEdge : HasScriptRuntimeGeometry<Curve>, IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkEdge, GHIOCurveParam<NetworkEdge>, Curve>, IDuplicableComponent<NetworkEdge, NetworkGraph>
+    public class NetworkEdge : HasScriptRuntimeGeometry<Curve>, IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkEdge, GHIOGraphCurveParam<NetworkEdge>, Curve>, IDuplicableComponent<NetworkEdge, NetworkGraph>
     {
         NetworkNode NodeA;
         NetworkNode NodeB;
@@ -19,7 +19,7 @@ namespace UrbanDesignEngine.DataStructure
         public NetworkFace rightFace = null;
         public int Id;
         public override Curve Geometry => new Line(Source.Point, Target.Point).ToNurbsCurve();
-        public GHIOCurveParam<NetworkEdge> gHIOParam =>  new GHIOCurveParam<NetworkEdge>() { ScriptClassVariable = this };
+        public GHIOGraphCurveParam<NetworkEdge> gHIOParam =>  new GHIOGraphCurveParam<NetworkEdge>() { ScriptClassVariable = this };
         public Curve UnderlyingCurve
         {
             get
