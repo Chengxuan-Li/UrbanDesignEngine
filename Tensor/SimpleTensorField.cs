@@ -20,7 +20,7 @@ namespace UrbanDesignEngine.Tensor
         LineAttractor = 2,
         PolylineAttractor = 3,
         CurveAttractor = 4,
-
+        Multiple = 99
     }
 
     public struct MatrixEntry<T> : IEquatable<MatrixEntry<T>>, IFormattable
@@ -63,7 +63,7 @@ namespace UrbanDesignEngine.Tensor
     }
 
     //Add GHIOParam
-    public class SimpleTensorField : IHasGHIOPreviewGeometryListParam<SimpleTensorField, GHIOTensorFieldCurvesParam<SimpleTensorField>, Curve>, IHasGeometryList<Curve>
+    public class SimpleTensorField : ITensorField, IHasGHIOPreviewGeometryListParam<SimpleTensorField, GHIOTensorFieldCurvesParam<SimpleTensorField>, Curve>, IHasGeometryList<Curve>
     // : IDuplicable<SimpleTensorField
     {
         //public Matrix<double> Matrix = Matrix<double>.Build.Dense(2, 2, 0);
@@ -79,7 +79,7 @@ namespace UrbanDesignEngine.Tensor
             Matrix[1, 1] = v11;
         }
         */
-        public TensorFieldType TensorFieldType = TensorFieldType.Uniform;
+        public TensorFieldType TensorFieldType => TensorFieldType.Uniform;
 
         public Curve BoundaryCurve = default;
 

@@ -11,6 +11,7 @@ using UrbanDesignEngine.Growth;
 using UrbanDesignEngine.Algorithms;
 using UrbanDesignEngine.Utilities;
 using UrbanDesignEngine.Constraints;
+using UrbanDesignEngine.Tensor;
 
 namespace UrbanDesignEngine
 {
@@ -27,6 +28,8 @@ namespace UrbanDesignEngine
         public int NumPossibleGrowth = 2;
         public int CalculationTimeLimit = 3000;
         public Random random = new Random();
+        public MultipleTensorFields TensorFields;
+        public bool UseTensorFields = false;
                                                                                                                                                                 
         public List<Curve> FaceCurves
         {

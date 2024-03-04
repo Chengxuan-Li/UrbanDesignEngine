@@ -144,12 +144,16 @@
     </Compile>
     <Compile Include="Radiance\SkyMatrix.cs" />
     <Compile Include="Tensor\CurveTensorField.cs" />
+    <Compile Include="Tensor\GridStorage.cs" />
+    <Compile Include="Tensor\Integrator.cs" />
+    <Compile Include="Tensor\ITensorField.cs" />
     <Compile Include="Tensor\LineTensorField.cs" />
     <Compile Include="Tensor\MultipleTensorFields.cs" />
     <Compile Include="Tensor\ObjectTensorField.cs" />
     <Compile Include="Tensor\PolylineTensorField.cs" />
     <Compile Include="Tensor\RadialTensorField.cs" />
     <Compile Include="Tensor\SimpleTensorField.cs" />
+    <Compile Include="Tensor\Streamlines.cs" />
     <Compile Include="TessellateBlock.cs" />
     <Compile Include="Utilities\AngleInterval.cs" />
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />

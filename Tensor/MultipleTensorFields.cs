@@ -15,9 +15,11 @@ namespace UrbanDesignEngine.Tensor
         WeightedAverage = 2,
     }
 
-    public class MultipleTensorFields : IHasGHIOPreviewGeometryListParam<MultipleTensorFields, GHIOTensorFieldCurvesParam<MultipleTensorFields>, Curve>, IHasGeometryList<Curve>
+    public class MultipleTensorFields : ITensorField, IHasGHIOPreviewGeometryListParam<MultipleTensorFields, GHIOTensorFieldCurvesParam<MultipleTensorFields>, Curve>, IHasGeometryList<Curve>
     {
         public List<SimpleTensorField> TensorFields = new List<SimpleTensorField>();
+
+        public TensorFieldType TensorFieldType => TensorFieldType.Multiple;
 
         public MultipleTensorFieldsEvaluationMethod Method = MultipleTensorFieldsEvaluationMethod.MaxScalar;
 
@@ -95,6 +97,16 @@ namespace UrbanDesignEngine.Tensor
             TensorFields.AddRange(fields.TensorFields);
         }
 
+        public bool Evaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
+        {
+            return Evaluate(hierarchy, point, MultipleTensorFieldsEvaluationMethod.MaxScalar, false, out majorVector, out minorVector, out scalar);
+        }
+
+        public bool ContextAwareEvaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
+        {
+            return Evaluate(hierarchy, point, MultipleTensorFieldsEvaluationMethod.MaxScalar, true, out majorVector, out minorVector, out scalar);
+        }
+
         public bool Evaluate(int hierarchy, Point3d point, MultipleTensorFieldsEvaluationMethod method, bool contextAwareEvaluation, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
         {
             majorVector = default;
@@ -170,6 +182,18 @@ namespace UrbanDesignEngine.Tensor
             }
 
             return true;
+        }
+
+        public bool Contains(Point3d point)
+        {
+            foreach (var tf in TensorFields)
+            {
+                if (tf.Contains(point))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
