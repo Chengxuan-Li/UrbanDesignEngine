@@ -10,7 +10,7 @@ using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Tensor
 {
-    public class RadialTensorField : ObjectTensorField<Point>
+    public class RadialTensorField : ObjectTensorField<Point>, IHasGHIOPreviewGeometryListParam<RadialTensorField, GHIOTensorFieldCurvesParam<RadialTensorField>, Curve>, IHasGeometryList<Curve>
     {
         public RadialTensorField(Point3d point, double range, double extent) : base(new Point(point), range, extent)
         {
@@ -35,6 +35,6 @@ namespace UrbanDesignEngine.Tensor
             return ActivationHierarchy.Invoke(hierarchy);
         }
 
-        public GHIOParam<RadialTensorField> GHIOParam => new GHIOParam<RadialTensorField>(this);
+        public new GHIOTensorFieldCurvesParam<RadialTensorField> gHIOParam => new GHIOTensorFieldCurvesParam<RadialTensorField>() { ScriptClassVariable = this };
     }
 }

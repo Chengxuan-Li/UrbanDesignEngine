@@ -23,11 +23,11 @@ namespace UrbanDesignEngine.DataStructure
 
     }
 
-    public class GHIOTensorFieldCurvesParam<ScriptVariable> : GHIOPreviewGeometricParam<ScriptVariable, Curve> where ScriptVariable : IHasGeometry<Curve>
+    public class GHIOTensorFieldCurvesParam<ScriptVariable> : GHIOPreviewGeometryListParam<ScriptVariable, Curve> where ScriptVariable : IHasGeometryList<Curve>
     {
-        public override Action<GH_PreviewWireArgs, Curve> DrawWires => (a, g) => a.Pipeline.DrawCurve(g, PreviewSettings.TensorFieldPreviewColor, PreviewSettings.Thickness);
+        public override Action<GH_PreviewWireArgs, Curve> DrawWires => (a, g) => { };
 
-        public override Action<GH_PreviewMeshArgs, Curve> DrawMeshes => (a, g) => a.Pipeline.DrawCurve(g, PreviewSettings.TensorFieldPreviewColor, PreviewSettings.Thickness);
+        public override Action<GH_PreviewMeshArgs, Curve> DrawMeshes => (a, g) => a.Pipeline.DrawLineArrow(new Line(g.PointAtStart, g.PointAtEnd), PreviewSettings.TensorFieldPreviewColor, PreviewSettings.Thickness, PreviewSettings.ArrowSize);
 
     }
 }

@@ -63,8 +63,8 @@ namespace UrbanDesignEngine.Tensor
     }
 
     //Add GHIOParam
-    public class SimpleTensorField
-        // : IDuplicable<SimpleTensorField
+    public class SimpleTensorField : IHasGHIOPreviewGeometryListParam<SimpleTensorField, GHIOTensorFieldCurvesParam<SimpleTensorField>, Curve>, IHasGeometryList<Curve>
+    // : IDuplicable<SimpleTensorField
     {
         //public Matrix<double> Matrix = Matrix<double>.Build.Dense(2, 2, 0);
 
@@ -85,7 +85,7 @@ namespace UrbanDesignEngine.Tensor
 
         Vector3d vector;
 
-        public virtual BoundingBox Boundary => new BoundingBox(new Point3d(-9999, -9999, 0), new Point3d(9999, 9999, 0));
+        public virtual BoundingBox Boundary => new BoundingBox(new Point3d(-999, -999, 0), new Point3d(999, 999, 0));
 
         public Predicate<int> ActivationHierarchy = h => h >= -1;
 
@@ -113,12 +113,14 @@ namespace UrbanDesignEngine.Tensor
                 foreach (Point3d pt in pts)
                 {
                     ContextAwareEvaluate(-1, pt, out Vector3d av, out Vector3d iv, out double sc);
-                    crvs.Add(new Line(pt, pt + av * (0.1 + sc)).ToNurbsCurve());
-                    crvs.Add(new Line(pt, pt + iv * (0.1 + sc)).ToNurbsCurve());
+                    crvs.Add(new Line(pt - av * (0.1 + sc)/2, pt + av * (0.1 + sc)/2).ToNurbsCurve());
+                    crvs.Add(new Line(pt - iv * (0.1 + sc)/2, pt + iv * (0.1 + sc)/2).ToNurbsCurve());
                 }
                 return crvs;
             }
         }
+
+        public GHIOTensorFieldCurvesParam<SimpleTensorField> gHIOParam => new GHIOTensorFieldCurvesParam<SimpleTensorField>() { ScriptClassVariable = this };
 
         public SimpleTensorField()
         {
@@ -163,7 +165,7 @@ namespace UrbanDesignEngine.Tensor
 
         public virtual bool Evaluate(int hierarchy, Point3d point, out Vector3d majorVector, out Vector3d minorVector, out double scalar)
         {
-            scalar = 1 / Distance(point) * Decay(point);
+            scalar = Decay(point);
             majorVector = new Vector3d(vector);
             minorVector = new Vector3d(vector);
             minorVector.Rotate(Math.PI / 2.0, Vector3d.ZAxis);

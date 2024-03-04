@@ -29,5 +29,6 @@ namespace UrbanDesignEngine.DataStructure
     public interface IHasGeometryList<T> where T: GeometryBase
     {
         List<T> PreviewGeometryList { get; }
+        BoundingBox Boundary { get; }
     }
 }

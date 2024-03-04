@@ -49,4 +49,36 @@ namespace UrbanDesignEngine.DataStructure
         #endregion
 
     }
+
+    public abstract class GHIOPreviewGeometryListParam<ScriptClass, G> : GHIOParam<ScriptClass>, IGH_PreviewData where ScriptClass : IHasGeometryList<G> where G : GeometryBase
+    {
+        public GH_Component Component;
+        public virtual List<G> PreviewGeometryList => ScriptClassVariable.PreviewGeometryList;
+        public virtual BoundingBox PreviewBoundingBox => ScriptClassVariable.Boundary;
+            
+            // overriden when single variable contains multiple geometries
+        public abstract Action<GH_PreviewWireArgs, G> DrawWires { get; } // override whenever something needs to be drawn
+        public abstract Action<GH_PreviewMeshArgs, G> DrawMeshes { get; } // override whenever something needs to be drawn
+        public virtual Func<GH_Component, bool> ComponentHidden => c => c.Hidden; // overriden for custom hidden/visible behaviours        
+
+        #region IPreviewObject
+        public bool Hidden { get => false/*ComponentHidden.Invoke(Component)*/; set => Component.Hidden = value; }
+
+        public virtual bool IsPreviewCapable => true; // override when custom validity check is required
+
+        public BoundingBox ClippingBox => PreviewBoundingBox;
+        public virtual void DrawViewportWires(GH_PreviewWireArgs args) // only overriden if overriding DrawWires action does not suffice
+        {
+            //List<G> pgl = PreviewGeometryList;
+            //pgl.ForEach(g => DrawWires.Invoke(args, g));
+        }
+
+        public virtual void DrawViewportMeshes(GH_PreviewMeshArgs args) // only overriden if overriding DrawMeshes action does not suffice
+        {
+            List<G> pgl = PreviewGeometryList;
+            pgl.ForEach(g => DrawMeshes.Invoke(args, g));
+        }
+        #endregion
+
+    }
 }

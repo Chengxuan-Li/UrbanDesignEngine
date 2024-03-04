@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 using UrbanDesignEngine.DataStructure;
+using UrbanDesignEngine.Tensor;
 
 namespace UrbanDesignEngine.IO
 {
@@ -30,6 +31,47 @@ namespace UrbanDesignEngine.IO
                 Mandatory = mandatory,
             };
         }
+
+
+        public VariableGetterStatus GetVariableFromAllSimpleTensorFieldTypes(out SimpleTensorField result)
+        {
+            result = default;
+            // Add classes manually ... lol
+            if (BaseGet(out SimpleTensorField r0))
+            {
+                result = r0;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+
+            if (BaseGet(out RadialTensorField r1))
+            {
+                result = r1;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            if (BaseGet(out LineTensorField r2))
+            {
+                result = r2;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            if (BaseGet(out PolylineTensorField r3))
+            {
+                result = r3;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            if (BaseGet(out CurveTensorField r4))
+            {
+                result = r4;
+                Component.ClearRuntimeMessages();
+                return VariableGetterStatus.Success;
+            }
+            //Component.AddRuntimeMessage(Mandatory ? GH_RuntimeMessageLevel.Error : GH_RuntimeMessageLevel.Warning, "Input type error or missing"); // TODO ditinguish warning and error 
+            return VariableGetterStatus.TypeError;
+        }
+
 
         /*
         public VariableGetterStatus GetVariablesListFromAllAttributableTypes(out List<IAttributable> result)
@@ -90,6 +132,7 @@ namespace UrbanDesignEngine.IO
             }
             return false;
         }
+
 
         /// <summary>
         /// Get the script varaible from an input stream of GH_Goo

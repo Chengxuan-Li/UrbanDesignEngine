@@ -2,19 +2,18 @@
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
-using UrbanDesignEngine.IO;
 using UrbanDesignEngine.Tensor;
 
 namespace UrbanDesignEngine.Components
 {
-    public class CreateRadialTensorField : GH_Component
+    public class CreateUniformTensorField : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the CreateRadialTensorField class.
+        /// Initializes a new instance of the CreateUniformTensorField class.
         /// </summary>
-        public CreateRadialTensorField()
-          : base("CreateRadialTensorField", "CRadTF",
-              "Create a tensor field based on a point attractor",
+        public CreateUniformTensorField()
+          : base("CreateUniformTensorField", "CUniTF",
+              "Create a uniform tensor field based on a vector direction",
               "UrbanDesignEngine", "TensorField")
         {
         }
@@ -24,17 +23,15 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("PointAttractor", "Pt", "Attractor point", GH_ParamAccess.item);
-            pManager.AddNumberParameter("DecayRange", "DR", "Decay range", GH_ParamAccess.item);
-            pManager.AddNumberParameter("ExtentRadius", "ER", "Extent radius", GH_ParamAccess.item);
+            pManager.AddVectorParameter("Vector", "Vec", "Vector direction", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("DecayRange", "DR", "Decay range", GH_ParamAccess.item);
+            //pManager.AddNumberParameter("ExtentRadius", "ER", "Extent radius", GH_ParamAccess.item);
             pManager.AddNumberParameter("Factor", "Fac", "Multiplication factor", GH_ParamAccess.item);
             pManager.AddIntegerParameter("MinHierarchy", "MinH", "Minimum level of hierarchy to apply this field", GH_ParamAccess.item);
             pManager.AddIntegerParameter("MaxHierarchy", "MaxH", "Maximum level of hierarchy to apply this field", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
             pManager[3].Optional = true;
-            pManager[4].Optional = true;
-            pManager[5].Optional = true;
         }
 
         /// <summary>
@@ -43,7 +40,6 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("UDETensorField", "UTF", "UDETensorField instance", GH_ParamAccess.item);
-            //pManager.AddCurveParameter("PHCrvsPreview", "PHCP", "Placeholder curves preview", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -52,26 +48,22 @@ namespace UrbanDesignEngine.Components
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            Point3d pt = default;
-            if (!DA.GetData(0, ref pt)) return;
-            double decayRange = 600;
-            DA.GetData(1, ref decayRange);
-            double extentRadius = 500;
-            DA.GetData(2, ref extentRadius);
+            Vector3d vec = default;
+            if (!DA.GetData(0, ref vec)) return;
             double factor = 1;
-            DA.GetData(3, ref factor);
+            DA.GetData(1, ref factor);
             int minH = 0;
-            DA.GetData(4, ref minH);
+            DA.GetData(2, ref minH);
             int maxH = 999;
-            DA.GetData(5, ref maxH);
+            DA.GetData(3, ref maxH);
 
-            RadialTensorField tf = new RadialTensorField(pt, decayRange, extentRadius);
+
+            SimpleTensorField tf = new SimpleTensorField(vec);
             tf.Factor = factor;
             tf.ActivationHierarchy = h => (h == -1) || (h >= minH && h <= maxH);
 
             DA.SetData(0, tf.gHIOParam);
-            //DA.SetDataList(1, tf.PreviewGeometryList);
-            
+
         }
 
         /// <summary>
@@ -92,7 +84,7 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("875ad673-f19c-428d-a959-06eea8ebf1cd"); }
+            get { return new Guid("3ab6e8a1-7c67-4a59-9951-ea4ef7d2d8c5"); }
         }
     }
 }

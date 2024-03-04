@@ -74,7 +74,12 @@
     <Compile Include="Algorithms\ShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
     <Compile Include="ClipperLib\clipper.cs" />
+    <Compile Include="Components\CombineTensorFields.cs" />
+    <Compile Include="Components\CreateLineTensorField.cs" />
+    <Compile Include="Components\CreatePolylineTensorField.cs" />
+    <Compile Include="Components\CreateCurveTensorField.cs" />
     <Compile Include="Components\CreateRadialTensorField.cs" />
+    <Compile Include="Components\CreateUniformTensorField.cs" />
     <Compile Include="Components\KellyMcCabeLotSubdivision.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />
     <Compile Include="Components\ShortestPathBetweenPoints.cs" />

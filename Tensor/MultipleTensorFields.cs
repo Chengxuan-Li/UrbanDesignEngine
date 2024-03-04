@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Rhino.Geometry;
+using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Tensor
 {
@@ -14,9 +15,70 @@ namespace UrbanDesignEngine.Tensor
         WeightedAverage = 2,
     }
 
-    public class MultipleTensorFields
+    public class MultipleTensorFields : IHasGHIOPreviewGeometryListParam<MultipleTensorFields, GHIOTensorFieldCurvesParam<MultipleTensorFields>, Curve>, IHasGeometryList<Curve>
     {
         public List<SimpleTensorField> TensorFields = new List<SimpleTensorField>();
+
+        public MultipleTensorFieldsEvaluationMethod Method = MultipleTensorFieldsEvaluationMethod.MaxScalar;
+
+        public List<Curve> PreviewGeometryList
+        {
+            get
+            {
+                double w = Boundary.Max.X - Boundary.Min.X;
+                double h = Boundary.Max.Y - Boundary.Min.Y;
+                int numW = (int)Math.Floor(w / TensorFieldSettings.PreviewGeometryInterval);
+                int numH = (int)Math.Floor(h / TensorFieldSettings.PreviewGeometryInterval);
+                List<Point3d> pts = new List<Point3d>();
+                List<Curve> crvs = new List<Curve>();
+                for (int i = 0; i < numW; i++)
+                {
+                    for (int j = 0; j < numH; j++)
+                    {
+                        Point3d pt = new Point3d(
+                            Boundary.Min.X + i * TensorFieldSettings.PreviewGeometryInterval,
+                            Boundary.Min.Y + j * TensorFieldSettings.PreviewGeometryInterval,
+                            0);
+                        pts.Add(pt);
+                    }
+                }
+                foreach (Point3d pt in pts)
+                {
+                    Evaluate(-1, pt, Method, true, out Vector3d av, out Vector3d iv, out double sc);
+                    crvs.Add(new Line(pt - av * (0.1 + sc) / 2, pt + av * (0.1 + sc) / 2).ToNurbsCurve());
+                    crvs.Add(new Line(pt - iv * (0.1 + sc) / 2, pt + iv * (0.1 + sc) / 2).ToNurbsCurve());
+                }
+                return crvs;
+            }
+        }
+
+        public BoundingBox Boundary
+        {
+            get
+            {
+                if (TensorFields.Count == 0)
+                {
+                    return default;
+                } else
+                {
+                    BoundingBox bbox = TensorFields[0].Boundary;
+                    if (TensorFields.Count == 1)
+                    {
+                        return bbox;
+                    } else
+                    {
+                        for (int i = 1; i < TensorFields.Count; i++)
+                        {
+                            bbox.Union(TensorFields[i].Boundary);
+                        }
+                        return bbox;
+                    }
+                }
+
+            }
+        }
+
+        public GHIOTensorFieldCurvesParam<MultipleTensorFields> gHIOParam => new GHIOTensorFieldCurvesParam<MultipleTensorFields>() { ScriptClassVariable = this};
 
         public MultipleTensorFields(SimpleTensorField field)
         {

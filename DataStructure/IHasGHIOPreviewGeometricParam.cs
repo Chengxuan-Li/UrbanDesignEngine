@@ -19,4 +19,9 @@ namespace UrbanDesignEngine.DataStructure
     {
         T gHIOParam { get; }
     }
+
+    public interface IHasGHIOPreviewGeometryListParam<ScriptClass, T, G> where T : GHIOPreviewGeometryListParam<ScriptClass, G> where ScriptClass : IHasGeometryList<G> where G : GeometryBase
+    {
+        T gHIOParam { get; }
+    }
 }
