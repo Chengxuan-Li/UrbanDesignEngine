@@ -16,7 +16,7 @@ namespace UrbanDesignEngine.Tensor
     public enum TensorFieldType
     {
         PointAttractor = 1,
-        Homogeneous = 0,
+        Uniform = 0,
         LineAttractor = 2,
         PolylineAttractor = 3,
         CurveAttractor = 4,
@@ -79,7 +79,9 @@ namespace UrbanDesignEngine.Tensor
             Matrix[1, 1] = v11;
         }
         */
-        public TensorFieldType TensorFieldType = TensorFieldType.Homogeneous;
+        public TensorFieldType TensorFieldType = TensorFieldType.Uniform;
+
+        public Curve BoundaryCurve = default;
 
         public double Factor = 1.0;
 
@@ -112,9 +114,12 @@ namespace UrbanDesignEngine.Tensor
                 }
                 foreach (Point3d pt in pts)
                 {
-                    ContextAwareEvaluate(-1, pt, out Vector3d av, out Vector3d iv, out double sc);
-                    crvs.Add(new Line(pt - av * (0.1 + sc)/2, pt + av * (0.1 + sc)/2).ToNurbsCurve());
-                    crvs.Add(new Line(pt - iv * (0.1 + sc)/2, pt + iv * (0.1 + sc)/2).ToNurbsCurve());
+                    if (Contains(pt))
+                    {
+                        ContextAwareEvaluate(-1, pt, out Vector3d av, out Vector3d iv, out double sc);
+                        crvs.Add(new Line(pt - av * (0.1 + sc) / 2, pt + av * (0.1 + sc) / 2).ToNurbsCurve());
+                        crvs.Add(new Line(pt - iv * (0.1 + sc) / 2, pt + iv * (0.1 + sc) / 2).ToNurbsCurve());
+                    }
                 }
                 return crvs;
             }
@@ -174,7 +179,27 @@ namespace UrbanDesignEngine.Tensor
 
         public virtual bool Contains(Point3d point)
         {
-            return Boundary.Contains(point);
+            if (BoundaryCurve == default)
+            {
+                return Boundary.Contains(point);
+            } else
+            {
+                var result = BoundaryCurve.Contains(point, Plane.WorldXY, GlobalSettings.AbsoluteTolerance);
+                if (result == PointContainment.Inside)
+                {
+                    return true;
+                } else if (result == PointContainment.Unset)
+                {
+                    return Boundary.Contains(point);
+                } else if (result == PointContainment.Coincident)
+                {
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+            
         }
 
 

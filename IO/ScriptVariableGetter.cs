@@ -133,6 +133,29 @@ namespace UrbanDesignEngine.IO
             return false;
         }
 
+        /*
+
+        bool BaseGetList<ScriptVariable>(Action<VariableGetterStatus, ScriptVariable> action, out List<ScriptVariable> result)
+        {
+            List<GHIOParam<ScriptVariable>> svGHIOs = new List<GHIOParam<ScriptVariable>>();
+            result = new List<ScriptVariable>();
+            if (DA.GetDataList(Index, svGHIOs))
+            {
+                foreach (var svg in svGHIOs)
+                {
+                    if (svg.TryGetContent(out ScriptVariable r))
+                }
+
+
+            } else
+            {
+                return false;
+            }
+        }
+
+
+        */
+
 
         /// <summary>
         /// Get the script varaible from an input stream of GH_Goo

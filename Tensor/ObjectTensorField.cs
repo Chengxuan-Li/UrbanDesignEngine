@@ -42,12 +42,35 @@ namespace UrbanDesignEngine.Tensor
 
         public override double Decay(Point3d point)
         {
-            return Factor * DecayFuncs.Gaussian(DecayRange).Invoke(Distance(point));
+            return Factor * DecayFuncs.Natural(1 / DecayRange).Invoke(Distance(point));
         }
 
         public override bool Contains(Point3d point)
         {
-            return Distance(point) <= Extent;
+            if (BoundaryCurve == default)
+            {
+                return Distance(point) <= Extent;
+            }
+            else
+            {
+                var result = BoundaryCurve.Contains(point);
+                if (result == PointContainment.Inside)
+                {
+                    return true;
+                }
+                else if (result == PointContainment.Unset)
+                {
+                    return Distance(point) <= Extent;
+                }
+                else if (result == PointContainment.Coincident)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         public abstract override double Distance(Point3d point);

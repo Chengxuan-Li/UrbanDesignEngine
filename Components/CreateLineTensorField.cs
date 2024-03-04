@@ -29,11 +29,13 @@ namespace UrbanDesignEngine.Components
             pManager.AddNumberParameter("Factor", "Fac", "Multiplication factor", GH_ParamAccess.item);
             pManager.AddIntegerParameter("MinHierarchy", "MinH", "Minimum level of hierarchy to apply this field", GH_ParamAccess.item);
             pManager.AddIntegerParameter("MaxHierarchy", "MaxH", "Maximum level of hierarchy to apply this field", GH_ParamAccess.item);
+            pManager.AddCurveParameter("BoundaryCurve", "BCrv", "Boundary curve for the tensor field", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
             pManager[3].Optional = true;
             pManager[4].Optional = true;
             pManager[5].Optional = true;
+            pManager[6].Optional = true;
         }
 
         /// <summary>
@@ -62,10 +64,12 @@ namespace UrbanDesignEngine.Components
             DA.GetData(4, ref minH);
             int maxH = 999;
             DA.GetData(5, ref maxH);
+            Curve curve = default;
 
             LineTensorField tf = new LineTensorField(line, decayRange, extentRadius);
             tf.Factor = factor;
             tf.ActivationHierarchy = h => (h == -1) || (h >= minH && h <= maxH);
+            if (DA.GetData(6, ref curve)) tf.BoundaryCurve = curve;
 
             DA.SetData(0, tf.gHIOParam);
         }
