@@ -10,12 +10,12 @@ namespace UrbanDesignEngine.Tensor
     public class PolylineTensorField : ObjectTensorField<Curve>
     {
         public Polyline Polyline;
-
+        public override TensorFieldType TensorFieldType => TensorFieldType.PolylineAttractor;
         public PolylineTensorField(Polyline polyline, double range, double extent) : base(polyline.ToPolylineCurve(), range, extent)
         {
             Polyline = polyline;
             geometry = polyline.ToNurbsCurve();
-            TensorFieldType = TensorFieldType.PolylineAttractor;
+            
             DecayRange = range;
             Extent = extent;
         }

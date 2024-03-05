@@ -10,11 +10,12 @@ namespace UrbanDesignEngine.Tensor
     public class LineTensorField : ObjectTensorField<Curve>
     {
         public Line Line;
+
+        public override TensorFieldType TensorFieldType => TensorFieldType.LineAttractor;
         public LineTensorField(Line line, double range, double extent) : base(line.ToNurbsCurve(), range, extent)
         {
             Line = line;
             geometry = line.ToNurbsCurve();
-            TensorFieldType = TensorFieldType.LineAttractor;
             DecayRange = range;
             Extent = extent;
         }

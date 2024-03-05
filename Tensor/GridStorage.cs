@@ -8,7 +8,7 @@ using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Tensor
 {
-    public struct GridIndex : IDuplicable<GridIndex>
+    public struct GridIndex : IDuplicable<GridIndex>, IEquatable<GridIndex>
     {
         public int x;
         public int y;
@@ -21,13 +21,18 @@ namespace UrbanDesignEngine.Tensor
 
         public GridIndex Duplicate()
         {
-            return new GridIndex { x = x, y = y};
+            return new GridIndex { x = x, y = y };
+        }
+
+        public bool Equals(GridIndex other)
+        {
+            return x == other.x && y == other.y;
         }
     }
 
     public class Grid : IDuplicable<Grid>
     {
-        Dictionary<GridIndex, List<Vector3d>> Content = new Dictionary<GridIndex, List<Vector3d>>();
+        public Dictionary<GridIndex, List<Vector3d>> Content = new Dictionary<GridIndex, List<Vector3d>>();
         protected int xDim = 0;
         protected int yDim = 0;
 
@@ -40,24 +45,32 @@ namespace UrbanDesignEngine.Tensor
             return new Grid() { xDim = xDim, yDim = yDim, Content = Content.ToDictionary(entry => entry.Key.Duplicate(), entry => entry.Value.ConvertAll(v => new Vector3d(v))) };
         }
 
-        public List<Vector3d> Get(int x, int y)
+        public bool Get(GridIndex gi, out List<Vector3d> vecs)
         {
-            Content.TryGetValue(new GridIndex(x, y), out List<Vector3d> vecs);
-            return vecs;
+            return Content.TryGetValue(gi, out vecs);
         }
 
-        public void Set(int x, int y, int z, Vector3d vec)
+        public bool Get(int x, int y, out List<Vector3d> vecs)
+        {
+            return Content.TryGetValue(new GridIndex(x, y), out vecs);
+        }
+
+        public void Set(int x, int y, Vector3d vec)
         {
             xDim = Math.Max(x + 1, xDim);
             yDim = Math.Max(y + 1, yDim);
-            zDim = Math.Max(z + 1, zDim);
-            if (z < 0) z = zDim - 1;
-            Content.Add(new GridIndex(x, y, z), vec);
+            if (Content.TryGetValue(new GridIndex(x, y), out List<Vector3d> vecs))
+            {
+                vecs.Add(vec);
+            } else
+            {
+                Content.Add(new GridIndex(x, y), new List<Vector3d> { vec });
+            }
         }
 
         public void Set(GridIndex id, Vector3d vec)
         {
-            Set(id.x, id.y, id.z, vec);
+            Set(id.x, id.y, vec);
         }
     }
 
@@ -83,6 +96,21 @@ namespace UrbanDesignEngine.Tensor
 
         public void AddAll(GridStorage gridStorage)
         {
+            foreach (var kvp in gridStorage.Grid.Content)
+            {
+                if (Grid.Get(kvp.Key, out List<Vector3d> vecs))
+                {
+                    vecs.AddRange(kvp.Value);
+                } else
+                {
+                    foreach (Vector3d v in kvp.Value)
+                    {
+                        Grid.Set(kvp.Key.x, kvp.Key.y, v);
+                    }
+                    
+                }
+            }
+            /*
             for (int i = 0; i < gridStorage.Grid.Length; i++)
             {
                 for (int j = 0; j < gridStorage.Grid[i].Length; j++)
@@ -93,9 +121,10 @@ namespace UrbanDesignEngine.Tensor
                     }
                 }
             }
+            */
         }
 
-        public void AddPolyline(Vector3d[] line)
+        public void AddPolyline(List<Vector3d> line)
         {
             foreach (var v in line)
             {
@@ -111,7 +140,7 @@ namespace UrbanDesignEngine.Tensor
 
         public void AddSample(Vector3d v, GridIndex coords)
         {
-            Grid.Set(coords.x, coords.y, coords.z, v);
+            Grid.Set(coords.x, coords.y, v);
         }
 
         public bool IsValidSample(Vector3d v, double dSq = double.NaN)
@@ -132,7 +161,8 @@ namespace UrbanDesignEngine.Tensor
                     cell.y += y;
                     if (!VectorOutOfBounds(cell, this.gridDimensions))
                     {
-                        if (!VectorFarFromVectors(v, Grid[(int)cell.X][(int)cell.Y], dSq))
+                        if (!Grid.Get(cell, out List<Vector3d> vecs)) return false;
+                        if (!VectorFarFromVectors(v, vecs , dSq))
                         {
                             return false;
                         }
@@ -149,7 +179,7 @@ namespace UrbanDesignEngine.Tensor
             {
                 if (!sample.Equals(v))
                 {
-                    double distanceSq = sample.DistanceToSquared(v);
+                    double distanceSq = new Point3d(sample).DistanceTo(new Point3d(v));
                     if (distanceSq < dSq)
                     {
                         return false;
@@ -174,8 +204,10 @@ namespace UrbanDesignEngine.Tensor
                     cell.y += y;
                     if (!VectorOutOfBounds(cell, this.gridDimensions))
                     {
-                        for (int i = 0; i < Grid.ZDim)
-                        outList.AddRange(Grid[(int)cell.X][(int)cell.Y]);
+                        if (Grid.Get(cell, out List<Vector3d> vecs))
+                        {
+                            outList.AddRange(vecs);
+                        }
                     }
                 }
             }
@@ -210,13 +242,12 @@ namespace UrbanDesignEngine.Tensor
             Vector3d v = WorldToGrid(worldV);
             if (VectorOutOfBounds(v, this.worldDimensions))
             {
-                return new GridIndex(0, 0, 0);
+                return new GridIndex(0, 0);
             }
 
             return new GridIndex(
                 (int)Math.Floor(v.X / this.dsep),
-                (int)Math.Floor(v.Y / this.dsep),
-                -1
+                (int)Math.Floor(v.Y / this.dsep)
             );
         }
     }

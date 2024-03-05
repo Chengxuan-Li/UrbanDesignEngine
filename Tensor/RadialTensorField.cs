@@ -12,10 +12,11 @@ namespace UrbanDesignEngine.Tensor
 {
     public class RadialTensorField : ObjectTensorField<Point>, IHasGHIOPreviewGeometryListParam<RadialTensorField, GHIOTensorFieldCurvesParam<RadialTensorField>, Curve>, IHasGeometryList<Curve>
     {
+        public override TensorFieldType TensorFieldType => TensorFieldType.PointAttractor;
         public RadialTensorField(Point3d point, double range, double extent) : base(new Point(point), range, extent)
         {
             geometry = new Point(point);
-            TensorFieldType = TensorFieldType.PointAttractor;
+            
             DecayRange = range;
             Extent = extent;
         }

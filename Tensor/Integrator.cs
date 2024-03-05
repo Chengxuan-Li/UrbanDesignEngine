@@ -17,17 +17,17 @@ namespace UrbanDesignEngine.Tensor
             TensorField = field;
         }
 
-        public abstract Vector3d Integrate(Point3d point, bool major);
+        public abstract Vector3d Integrate(Vector3d point, bool major);
 
-        protected Vector3d SampleFieldVector(Point3d point, bool major)
+        protected Vector3d SampleFieldVector(Vector3d point, bool major)
         {
-            TensorField.ContextAwareEvaluate(-1, point, out Vector3d majorVector, out Vector3d minorVector, out double scalar);
+            TensorField.ContextAwareEvaluate(-1, new Point3d(point), out Vector3d majorVector, out Vector3d minorVector, out double scalar);
             return major ? majorVector : minorVector;
         }
 
-        public bool OnLand(Point3d point)
+        public bool OnLand(Vector3d point)
         {
-            return TensorField.Contains(point);
+            return TensorField.Contains(new Point3d(point));
         }
     }
 
@@ -40,7 +40,7 @@ namespace UrbanDesignEngine.Tensor
             SParams = parameters;
         }
 
-        public override Vector3d Integrate(Point3d point, bool major)
+        public override Vector3d Integrate(Vector3d point, bool major)
         {
             return SampleFieldVector(point, major) * SParams.Dstep;
         }
@@ -55,7 +55,7 @@ namespace UrbanDesignEngine.Tensor
             SParams = parameters;
         }
 
-        public override Vector3d Integrate(Point3d point, bool major)
+        public override Vector3d Integrate(Vector3d point, bool major)
         {
             Vector3d k1 = SampleFieldVector(point, major);
             Vector3d k23 = SampleFieldVector(point + new Vector3d(SParams.Dstep / 2, SParams.Dstep / 2, 0), major);

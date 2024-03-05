@@ -29,6 +29,20 @@ namespace UrbanDesignEngine.Tensor
         public int SeedTries { get; set; }  // Max failed seeds
         public double SimplifyTolerance { get; set; }
         public double CollideEarly { get; set; }  // Chance of early collision 0-1
+
+        public static StreamlineParams Default => new StreamlineParams 
+        { 
+            Dsep = 10,
+            Dtest = 2,
+            Dstep = 0.5,
+            Dcirclejoin = 1,
+            Dlookahead = 2,
+            Joinangle = Math.PI / 6.0,
+            PathIterations = 5000,
+            SeedTries = 3,
+            SimplifyTolerance = 0.01,
+            CollideEarly = 0.1,
+        };
     }
 
 
@@ -52,10 +66,17 @@ namespace UrbanDesignEngine.Tensor
         protected Action resolve;
         protected bool lastStreamlineMajor = true;
 
+        protected FieldIntegrator integrator;
+        protected Vector3d origin;
+        protected Vector3d worldDimensions;
+        protected StreamlineParams parameters;
+
         public List<List<Vector3d>> allStreamlines = new List<List<Vector3d>>();
         public List<List<Vector3d>> streamlinesMajor = new List<List<Vector3d>>();
         public List<List<Vector3d>> streamlinesMinor = new List<List<Vector3d>>();
         public List<List<Vector3d>> allStreamlinesSimple = new List<List<Vector3d>>();
+
+        public Random Random = new Random();
 
 
         public StreamlineGenerator(FieldIntegrator integrator, Vector3d origin, Vector3d worldDimensions, StreamlineParams parameters)
@@ -63,7 +84,7 @@ namespace UrbanDesignEngine.Tensor
             this.integrator = integrator;
             this.origin = origin;
             this.worldDimensions = worldDimensions;
-            this.params = parameters;
+            this.parameters = parameters;
 
             if (parameters.Dstep > parameters.Dsep)
             {
@@ -81,7 +102,8 @@ namespace UrbanDesignEngine.Tensor
             majorGrid = new GridStorage(worldDimensions, origin, parameters.Dsep);
             minorGrid = new GridStorage(worldDimensions, origin, parameters.Dsep);
 
-            SetParamsSq();
+            //SetParamsSq();
+            paramsSq = parameters;
         }
 
         public void ClearStreamlines()
@@ -100,7 +122,7 @@ namespace UrbanDesignEngine.Tensor
                 foreach (var streamline in Streamlines(major))
                 {
                     // Ignore circles
-                    if (streamline[0].Equals(streamline[streamline.Length - 1]))
+                    if (streamline[0].Equals(streamline[streamline.Count - 1]))
                     {
                         continue;
                     }
@@ -108,17 +130,17 @@ namespace UrbanDesignEngine.Tensor
                     var newStart = GetBestNextPoint(streamline[0], streamline[4], streamline);
                     if (newStart != null)
                     {
-                        foreach (var p in PointsBetween(streamline[0], newStart, params.Dstep))
+                        foreach (var p in PointsBetween(streamline[0], newStart, parameters.Dstep))
                         {
                             streamline.Insert(0, p);
                             Grid(major).AddSample(p);
                         }
                     }
 
-                    var newEnd = GetBestNextPoint(streamline[streamline.Length - 1], streamline[streamline.Length - 4], streamline);
+                    var newEnd = GetBestNextPoint(streamline[streamline.Count - 1], streamline[streamline.Count - 4], streamline);
                     if (newEnd != null)
                     {
-                        foreach (var p in PointsBetween(streamline[streamline.Length - 1], newEnd, params.Dstep))
+                        foreach (var p in PointsBetween(streamline[streamline.Count - 1], newEnd, parameters.Dstep))
                         {
                             streamline.Add(p);
                             Grid(major).AddSample(p);
@@ -137,17 +159,17 @@ namespace UrbanDesignEngine.Tensor
 
         public List<Vector3d> PointsBetween(Vector3d v1, Vector3d v2, double dstep)
         {
-            double d = v1.DistanceTo(v2);
+            double d = new Point3d(v1).DistanceTo(new Point3d(v2));
             int nPoints = (int)Math.Floor(d / dstep);
             if (nPoints == 0) return new List<Vector3d>();
 
-            Vector3d stepVector = v2.Sub(v1);
+            Vector3d stepVector = v2 - v1;
 
             List<Vector3d> outPoints = new List<Vector3d>();
             for (int i = 1; i <= nPoints; i++)
             {
-                Vector3d next = v1.Clone().Add(stepVector.Clone().MultiplyScalar(i / (double)nPoints));
-                if (integrator.Integrate(next, true).LengthSquared() > 0.001) // Test for degenerate point
+                Vector3d next = new Vector3d(v1) + new Vector3d(stepVector) * (i / (double)nPoints);
+                if (integrator.Integrate(next, true).Length > 0.001) // Test for degenerate point
                 {
                     outPoints.Add(next);
                 }
@@ -159,36 +181,36 @@ namespace UrbanDesignEngine.Tensor
             return outPoints;
         }
 
-        public Vector3d GetBestNextPoint(Vector3d point, Vector3d previousPoint, Vector3d[] streamline)
+        public Vector3d GetBestNextPoint(Vector3d point, Vector3d previousPoint, List<Vector3d> streamline)
         {
-            List<Vector3d> nearbyPoints = majorGrid.GetNearbyPoints(point, params.Dlookahead);
-            nearbyPoints.AddRange(minorGrid.GetNearbyPoints(point, params.Dlookahead));
-            Vector3d direction = point.Clone().Sub(previousPoint);
+            List<Vector3d> nearbyPoints = majorGrid.GetNearbyPoints(point, parameters.Dlookahead);
+            nearbyPoints.AddRange(minorGrid.GetNearbyPoints(point, parameters.Dlookahead));
+            Vector3d direction = new Vector3d(point) - previousPoint;
 
-            Vector3d closestSample = null;
+            Vector3d closestSample = default;
             double closestDistance = double.PositiveInfinity;
 
             foreach (Vector3d sample in nearbyPoints)
             {
                 if (!sample.Equals(point) && !sample.Equals(previousPoint))
                 {
-                    Vector3d differenceVector = sample.Clone().Sub(point);
-                    if (differenceVector.Dot(direction) < 0)
+                    Vector3d differenceVector = new Vector3d(sample) - point;
+                    if ((differenceVector.X * direction.X + differenceVector.Y * direction.Y) < 0)
                     {
                         // Backwards
                         continue;
                     }
 
-                    double distanceToSample = point.DistanceToSquared(sample);
+                    double distanceToSample = new Point3d(point).DistanceTo(new Point3d(sample));
                     if (distanceToSample < 2 * paramsSq.Dstep)
                     {
                         closestSample = sample;
                         break;
                     }
 
-                    double angleBetween = Math.Abs(Vector3d.AngleBetween(direction, differenceVector));
+                    double angleBetween = Math.Abs(AngleBetween(direction, differenceVector));
 
-                    if (angleBetween < params.Joinangle && distanceToSample < closestDistance)
+                    if (angleBetween < parameters.Joinangle && distanceToSample < closestDistance)
             {
                         closestDistance = distanceToSample;
                         closestSample = sample;
@@ -202,22 +224,33 @@ namespace UrbanDesignEngine.Tensor
             // prevent ends getting pulled away from simplified lines
             if (closestSample != null)
             {
-                closestSample = closestSample.Clone().Add(direction.SetLength(params.SimplifyTolerance * 4));
+                Vector3d direction1 = new Vector3d(direction);
+                direction1.Unitize();
+                direction1 = direction1 * parameters.SimplifyTolerance * 4;
+                closestSample = closestSample + direction1;
             }
 
             return closestSample;
         }
 
+        double AngleBetween(Vector3d v1, Vector3d v2)
+        {
+            double angle = Math.Atan2(v1.Y, v1.X) - Math.Atan2(v2.Y, v2.X);
+            if (angle > Math.PI) angle -= 2.0 * Math.PI;
+            if (angle <= -Math.PI) angle += 2.0 * Math.PI;
+            return angle;
+        }
+
         public void AddExistingStreamlines(StreamlineGenerator s)
         {
-            majorGrid.AddAll(s.MajorGrid);
-            minorGrid.AddAll(s.MinorGrid);
+            majorGrid.AddAll(s.majorGrid);
+            minorGrid.AddAll(s.minorGrid);
         }
 
         public void SetGrid(StreamlineGenerator s)
         {
-            majorGrid = s.MajorGrid;
-            minorGrid = s.MinorGrid;
+            majorGrid = s.majorGrid;
+            minorGrid = s.minorGrid;
         }
 
         public bool Update()
@@ -234,6 +267,17 @@ namespace UrbanDesignEngine.Tensor
             }
 
             return false;
+        }
+
+        public void RunCreateAllStreamlines()
+        {
+            streamlinesDone = false;
+            bool major = true;
+            while (CreateStreamline(major))
+            {
+                major = !major;
+            }
+            JoinDanglingStreamlines();
         }
 
         public async Task CreateAllStreamlines(bool animate = false)
@@ -255,14 +299,17 @@ namespace UrbanDesignEngine.Tensor
             JoinDanglingStreamlines();
         }
 
-        protected Vector3d[] SimplifyStreamline(Vector3d[] streamline)
+        protected List<Vector3d> SimplifyStreamline(List<Vector3d> streamline)
         {
             List<Vector3d> simplified = new List<Vector3d>();
-            foreach (Vector3d point in Simplify(streamline, params.SimplifyTolerance))
+            Polyline pl = new Polyline(streamline.ConvertAll(v => new Point3d(v)));
+            Curve curve = pl.ToPolylineCurve().Simplify(CurveSimplifyOptions.Merge, parameters.SimplifyTolerance, parameters.SimplifyTolerance);
+            curve.TryGetPolyline(out pl);
+            foreach (Vector3d point in pl.ConvertAll(p => new Vector3d(p)))
             {
-                simplified.Add(new Vector3d(point.X, point.Y));
+                simplified.Add(new Vector3d(point.X, point.Y, 0));
             }
-            return simplified.ToArray();
+            return simplified.ToList();
         }
 
         protected bool CreateStreamline(bool major)
@@ -272,34 +319,35 @@ namespace UrbanDesignEngine.Tensor
             {
                 return false;
             }
-            Vector3d[] streamline = IntegrateStreamline(seed, major);
+            List<Vector3d> streamline = IntegrateStreamline(seed, major);
             if (ValidStreamline(streamline))
             {
-                grid(major).AddPolyline(streamline);
-                streamlines(major).Add(streamline);
+                Grid(major).AddPolyline(streamline);
+                Streamlines(major).Add(streamline);
                 allStreamlines.Add(streamline);
 
                 allStreamlinesSimple.Add(SimplifyStreamline(streamline));
 
                 // Add candidate seeds
-                if (!streamline[0].Equals(streamline[streamline.Length - 1]))
+                if (!streamline[0].Equals(streamline[streamline.Count - 1]))
                 {
-                    candidateSeeds(!major).Add(streamline[0]);
-                    candidateSeeds(!major).Add(streamline[streamline.Length - 1]);
+                    CandidateSeeds(!major).Add(streamline[0]);
+                    CandidateSeeds(!major).Add(streamline[streamline.Count - 1]);
                 }
             }
 
             return true;
         }
 
-        protected bool ValidStreamline(Vector3d[] s)
+        protected bool ValidStreamline(List<Vector3d> s)
         {
-            return s.Length > 5;
+            return s.Count > 5;
         }
 
+        /*
         protected void SetParamsSq()
         {
-            paramsSq = new Dictionary<string, object>(params);
+            paramsSq = new Dictionary<string, object>(parameters);
             foreach (string p in paramsSq.Keys.ToList())
             {
                 if (paramsSq[p] is double)
@@ -308,38 +356,41 @@ namespace UrbanDesignEngine.Tensor
                 }
             }
         }
+        */
 
         protected Vector3d SamplePoint()
         {
             // TODO better seeding scheme
             return new Vector3d(
                 Random.NextDouble() * worldDimensions.X,
-                Random.NextDouble() * worldDimensions.Y)
-                .Add(origin);
+                Random.NextDouble() * worldDimensions.Y,
+                0)
+                + origin;
         }
 
         protected Vector3d GetSeed(bool major)
         {
             // Candidate seeds first
-            if (SEED_AT_ENDPOINTS && candidateSeeds(major).Count > 0)
+            if (SEED_AT_ENDPOINTS && CandidateSeeds(major).Count > 0)
             {
-                while (candidateSeeds(major).Count > 0)
+                while (CandidateSeeds(major).Count > 0)
                 {
-                    Vector3d seed = candidateSeeds(major).Pop();
-                    if (IsValidSample(major, seed, paramsSq["dsep"]))
+                    Vector3d sd = CandidateSeeds(major).Last();
+                    CandidateSeeds(major).RemoveAt(CandidateSeeds(major).Count - 1);
+                    if (IsValidSample(major, sd, paramsSq.Dsep))
                     {
-                        return seed;
+                        return sd;
                     }
                 }
             }
 
             Vector3d seed = SamplePoint();
             int i = 0;
-            while (!IsValidSample(major, seed, (double)paramsSq["dsep"]))
+            while (!IsValidSample(major, seed, (double)paramsSq.Dsep))
             {
-                if (i >= (int)params["seedTries"])
+                if (i >= (int)parameters.SeedTries)
         {
-                    return null;
+                    return default;
                 }
                 seed = SamplePoint();
                 i++;
@@ -350,20 +401,20 @@ namespace UrbanDesignEngine.Tensor
 
         protected bool IsValidSample(bool major, Vector3d point, double dSq, bool bothGrids = false)
         {
-            bool gridValid = grid(major).IsValidSample(point, dSq);
+            bool gridValid = Grid(major).IsValidSample(point, dSq);
             if (bothGrids)
             {
-                gridValid = gridValid && grid(!major).IsValidSample(point, dSq);
+                gridValid = gridValid && Grid(!major).IsValidSample(point, dSq);
             }
             return integrator.OnLand(point) && gridValid;
         }
 
-        protected Stack<Vector3d> CandidateSeeds(bool major)
+        protected List<Vector3d> CandidateSeeds(bool major)
         {
             return major ? candidateSeedsMajor : candidateSeedsMinor;
         }
 
-        protected Vector3d[][] Streamlines(bool major)
+        protected List<List<Vector3d>> Streamlines(bool major)
         {
             return major ? streamlinesMajor : streamlinesMinor;
         }
@@ -392,7 +443,7 @@ namespace UrbanDesignEngine.Tensor
                 // Forwards check
                 for (int i = 0; i < streamlineForwards.Count - nStreamlineLookBack; i += nStreamlineStep)
                 {
-                    if (testSample.DistanceToSquared(streamlineForwards[i]) < dcollideselfSq)
+                    if (new Point3d(testSample).DistanceTo(new Point3d(streamlineForwards[i])) < dcollideselfSq)
                     {
                         return true;
                     }
@@ -401,7 +452,7 @@ namespace UrbanDesignEngine.Tensor
                 // Backwards check
                 for (int i = 0; i < streamlineBackwards.Count; i += nStreamlineStep)
                 {
-                    if (testSample.DistanceToSquared(streamlineBackwards[i]) < dcollideselfSq)
+                    if (new Point3d(testSample).DistanceTo(new Point3d(streamlineBackwards[i])) < dcollideselfSq)
                     {
                         return true;
                     }
@@ -413,12 +464,13 @@ namespace UrbanDesignEngine.Tensor
 
         protected bool StreamlineTurned(Vector3d seed, Vector3d originalDir, Vector3d point, Vector3d direction)
         {
-            if (originalDir.Dot(direction) < 0)
+            if ((originalDir.X * direction.X + originalDir.Y * direction.Y) < 0)
             {
                 // TODO optimize
-                Vector3d perpendicularVector = new Vector3d(originalDir.Y, -originalDir.X);
-                bool isLeft = point.Clone().Subtract(seed).Dot(perpendicularVector) < 0;
-                bool directionUp = direction.Dot(perpendicularVector) > 0;
+                Vector3d perpendicularVector = new Vector3d(originalDir.Y, -originalDir.X, 0);
+                Vector3d vc = point - seed;
+                bool isLeft = vc.X * perpendicularVector.X + vc.Y * perpendicularVector.Y < 0;
+                bool directionUp = direction.X * perpendicularVector.X + direction.Y * perpendicularVector.Y > 0;
                 return isLeft == directionUp;
             }
 
@@ -430,22 +482,22 @@ namespace UrbanDesignEngine.Tensor
             if (parameters.Valid)
             {
                 parameters.Streamline.Add(parameters.PreviousPoint);
-                Vector3d nextDirection = this.Integrator.Integrate(parameters.PreviousPoint, major);
+                Vector3d nextDirection = this.integrator.Integrate(parameters.PreviousPoint, major);
 
                 // Stop at degenerate point
-                if (nextDirection.LengthSquared() < 0.01)
+                if ((nextDirection.Length) < 0.01)
                 {
                     parameters.Valid = false;
                     return;
                 }
 
                 // Make sure we travel in the same direction
-                if (nextDirection.Dot(parameters.PreviousDirection) < 0)
+                if ((nextDirection.X * parameters.PreviousDirection.X + nextDirection.Y * parameters.PreviousDirection.Y) < 0)
                 {
-                    nextDirection.Negate();
+                    nextDirection = -nextDirection;
                 }
 
-                Vector3d nextPoint = parameters.PreviousPoint.Clone().Add(nextDirection);
+                Vector3d nextPoint = parameters.PreviousPoint + (nextDirection);
 
                 // Visualize stopping points
                 // if (this.StreamlineTurned(parameters.Seed, parameters.OriginalDir, nextPoint, nextDirection)) {
@@ -453,7 +505,7 @@ namespace UrbanDesignEngine.Tensor
                 //     parameters.Streamline.Add(Vector3d.ZeroVector());
                 // }
 
-                if (this.PointInBounds(nextPoint) && this.IsValidSample(major, nextPoint, this.ParamsSq.Dtest, collideBoth)
+                if (this.PointInBounds(nextPoint) && this.IsValidSample(major, nextPoint, this.paramsSq.Dtest, collideBoth)
                     && !this.StreamlineTurned(parameters.Seed, parameters.OriginalDir, nextPoint, nextDirection))
                 {
                     parameters.PreviousPoint = nextPoint;
@@ -468,16 +520,16 @@ namespace UrbanDesignEngine.Tensor
             }
         }
 
-        protected Vector3d[] IntegrateStreamline(Vector3d seed, bool major)
+        protected List<Vector3d> IntegrateStreamline(Vector3d seed, bool major)
         {
             int count = 0;
             bool pointsEscaped = false;  // True once two integration fronts have moved dlookahead away
 
             // Whether or not to test validity using both grid storages
             // (Collide with both major and minor)
-            bool collideBoth = new Random().NextDouble() < this.Params.CollideEarly;
+            bool collideBoth = new Random().NextDouble() < this.parameters.CollideEarly;
 
-            Vector3d d = this.Integrator.Integrate(seed, major);
+            Vector3d d = this.integrator.Integrate(seed, major);
 
             StreamlineIntegration forwardParams = new StreamlineIntegration
             {
@@ -485,39 +537,39 @@ namespace UrbanDesignEngine.Tensor
                 OriginalDir = d,
                 Streamline = new List<Vector3d> { seed },
                 PreviousDirection = d,
-                PreviousPoint = seed.Clone().Add(d),
+                PreviousPoint = seed + d,
                 Valid = true,
             };
 
             forwardParams.Valid = this.PointInBounds(forwardParams.PreviousPoint);
 
-            Vector3d negD = d.Clone().Negate();
+            Vector3d negD = -d;
             StreamlineIntegration backwardParams = new StreamlineIntegration
             {
                 Seed = seed,
                 OriginalDir = negD,
                 Streamline = new List<Vector3d>(),
                 PreviousDirection = negD,
-                PreviousPoint = seed.Clone().Add(negD),
+                PreviousPoint = seed + negD,
                 Valid = true,
             };
 
             backwardParams.Valid = this.PointInBounds(backwardParams.PreviousPoint);
 
-            while (count < this.Params.PathIterations && (forwardParams.Valid || backwardParams.Valid))
+            while (count < this.parameters.PathIterations && (forwardParams.Valid || backwardParams.Valid))
             {
                 StreamlineIntegrationStep(forwardParams, major, collideBoth);
                 StreamlineIntegrationStep(backwardParams, major, collideBoth);
 
                 // Join up circles
-                double sqDistanceBetweenPoints = forwardParams.PreviousPoint.DistanceToSquared(backwardParams.PreviousPoint);
+                double sqDistanceBetweenPoints = new Point3d(forwardParams.PreviousPoint).DistanceTo(new Point3d(backwardParams.PreviousPoint));
 
-                if (!pointsEscaped && sqDistanceBetweenPoints > this.ParamsSq.Dcirclejoin)
+                if (!pointsEscaped && sqDistanceBetweenPoints > this.paramsSq.Dcirclejoin)
                 {
                     pointsEscaped = true;
                 }
 
-                if (pointsEscaped && sqDistanceBetweenPoints <= this.ParamsSq.Dcirclejoin)
+                if (pointsEscaped && sqDistanceBetweenPoints <= this.paramsSq.Dcirclejoin)
                 {
                     forwardParams.Streamline.Add(forwardParams.PreviousPoint);
                     forwardParams.Streamline.Add(backwardParams.PreviousPoint);
@@ -530,7 +582,7 @@ namespace UrbanDesignEngine.Tensor
 
             backwardParams.Streamline.Reverse();
             backwardParams.Streamline.AddRange(forwardParams.Streamline);
-            return backwardParams.Streamline.ToArray();
+            return backwardParams.Streamline.ToList();
         }
 
     }

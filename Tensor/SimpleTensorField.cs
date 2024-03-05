@@ -79,7 +79,7 @@ namespace UrbanDesignEngine.Tensor
             Matrix[1, 1] = v11;
         }
         */
-        public TensorFieldType TensorFieldType => TensorFieldType.Uniform;
+        public virtual TensorFieldType TensorFieldType => TensorFieldType.Uniform;
 
         public Curve BoundaryCurve = default;
 
