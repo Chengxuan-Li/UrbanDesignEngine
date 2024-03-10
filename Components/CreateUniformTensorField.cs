@@ -63,7 +63,7 @@ namespace UrbanDesignEngine.Components
 
             SimpleTensorField tf = new SimpleTensorField(vec);
             tf.Factor = factor;
-            tf.ActivationHierarchy = h => (h == -1) || (h >= minH && h <= maxH);
+            tf.activationHierarchy = h => (h == -1) || (h >= minH && h <= maxH);
             if (DA.GetData(4, ref curve)) tf.BoundaryCurve = curve;
 
             DA.SetData(0, tf.gHIOParam);

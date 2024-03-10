@@ -15,9 +15,9 @@ namespace UrbanDesignEngine.Tensor
         WeightedAverage = 2,
     }
 
-    public class MultipleTensorFields : ITensorField, IHasGHIOPreviewGeometryListParam<MultipleTensorFields, GHIOTensorFieldCurvesParam<MultipleTensorFields>, Curve>, IHasGeometryList<Curve>
+    public class MultipleTensorFields : IDuplicable<MultipleTensorFields>, ITensorField, IHasGHIOPreviewGeometryListParam<MultipleTensorFields, GHIOTensorFieldCurvesParam<MultipleTensorFields>, Curve>, IHasGeometryList<Curve>
     {
-        public List<SimpleTensorField> TensorFields = new List<SimpleTensorField>();
+        public List<ITensorField> TensorFields = new List<ITensorField>(); 
 
         public TensorFieldType TensorFieldType => TensorFieldType.Multiple;
 
@@ -81,6 +81,13 @@ namespace UrbanDesignEngine.Tensor
         }
 
         public GHIOTensorFieldCurvesParam<MultipleTensorFields> gHIOParam => new GHIOTensorFieldCurvesParam<MultipleTensorFields>() { ScriptClassVariable = this};
+
+        public Predicate<int> ActivationHierarchy => throw new NotImplementedException();
+
+        public MultipleTensorFields()
+        {
+
+        }
 
         public MultipleTensorFields(SimpleTensorField field)
         {
@@ -194,6 +201,17 @@ namespace UrbanDesignEngine.Tensor
                 }
             }
             return false;
+        }
+
+
+        public MultipleTensorFields Duplicate()
+        {
+            return new MultipleTensorFields() { Method = Method, TensorFields = TensorFields.ConvertAll(tf => tf.Duplicate()) };
+        }
+
+        ITensorField IDuplicable<ITensorField>.Duplicate()
+        {
+            return Duplicate();
         }
     }
 }

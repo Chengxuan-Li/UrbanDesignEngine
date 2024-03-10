@@ -63,7 +63,7 @@ namespace UrbanDesignEngine.Tensor
     }
 
     //Add GHIOParam
-    public class SimpleTensorField : ITensorField, IHasGHIOPreviewGeometryListParam<SimpleTensorField, GHIOTensorFieldCurvesParam<SimpleTensorField>, Curve>, IHasGeometryList<Curve>
+    public class SimpleTensorField : IDuplicable<SimpleTensorField>, ITensorField, IHasGHIOPreviewGeometryListParam<SimpleTensorField, GHIOTensorFieldCurvesParam<SimpleTensorField>, Curve>, IHasGeometryList<Curve>
     // : IDuplicable<SimpleTensorField
     {
         //public Matrix<double> Matrix = Matrix<double>.Build.Dense(2, 2, 0);
@@ -89,7 +89,8 @@ namespace UrbanDesignEngine.Tensor
 
         public virtual BoundingBox Boundary => new BoundingBox(new Point3d(-999, -999, 0), new Point3d(999, 999, 0));
 
-        public Predicate<int> ActivationHierarchy = h => h >= -1;
+        public Predicate<int> ActivationHierarchy => activationHierarchy;
+        public Predicate<int> activationHierarchy = h => h >= -1;
 
         public List<Curve> PreviewGeometryList
         {
@@ -202,6 +203,15 @@ namespace UrbanDesignEngine.Tensor
             
         }
 
+        public SimpleTensorField Duplicate()
+        {
+            return new SimpleTensorField() { vector = new Vector3d(vector), activationHierarchy = activationHierarchy, BoundaryCurve = BoundaryCurve, Factor = Factor };
+        }
+
+        ITensorField IDuplicable<ITensorField>.Duplicate()
+        {
+            return Duplicate();
+        }
 
         /*
         public virtual SimpleTensorField Duplicate()

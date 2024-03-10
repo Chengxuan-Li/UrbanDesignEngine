@@ -69,7 +69,7 @@ namespace UrbanDesignEngine.Components
 
             CurveTensorField tf = new CurveTensorField(curve, decayRange, extentRadius);
             tf.Factor = factor;
-            tf.ActivationHierarchy = h => (h == -1) || (h >= minH && h <= maxH);
+            tf.activationHierarchy = h => (h == -1) || (h >= minH && h <= maxH);
             if (DA.GetData(6, ref bcurve)) tf.BoundaryCurve = bcurve;
 
             DA.SetData(0, tf.gHIOParam);

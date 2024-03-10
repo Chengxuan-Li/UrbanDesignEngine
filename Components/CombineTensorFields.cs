@@ -67,6 +67,10 @@ namespace UrbanDesignEngine.Components
                 tfm1 = new MultipleTensorFields(tf1);
             }
 
+            //tfm0 = tfm0.Duplicate();
+
+            //tfm1 = tfm1.Duplicate();
+
             tfm0.Multiply(tfm1);
 
             DA.SetData(0, tfm0.gHIOParam);
