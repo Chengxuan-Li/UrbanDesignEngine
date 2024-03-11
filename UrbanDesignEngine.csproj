@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <LangVersion>preview</LangVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
@@ -10,9 +11,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UrbanDesignEngine</RootNamespace>
     <AssemblyName>UrbanDesignEngine</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -38,16 +40,25 @@
     <Reference Include="AForge.Math, Version=2.2.5.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL">
       <HintPath>packages\AForge.Math.2.2.5\lib\AForge.Math.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\MathNet.Numerics.4.15.0\lib\net40\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="QuikGraph, Version=2.5.0.0, Culture=neutral, PublicKeyToken=46bd58b0789759cb, processorArchitecture=MSIL">
       <HintPath>packages\QuikGraph.2.5.0\lib\net45\QuikGraph.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -90,6 +101,111 @@
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
     <Compile Include="DataStructure\IDuplicable.cs" />
+    <Compile Include="DotRecast\Core\Buffer\RcCyclicBuffer.cs" />
+    <Compile Include="DotRecast\Core\Buffer\RcCyclicBuffers.cs" />
+    <Compile Include="DotRecast\Core\Buffer\RcRentedArray.cs" />
+    <Compile Include="DotRecast\Core\Collections\CollectionExtensions.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcImmutableArray.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcImmutableArray.Enumerable.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcImmutableArray.Listable.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcImmutableArray.Minimal.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcSortedQueue.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray128.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray16.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray2.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray256.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray32.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray4.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray512.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray64.cs" />
+    <Compile Include="DotRecast\Core\Collections\RcStackArray8.cs" />
+    <Compile Include="DotRecast\Core\Compression\FastLZ.cs" />
+    <Compile Include="DotRecast\Core\IRcCompressor.cs" />
+    <Compile Include="DotRecast\Core\IRcRand.cs" />
+    <Compile Include="DotRecast\Core\Numerics\RcMatrix4x4f.cs" />
+    <Compile Include="DotRecast\Core\Numerics\RcVec2f.cs" />
+    <Compile Include="DotRecast\Core\Numerics\RcVec3f.cs" />
+    <Compile Include="DotRecast\Core\Numerics\RcVecUtils.cs" />
+    <Compile Include="DotRecast\Core\RcArrays.cs" />
+    <Compile Include="DotRecast\Core\RcAtomicBoolean.cs" />
+    <Compile Include="DotRecast\Core\RcAtomicFloat.cs" />
+    <Compile Include="DotRecast\Core\RcAtomicInteger.cs" />
+    <Compile Include="DotRecast\Core\RcAtomicLong.cs" />
+    <Compile Include="DotRecast\Core\RcByteBuffer.cs" />
+    <Compile Include="DotRecast\Core\RcByteOrder.cs" />
+    <Compile Include="DotRecast\Core\RcByteUtils.cs" />
+    <Compile Include="DotRecast\Core\RcContext.cs" />
+    <Compile Include="DotRecast\Core\RcConvexUtils.cs" />
+    <Compile Include="DotRecast\Core\RcDirectory.cs" />
+    <Compile Include="DotRecast\Core\RcEdge.cs" />
+    <Compile Include="DotRecast\Core\RcFrequency.cs" />
+    <Compile Include="DotRecast\Core\RcHashCodes.cs" />
+    <Compile Include="DotRecast\Core\RcIntersections.cs" />
+    <Compile Include="DotRecast\Core\RcMath.cs" />
+    <Compile Include="DotRecast\Core\RcObjImporter.cs" />
+    <Compile Include="DotRecast\Core\RcObjImporterContext.cs" />
+    <Compile Include="DotRecast\Core\RcProcess.cs" />
+    <Compile Include="DotRecast\Core\RcRand.cs" />
+    <Compile Include="DotRecast\Core\RcResources.cs" />
+    <Compile Include="DotRecast\Core\RcScopedTimer.cs" />
+    <Compile Include="DotRecast\Core\RcSegmentVert.cs" />
+    <Compile Include="DotRecast\Core\RcTelemetryTick.cs" />
+    <Compile Include="DotRecast\Core\RcThrowHelper.cs" />
+    <Compile Include="DotRecast\Core\RcTimerLabel.cs" />
+    <Compile Include="DotRecast\Detour\BVItem.cs" />
+    <Compile Include="DotRecast\Detour\BVItemXComparer.cs" />
+    <Compile Include="DotRecast\Detour\BVItemYComparer.cs" />
+    <Compile Include="DotRecast\Detour\BVItemZComparer.cs" />
+    <Compile Include="DotRecast\Detour\DetourBuilder.cs" />
+    <Compile Include="DotRecast\Detour\DtBVNode.cs" />
+    <Compile Include="DotRecast\Detour\DtConnectPoly.cs" />
+    <Compile Include="DotRecast\Detour\DtConvexConvexInFlag.cs" />
+    <Compile Include="DotRecast\Detour\DtConvexConvexIntersection.cs" />
+    <Compile Include="DotRecast\Detour\DtConvexConvexIntersections.cs" />
+    <Compile Include="DotRecast\Detour\DtDefaultQueryHeuristic.cs" />
+    <Compile Include="DotRecast\Detour\DtDetailTriEdgeFlags.cs" />
+    <Compile Include="DotRecast\Detour\DtFindNearestPolyQuery.cs" />
+    <Compile Include="DotRecast\Detour\DtFindPathOption.cs" />
+    <Compile Include="DotRecast\Detour\DtFindPathOptions.cs" />
+    <Compile Include="DotRecast\Detour\DtLink.cs" />
+    <Compile Include="DotRecast\Detour\DtMeshData.cs" />
+    <Compile Include="DotRecast\Detour\DtMeshHeader.cs" />
+    <Compile Include="DotRecast\Detour\DtMeshTile.cs" />
+    <Compile Include="DotRecast\Detour\DtNavMesh.cs" />
+    <Compile Include="DotRecast\Detour\DtNavMeshBuilder.cs" />
+    <Compile Include="DotRecast\Detour\DtNavMeshCreateParams.cs" />
+    <Compile Include="DotRecast\Detour\DtNavMeshParams.cs" />
+    <Compile Include="DotRecast\Detour\DtNavMeshQuery.cs" />
+    <Compile Include="DotRecast\Detour\DtNavMeshRaycast.cs" />
+    <Compile Include="DotRecast\Detour\DtNode.cs" />
+    <Compile Include="DotRecast\Detour\DtNodeFlags.cs" />
+    <Compile Include="DotRecast\Detour\DtNodePool.cs" />
+    <Compile Include="DotRecast\Detour\DtNodeQueue.cs" />
+    <Compile Include="DotRecast\Detour\DtNoOpDtPolygonByCircleConstraint.cs" />
+    <Compile Include="DotRecast\Detour\DtOffMeshConnection.cs" />
+    <Compile Include="DotRecast\Detour\DtPathUtils.cs" />
+    <Compile Include="DotRecast\Detour\DtPoly.cs" />
+    <Compile Include="DotRecast\Detour\DtPolyDetail.cs" />
+    <Compile Include="DotRecast\Detour\DtPolyPoint.cs" />
+    <Compile Include="DotRecast\Detour\DtPolyTypes.cs" />
+    <Compile Include="DotRecast\Detour\DtQueryData.cs" />
+    <Compile Include="DotRecast\Detour\DtQueryDefaultFilter.cs" />
+    <Compile Include="DotRecast\Detour\DtQueryEmptyFilter.cs" />
+    <Compile Include="DotRecast\Detour\DtQueryNoOpFilter.cs" />
+    <Compile Include="DotRecast\Detour\DtRaycastHit.cs" />
+    <Compile Include="DotRecast\Detour\DtRaycastOptions.cs" />
+    <Compile Include="DotRecast\Detour\DtSegInterval.cs" />
+    <Compile Include="DotRecast\Detour\DtStatus.cs" />
+    <Compile Include="DotRecast\Detour\DtStraightPath.cs" />
+    <Compile Include="DotRecast\Detour\DtStraightPathFlags.cs" />
+    <Compile Include="DotRecast\Detour\DtStraightPathOption.cs" />
+    <Compile Include="DotRecast\Detour\DtStraightPathOptions.cs" />
+    <Compile Include="DotRecast\Detour\DtStrictDtPolygonByCircleConstraint.cs" />
+    <Compile Include="DotRecast\Detour\DtUtils.cs" />
+    <Compile Include="DotRecast\Detour\IDtPolygonByCircleConstraint.cs" />
+    <Compile Include="DotRecast\Detour\IDtPolyQuery.cs" />
+    <Compile Include="DotRecast\Detour\IDtQueryFilter.cs" />
+    <Compile Include="DotRecast\Detour\IDtQueryHeuristic.cs" />
     <Compile Include="Learning\ISolvable.cs" />
     <Compile Include="Learning\SolutionStage.cs" />
     <Compile Include="Learning\SolutionState.cs" />
@@ -146,6 +262,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Radiance\SkyMatrix.cs" />
+    <Compile Include="System\Preview.cs" />
     <Compile Include="Tensor\CurveTensorField.cs" />
     <Compile Include="Tensor\GridStorage.cs" />
     <Compile Include="Tensor\Integrator.cs" />
@@ -324,6 +441,6 @@ Erase "$(TargetPath)"</PostBuildEvent>
     <StartArguments>
     </StartArguments>
     <StartAction>Program</StartAction>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 </Project>
