@@ -7,6 +7,8 @@ using Rhino.Geometry;
 using TriangleNet.Meshing;
 
 using TriangleNet.Geometry;
+using DotRecast.Core.Numerics;
+using DotRecast.Detour;
 
 namespace UrbanDesignEngine.Triangulation
 {
@@ -58,6 +60,60 @@ namespace UrbanDesignEngine.Triangulation
             mesh.Triangles.ToList().ForEach(t => resultantMesh.Faces.AddFace(t.vertices[0].id, t.vertices[1].id, t.vertices[2].id));
 
             return resultantMesh;            
+        }
+
+        public static void ToDotRecastVerticesFaces(IMesh mesh, out float[] vertices, out int[] faces)
+        {
+            vertices = new float[mesh.Vertices.Count * 3];
+            faces = new int[mesh.Triangles.Count * 3];
+            int vi = 0;
+            foreach (var v in mesh.Vertices)
+            {
+                vertices[vi] = (float)v.x;
+                vertices[vi + 1] = (float)v.y;
+                vertices[vi + 2] = 0.0f;
+                vi += 3;
+            }
+            int ti = 0;
+            foreach (var t in mesh.Triangles)
+            {
+                faces[ti + 0] = t.vertices[0].id ;
+                //faces[ti + 1] = t.vertices[0].id * 3 + 1;
+                //faces[ti + 2] = t.vertices[0].id * 3 + 2;
+                faces[ti + 1] = t.vertices[1].id ;
+                //faces[ti + 4] = t.vertices[1].id * 3 + 1;
+                //faces[ti + 5] = t.vertices[1].id * 3 + 2;
+                faces[ti + 2] = t.vertices[2].id ;
+                //faces[ti + 7] = t.vertices[2].id * 3 + 1;
+                //faces[ti + 8] = t.vertices[2].id * 3 + 2;
+                ti += 3;
+            }
+            return;
+        }
+
+        public static RcVec3f ToRcVec(Vector3d vec)
+        {
+            return new RcVec3f((float)vec.X, (float)vec.Y, (float)vec.Z);
+        }
+
+        public static Vector3d ToRHVec(RcVec3f vec)
+        {
+            return new Vector3d(vec.X, vec.Y, vec.Z);
+        }
+
+        public static List<RcVec3f> ToRcVecList(List<Vector3d> vecs)
+        {
+            return vecs.ConvertAll(v => ToRcVec(v));
+        }
+        
+        public static Polyline StraightPathToPolyline(List<DtStraightPath> ps)
+        {
+            List<Point3d> pts = new List<Point3d>();
+            foreach (var p in ps)
+            {
+                pts.Add(new Point3d(ToRHVec(p.pos)));
+            }
+            return new Polyline(pts);
         }
     }
 }

@@ -96,6 +96,7 @@
     <Compile Include="Components\GenerateStreamlines.cs" />
     <Compile Include="Components\KellyMcCabeLotSubdivision.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />
+    <Compile Include="Components\NavMeshTestComponent.cs" />
     <Compile Include="Components\ShortestPathBetweenPoints.cs" />
     <Compile Include="Components\ShortestPathBetweenNodes.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
@@ -417,6 +418,8 @@
     <Compile Include="TriangleNet\Voronoi\StandardVoronoi.cs" />
     <Compile Include="TriangleNet\Voronoi\VoronoiBase.cs" />
     <Compile Include="Triangulation\Delaunay.cs" />
+    <Compile Include="Triangulation\MeshNav.cs" />
+    <Compile Include="Triangulation\NavMesher.cs" />
     <Compile Include="Triangulation\TriangleNetParser.cs" />
     <Compile Include="Utilities\AngleInterval.cs" />
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />

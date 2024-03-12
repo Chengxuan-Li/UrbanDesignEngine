@@ -11,8 +11,8 @@ namespace UrbanDesignEngine.DataStructure
 {
     public class NetworkEdge : HasScriptRuntimeGeometry<Curve>, IUndirectedEdge<NetworkNode>, IEquatable<NetworkEdge>, IAttributable, IHasGHIOPreviewGeometricParam<NetworkEdge, GHIOGraphCurveParam<NetworkEdge>, Curve>, IDuplicableComponent<NetworkEdge, NetworkGraph>
     {
-        NetworkNode NodeA;
-        NetworkNode NodeB;
+        public NetworkNode NodeA;
+        public NetworkNode NodeB;
         public NetworkGraph Graph;
         public Attributes Attributes = new Attributes();
         public NetworkFace leftFace = null;

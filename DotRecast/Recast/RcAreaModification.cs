@@ -68,4 +68,30 @@ namespace DotRecast.Recast
             return ((Value & Mask) | (area & ~Mask));
         }
     }
+
+    public class SampleAreaModifications
+    {
+        public const int SAMPLE_POLYAREA_TYPE_MASK = 0x07;
+        public const int SAMPLE_POLYAREA_TYPE_GROUND = 0x1;
+        public const int SAMPLE_POLYAREA_TYPE_WATER = 0x2;
+        public const int SAMPLE_POLYAREA_TYPE_ROAD = 0x3;
+        public const int SAMPLE_POLYAREA_TYPE_DOOR = 0x4;
+        public const int SAMPLE_POLYAREA_TYPE_GRASS = 0x5;
+        public const int SAMPLE_POLYAREA_TYPE_JUMP = 0x6;
+
+        public const int SAMPLE_POLYFLAGS_WALK = 0x01; // Ability to walk (ground, grass, road)
+        public const int SAMPLE_POLYFLAGS_SWIM = 0x02; // Ability to swim (water).
+        public const int SAMPLE_POLYFLAGS_DOOR = 0x04; // Ability to move through doors.
+        public const int SAMPLE_POLYFLAGS_JUMP = 0x08; // Ability to jump.
+        public const int SAMPLE_POLYFLAGS_DISABLED = 0x10; // Disabled polygon
+        public const int SAMPLE_POLYFLAGS_ALL = 0xffff; // All abilities.
+
+        public static readonly RcAreaModification SAMPLE_AREAMOD_GROUND = new RcAreaModification(SAMPLE_POLYAREA_TYPE_GROUND, SAMPLE_POLYAREA_TYPE_MASK);
+        public static readonly RcAreaModification SAMPLE_AREAMOD_WATER = new RcAreaModification(SAMPLE_POLYAREA_TYPE_WATER, SAMPLE_POLYAREA_TYPE_MASK);
+        public static readonly RcAreaModification SAMPLE_AREAMOD_ROAD = new RcAreaModification(SAMPLE_POLYAREA_TYPE_ROAD, SAMPLE_POLYAREA_TYPE_MASK);
+        public static readonly RcAreaModification SAMPLE_AREAMOD_GRASS = new RcAreaModification(SAMPLE_POLYAREA_TYPE_GRASS, SAMPLE_POLYAREA_TYPE_MASK);
+        public static readonly RcAreaModification SAMPLE_AREAMOD_DOOR = new RcAreaModification(SAMPLE_POLYAREA_TYPE_DOOR, SAMPLE_POLYAREA_TYPE_DOOR);
+        public static readonly RcAreaModification SAMPLE_AREAMOD_JUMP = new RcAreaModification(SAMPLE_POLYAREA_TYPE_JUMP, SAMPLE_POLYAREA_TYPE_JUMP);
+        public static readonly RcAreaModification SAMPLE_AREAMOD_ALL = new RcAreaModification(SAMPLE_POLYFLAGS_ALL, SAMPLE_POLYAREA_TYPE_MASK);
+    }
 }
