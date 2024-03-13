@@ -101,6 +101,7 @@
     <Compile Include="Components\ShortestPathBetweenNodes.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
+    <Compile Include="Components\VisibilityGraphPathFindingComponent.cs" />
     <Compile Include="DataStructure\IDuplicable.cs" />
     <Compile Include="DotRecast\Core\Buffer\RcCyclicBuffer.cs" />
     <Compile Include="DotRecast\Core\Buffer\RcCyclicBuffers.cs" />
@@ -417,10 +418,13 @@
     <Compile Include="TriangleNet\Voronoi\Legacy\VoronoiRegion.cs" />
     <Compile Include="TriangleNet\Voronoi\StandardVoronoi.cs" />
     <Compile Include="TriangleNet\Voronoi\VoronoiBase.cs" />
+    <Compile Include="Triangulation\AStarAlgorithm.cs" />
     <Compile Include="Triangulation\Delaunay.cs" />
     <Compile Include="Triangulation\MeshNav.cs" />
     <Compile Include="Triangulation\NavMesher.cs" />
+    <Compile Include="Triangulation\StupidFunnelPathfinding.cs" />
     <Compile Include="Triangulation\TriangleNetParser.cs" />
+    <Compile Include="Triangulation\VisibilityGraph.cs" />
     <Compile Include="Utilities\AngleInterval.cs" />
     <Compile Include="Utilities\NetworkCurvesIntersection.cs" />
     <Compile Include="Utilities\DataManagement.cs" />

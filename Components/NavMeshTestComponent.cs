@@ -40,6 +40,9 @@ namespace UrbanDesignEngine.Components
             pManager.AddMeshParameter("TM", "TM", "TempMesh", GH_ParamAccess.item);
             pManager.AddPointParameter("TS", "TS", "TempStart", GH_ParamAccess.item);
             pManager.AddPointParameter("TE", "TE", "TempEnd", GH_ParamAccess.item);
+            pManager.AddLineParameter("TLs", "TLs", "TempLines", GH_ParamAccess.list);
+            pManager.AddCurveParameter("RBL", "RBL", "Right Boundary", GH_ParamAccess.item);
+            pManager.AddCurveParameter("LBL", "LBL", "Left Boundary", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -90,8 +93,11 @@ namespace UrbanDesignEngine.Components
             DA.SetData(2, mnv.FaceChains[0].Mesh);
             DA.SetData(3, mnv.FaceChains[0].Start);
             DA.SetData(4, mnv.FaceChains[0].End);
+            DA.SetData(6, mnv.FaceChains[0].RightOutline.ToNurbsCurve());
+            DA.SetData(7, mnv.FaceChains[0].LeftOutline.ToNurbsCurve());
             List<Polyline> pls  = mnv.SolveStraightPaths();
             DA.SetDataList(1, pls.ConvertAll(p => p.ToNurbsCurve()));
+            DA.SetDataList(5, mnv.FaceChains[0].PortalLines);
         }
 
         /// <summary>

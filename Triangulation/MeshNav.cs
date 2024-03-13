@@ -137,12 +137,115 @@ namespace UrbanDesignEngine.Triangulation
             Setup();
             
         }
-
+        public List<Line> PortalLines = new List<Line>();
         public List<Point3d> SolveFunnel()
         {
+            /*
             shortcutPoints.Add(Start); // test
             Solve(LeftPoints, RightPoints);
             return shortcutPoints;
+            */
+
+            var meshPtClosestToStart = Mesh.ClosestMeshPoint(Start, GlobalSettings.AbsoluteTolerance);
+            int firstFaceIndex = meshPtClosestToStart.FaceIndex;
+
+            var meshPtClosestToEnd = Mesh.ClosestMeshPoint(End, GlobalSettings.AbsoluteTolerance);
+            int endFaceIndex = meshPtClosestToEnd.FaceIndex;
+
+            List<int> adjacentFaceIndices = new List<int>();
+
+            int currentFaceIndex = firstFaceIndex;
+
+            List<int> orderedFaceIndices = new List<int>();
+            orderedFaceIndices.Add(firstFaceIndex);
+
+            while (true)
+            {
+                adjacentFaceIndices = Mesh.Faces.AdjacentFaces(currentFaceIndex).ToList();
+                int nextFacePos = adjacentFaceIndices.FindIndex(fid => orderedFaceIndices.FindIndex( ofid => ofid == fid) == -1);
+                if (nextFacePos == -1) break;
+                int nextFaceIndex = adjacentFaceIndices[nextFacePos];
+                orderedFaceIndices.Add(nextFaceIndex);
+                if (nextFaceIndex == endFaceIndex)
+                {
+                    break;
+                } else
+                {
+                    currentFaceIndex = nextFaceIndex;
+                    continue;
+                }
+            }
+
+
+
+   
+
+            List<Line> lines = new List<Line>();
+            for (int i = 0; i < orderedFaceIndices.Count - 1; i++)
+            {
+
+
+                var thisEdges = Mesh.TopologyEdges.GetEdgesForFace(orderedFaceIndices[i]);
+
+                var nextEdges = Mesh.TopologyEdges.GetEdgesForFace(orderedFaceIndices[i + 1]);
+
+                int edgeIndex = thisEdges.ToList().FindIndex(e => e == nextEdges[0]);
+                if (edgeIndex == -1) edgeIndex = thisEdges.ToList().FindIndex(e => e == nextEdges[1]);
+                if (edgeIndex == -1) edgeIndex = thisEdges.ToList().FindIndex(e => e == nextEdges[2]);
+
+                int edgeId = thisEdges[edgeIndex];
+                var idp = Mesh.TopologyEdges.GetTopologyVertices(edgeId);
+                var p1 = Mesh.Vertices[idp.First()];
+                var p2 = Mesh.Vertices[idp.Last()];
+                lines.Add( new Line(
+                    new Point3d(p1.X, p1.Y, 0),
+                    new Point3d(p2.X, p2.Y, 0)
+                    ));
+            }
+            /*
+            lines.Insert(0,
+                new Line(
+                    Start,
+                    lines[1].From
+                    )
+                );
+            lines.Add(
+                new Line(
+                    lines.Last().To,
+                    End
+                    )
+                );
+
+            */
+            /*
+            int limit = Math.Min(LeftPoints.Count, RightPoints.Count) - 1;
+
+            for (int i = 1; i < limit; i++)
+            {
+                lines.Add(new Line(LeftPoints[i], RightPoints[i - 1]));
+                lines.Add(new Line(LeftPoints[i], RightPoints[i]));
+            }
+
+            if (LeftPoints.Count > RightPoints.Count)
+            {
+                for (int i = limit + 1; i < LeftPoints.Count; i++)
+                {
+                    lines.Add(new Line(LeftPoints[i], RightPoints.Last()));
+                }
+            } else
+            {
+                for (int i = limit + 1; i < RightPoints.Count; i++)
+                {
+                    lines.Add(new Line(LeftPoints.Last(), RightPoints[i]));
+                }
+            }
+            PortalLines = lines.ToList();
+
+            */
+
+
+            PortalLines = lines.ToList();
+            return StupidFunnelPathfinding.FindPath(lines);
 
         }
 
@@ -151,6 +254,7 @@ namespace UrbanDesignEngine.Triangulation
             Polyline pl = Mesh.GetOutlines(Plane.WorldXY)[0];
             List<Point3d> plpts = pl.ToList();
             plpts.RemoveAt(plpts.Count - 1);
+
             LeftPoints = new List<Point3d>();
             RightPoints = new List<Point3d>();
 
@@ -193,6 +297,9 @@ namespace UrbanDesignEngine.Triangulation
             LeftPoints.Insert(0, plpts[startId]);
             LeftPoints.Add(plpts[endId]);
         }
+
+        public Polyline LeftOutline => new Polyline(LeftPoints);
+        public Polyline RightOutline => new Polyline(RightPoints);
 
         bool IsShortCutValid(int sid, int eid, List<Point3d> pts)
         {
