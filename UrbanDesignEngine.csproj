@@ -82,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms\KellyMcCabeLotSubdivisionModel.cs" />
-    <Compile Include="Algorithms\ShortestPath.cs" />
+    <Compile Include="Algorithms\NShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
     <Compile Include="ClipperLib\clipper.cs" />
     <Compile Include="Components\CombineTensorFields.cs" />
@@ -101,6 +101,7 @@
     <Compile Include="Components\ShortestPathBetweenNodes.cs" />
     <Compile Include="Components\SnapDemoComponent.cs" />
     <Compile Include="Components\TessellateBlockTest.cs" />
+    <Compile Include="Components\VGRouting.cs" />
     <Compile Include="Components\VisibilityGraphPathFindingComponent.cs" />
     <Compile Include="DataStructure\IDuplicable.cs" />
     <Compile Include="DotRecast\Core\Buffer\RcCyclicBuffer.cs" />

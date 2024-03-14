@@ -52,7 +52,7 @@ namespace UrbanDesignEngine.Components
             if (!DA.GetData(1, ref root)) return;
             if (!DA.GetData(2, ref target)) return;
 
-            var sp = new Algorithms.ShortestPath(graph);
+            var sp = new Algorithms.NShortestPath(graph);
             sp.Solve(graph.Graph.Vertices.ToList()[root]);
 
             bool pathResult = sp.PathTo(graph.Graph.Vertices.ToList()[target], out List<NetworkEdge> path);

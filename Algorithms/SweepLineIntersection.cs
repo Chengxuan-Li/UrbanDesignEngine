@@ -20,6 +20,20 @@ namespace UrbanDesignEngine.Algorithms
 			OnSegment = 2,
         }
 
+
+		public static bool LineLineIntersection(Line line1, Line line2)
+        {
+			return doIntersect(
+				new Segment() {
+					Left = new Point() { X = line1.From.X, Y = line1.From.Y },
+					Right = new Point() { X = line1.To.X, Y = line1.To.Y }
+				}, 
+				new Segment() {
+					Left = new Point() { X = line2.From.X, Y = line2.From.Y },
+					Right = new Point() { X = line2.To.X, Y = line2.To.Y }
+				}, true);
+        }
+
 		public static bool TempLineNetworkIntersection(Line line, List<Line> networkLines, out List<double> parameters)
         {
 			parameters = new List<double>();
@@ -150,8 +164,8 @@ namespace UrbanDesignEngine.Algorithms
 				}
 			}
 
-			Point pA;
-			Point pB;
+			protected Point pA;
+			protected Point pB;
 
         }
 

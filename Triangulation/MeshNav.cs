@@ -36,7 +36,7 @@ namespace UrbanDesignEngine.Triangulation
 
         public void SolveFaceChain(Point3d start, List<Point3d> endPoints)
         {
-            var sp = new Algorithms.ShortestPath(graph);
+            var sp = new Algorithms.NShortestPath(graph);
             sp.SolveShortestPathForPoints(start, endPoints, out List<double> distances, out var edgePaths, out var crvs);
 
             FaceChains = new List<FaceChain>();

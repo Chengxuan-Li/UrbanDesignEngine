@@ -7,25 +7,33 @@ using Rhino.Geometry;
 using QuikGraph;
 using QuikGraph.Collections;
 using Rhino.Geometry.Intersect;
+using UrbanDesignEngine.Algorithms;
+using UrbanDesignEngine.DataStructure;
+using UrbanDesignEngine.IO;
 
 
 namespace UrbanDesignEngine.Triangulation
 {
     public class VisibilityGraphSettings
     {
-        public double AdjacentPointDistance = 0.5;
-        public int AdjacentPointsCount = 4;
+        public double AdjacentPointDistance = 0;
+        public int AdjacentPointsCount = 1;
+        public double MaxVisibleDistance = 50;
 
         public static VisibilityGraphSettings Default => new VisibilityGraphSettings();
 
     }
 
 
-    public class VGVertex : IComparable<VGVertex>, IEquatable<VGVertex>
+    public class VGVertex : HasScriptRuntimeGeometry<Point>, IComparable<VGVertex>, IEquatable<VGVertex>, IHasGHIOPreviewGeometricParam<VGVertex, GHIOPointParam<VGVertex>, Point>
     {
         public Point3d Location;
         public int Id;
         UndirectedGraph<VGVertex, VGEdge> Graph;
+
+        public override Point Geometry => new Point(this.Location);
+
+        public GHIOPointParam<VGVertex> gHIOParam => new GHIOPointParam<VGVertex>() { ScriptClassVariable = this };
 
         public VGVertex(int id, Point3d location, UndirectedGraph<VGVertex, VGEdge> graph)
         {
@@ -45,16 +53,20 @@ namespace UrbanDesignEngine.Triangulation
         }
     }
 
-    public class VGEdge : IEdge<VGVertex>, IComparable<VGEdge>, IEquatable<VGEdge>
+    public class VGEdge : HasScriptRuntimeGeometry<Curve>, IEdge<VGVertex>, IComparable<VGEdge>, IEquatable<VGEdge>,  IHasGHIOPreviewGeometricParam<VGEdge, GHIOGraphCurveParam<VGEdge>, Curve>
     {
         protected VGVertex A;
         protected VGVertex B;
         public int Id;
         UndirectedGraph<VGVertex, VGEdge> Graph;
 
+        public override Curve Geometry => new Line(this.Source.Location, this.Target.Location).ToNurbsCurve();
+
         public VGVertex Source => A.CompareTo(B) > 0 ? B : A;
 
         public VGVertex Target => A.CompareTo(B) > 0 ? A : B;
+
+        public GHIOGraphCurveParam<VGEdge> gHIOParam => new GHIOGraphCurveParam<VGEdge>() { ScriptClassVariable = this };
 
         public VGEdge(int id, VGVertex a, VGVertex b, UndirectedGraph<VGVertex, VGEdge> graph)
         {
@@ -85,6 +97,7 @@ namespace UrbanDesignEngine.Triangulation
         public List<Point3d> AllPoints = new List<Point3d>();
         public VisibilityGraphSettings Settings = VisibilityGraphSettings.Default;
         public UndirectedGraph<VGVertex, VGEdge> Graph = new UndirectedGraph<VGVertex, VGEdge>();
+        public GHIOParam<VisibilityGraph> GHIOParam => new GHIOParam<VisibilityGraph>(this);
 
         public int NextVertexId => Graph.VertexCount;
         public int NextEdgeId => Graph.EdgeCount;
@@ -193,15 +206,27 @@ namespace UrbanDesignEngine.Triangulation
             return Mesh.ClosestPoint(point).DistanceTo(point) < GlobalSettings.AbsoluteTolerance;
         }
 
+        bool Inside(Line line)
+        {
+            if (!Inside(line.From)) return false;
+            if (!Inside(line.To)) return false;
+            if (!Inside((line.From + line.To) / 2)) return false;
+            return true;
+        }
+
         bool Intersecting(Line line)
         {
+            if (!Inside(line)) return true;
+            if (line.Length >= Settings.MaxVisibleDistance) return true; // applies the max distance setting
             foreach (Line x in obsSeg.ToList())
             {
+                /*
                 Intersection.LineLine(line, x, out double a, out double b, GlobalSettings.AbsoluteTolerance, true);
                 if (line.PointAt(a).EpsilonEquals(x.PointAt(b), GlobalSettings.AbsoluteTolerance))
                 {
                     return true;
-                }
+                }*/
+                if (SweepLineIntersection.LineLineIntersection(x, line)) return true;
             }
             return false;
         }

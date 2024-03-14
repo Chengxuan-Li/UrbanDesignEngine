@@ -53,7 +53,7 @@ namespace UrbanDesignEngine.Components
             if (!DA.GetData(1, ref fromPt)) return;
             if (!DA.GetData(2, ref toPt)) return;
 
-            var sp = new Algorithms.ShortestPath(graph);
+            var sp = new Algorithms.NShortestPath(graph);
 
             sp.SolveShortestPathForPoints(fromPt, new List<Point3d> { toPt }, out List<double> dists, out var _, out List<Curve> crvs);
 

@@ -1,8 +1,10 @@
 ﻿using Grasshopper.Kernel;
 using Rhino.Geometry;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UrbanDesignEngine.Triangulation;
+using UrbanDesignEngine.DataStructure;
 
 namespace UrbanDesignEngine.Components
 {
@@ -24,8 +26,7 @@ namespace UrbanDesignEngine.Components
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddMeshParameter("ConsDTMesh", "CDTM", "Constrained Delaunay Triangulation Mesh", GH_ParamAccess.item);
-            pManager.AddPointParameter("StartPoint", "SP", "Start Point", GH_ParamAccess.item);
-            pManager.AddPointParameter("EndPoint", "EP", "End Point", GH_ParamAccess.item);
+            pManager.AddPointParameter("SamplePoints", "SPs", "Sample Points", GH_ParamAccess.list);
 
         }
 
@@ -34,7 +35,10 @@ namespace UrbanDesignEngine.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddCurveParameter("Path", "P", "Path", GH_ParamAccess.item);
+            pManager.AddGenericParameter("VisibilityGraph", "VG", "Visibility Graph", GH_ParamAccess.item);
+            
+            pManager.AddGenericParameter("VisibilityVertices", "VVs", "Visibility Vertices", GH_ParamAccess.list);
+            pManager.AddGenericParameter("VisibilityEdges", "VEs", "Visibility Edges", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -44,16 +48,24 @@ namespace UrbanDesignEngine.Components
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             Mesh mesh = default;
-            Point3d start = default;
-            Point3d end = default;
+            List<Point3d> sps = new List<Point3d>();
             if (!DA.GetData(0, ref mesh)) return;
-            if (!DA.GetData(1, ref start)) return;
-            if (!DA.GetData(2, ref end)) return;
+            if (!DA.GetDataList(1, sps)) return;
 
-            VisibilityGraph vg = new VisibilityGraph(mesh, new List<Point3d> { start, end }, VisibilityGraphSettings.Default);
-            var pathPts = AStarAlgorithm.AStar(start, end, vg.Graph);
 
-            DA.SetData(0, new Polyline(pathPts).ToNurbsCurve());
+            List<Point3d> additionalPoints = sps.ToList();
+         
+
+            VisibilityGraph vg = new VisibilityGraph(mesh, additionalPoints, VisibilityGraphSettings.Default);
+
+            List<GHIOPointParam<VGVertex>> verticesParams = new List<GHIOPointParam<VGVertex>>();
+            vg.Graph.Vertices.ToList().ForEach(v => verticesParams.Add(v.gHIOParam));
+            List<GHIOGraphCurveParam<VGEdge>> edgesParams = new List<GHIOGraphCurveParam<VGEdge>>();
+            vg.Graph.Edges.ToList().ForEach(e => edgesParams.Add(e.gHIOParam));
+
+            DA.SetData(0, vg.GHIOParam);
+            DA.SetDataList(1, verticesParams);
+            DA.SetDataList(2, edgesParams);
             
         }
 

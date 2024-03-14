@@ -7,10 +7,101 @@ using UrbanDesignEngine.DataStructure;
 using QuikGraph.Algorithms.Observers;
 using Rhino;
 using Rhino.Geometry;
+using QuikGraph;
+using UrbanDesignEngine.Triangulation;
 
 namespace UrbanDesignEngine.Algorithms
 {
-    public class ShortestPath
+    public class VGShortestPath
+    {
+        public UndirectedGraph<VGVertex, VGEdge> Graph;
+        public Func<VGEdge, double> WeightFunc = e => e.Source.Location.DistanceTo(e.Target.Location);
+        public QuikGraph.Algorithms.ShortestPath.UndirectedDijkstraShortestPathAlgorithm<VGVertex, VGEdge> Dijkstra;
+
+        UndirectedVertexPredecessorRecorderObserver
+            <VGVertex, VGEdge>
+            predecessorObserver;
+
+        UndirectedVertexDistanceRecorderObserver
+            <VGVertex, VGEdge>
+            distanceObserver;
+
+        IDisposable pOb;
+        IDisposable dOb;
+
+        public VGShortestPath(UndirectedGraph<VGVertex, VGEdge> graph)
+        {
+            Graph = graph;
+            Dijkstra = new
+            QuikGraph.Algorithms.ShortestPath.
+            UndirectedDijkstraShortestPathAlgorithm
+                <VGVertex, VGEdge>
+                (Graph, WeightFunc);
+        }
+
+        public VGShortestPath(UndirectedGraph<VGVertex, VGEdge> graph, Func<VGEdge, double> weightFunc)
+        {
+            Graph = graph;
+            WeightFunc = weightFunc;
+            Dijkstra = new
+            QuikGraph.Algorithms.ShortestPath.
+            UndirectedDijkstraShortestPathAlgorithm
+                <VGVertex, VGEdge>
+                (Graph, WeightFunc);
+        }
+
+        public void Solve(VGVertex root)
+        {
+            // attach a Vertex Predecessor Recorder Observer to give us the paths
+            predecessorObserver = new
+                UndirectedVertexPredecessorRecorderObserver
+                <VGVertex, VGEdge>();
+            pOb = predecessorObserver.Attach(Dijkstra);
+
+            // attach a distance observer to give us the shortest path distances
+            distanceObserver = new
+                UndirectedVertexDistanceRecorderObserver
+                <VGVertex, VGEdge>(WeightFunc);
+            dOb = distanceObserver.Attach(Dijkstra);
+
+            Dijkstra.Compute(root);
+        }
+
+
+        public void Dispose()
+        {
+            pOb.Dispose();
+            dOb.Dispose();
+        }
+
+        public bool PathTo(VGVertex node, out List<VGEdge> path)
+        {
+            bool result = predecessorObserver.TryGetPath(node, out IEnumerable<VGEdge> p);
+            path = result ? p.ToList() : new List<VGEdge>();
+            return result;
+        }
+
+        public IDictionary<VGVertex, double> Distances()
+        {
+            return distanceObserver.Distances;
+        }
+
+        public bool DistanceTo(VGVertex node, out double distance)
+        {
+            distance = -1;
+            if (Distances().ContainsKey(node))
+            {
+                return Distances().TryGetValue(node, out distance);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+
+    public class NShortestPath
     {
         public NetworkGraph Graph;
         public Func<NetworkEdge, double> WeightFunc = e => e.UnderlyingCurve.GetLength(); // default weight factor using curve length
@@ -28,7 +119,7 @@ namespace UrbanDesignEngine.Algorithms
         IDisposable pOb;
         IDisposable dOb;
 
-        public ShortestPath(NetworkGraph graph)
+        public NShortestPath(NetworkGraph graph)
         {
             Graph = graph;
             Dijkstra = new
@@ -38,7 +129,7 @@ namespace UrbanDesignEngine.Algorithms
             (Graph.Graph, WeightFunc);
         }
 
-        public ShortestPath(NetworkGraph graph, Func<NetworkEdge, double> weightFunc)
+        public NShortestPath(NetworkGraph graph, Func<NetworkEdge, double> weightFunc)
         {
             Graph = graph;
             WeightFunc = weightFunc;
