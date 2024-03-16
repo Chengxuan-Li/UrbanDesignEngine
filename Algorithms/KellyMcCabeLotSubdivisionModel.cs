@@ -204,7 +204,7 @@ namespace UrbanDesignEngine.Algorithms
 
             for (int i = 0; i < BoundaryLines.Count; i++)
             {
-                Intersection.LineLine(BoundaryLines[i], line, out double p1, out double p2, GlobalSettings.AbsoluteTolerance, true);
+                Rhino.Geometry.Intersect.Intersection.LineLine(BoundaryLines[i], line, out double p1, out double p2, GlobalSettings.AbsoluteTolerance, true);
                 if (BoundaryLines[i].PointAt(p1).EpsilonEquals(line.PointAt(p2), GlobalSettings.AbsoluteTolerance))
                 {
                     if (currentA)

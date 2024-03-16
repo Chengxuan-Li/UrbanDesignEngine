@@ -41,7 +41,7 @@ namespace UrbanDesignEngine.Algorithms
 			double paramB;
 			foreach (Line networkLine in networkLines)
             {
-				if (Intersection.LineLine(line, networkLine, out paramA, out paramB))
+				if (Rhino.Geometry.Intersect.Intersection.LineLine(line, networkLine, out paramA, out paramB))
                 {
 					if (paramA > 0 && paramA < 1 && paramB >= 0 && paramB <= 1) parameters.Add(paramA);
                 }

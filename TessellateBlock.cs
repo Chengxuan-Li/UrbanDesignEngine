@@ -399,7 +399,7 @@ namespace UrbanDesignEngine
             {
                 Line segment = PlotsBoundarySegments[j];
                 double a;
-                bool intersecting = Intersection.LineLine(line, segment, out a, out _, GlobalSettings.AbsoluteTolerance, true);
+                bool intersecting = Rhino.Geometry.Intersect.Intersection.LineLine(line, segment, out a, out _, GlobalSettings.AbsoluteTolerance, true);
                 if (intersecting)
                 {
                     intParams.Add(a);
@@ -422,7 +422,7 @@ namespace UrbanDesignEngine
             dv = default;
             double a;
             double b;
-            bool result = Intersection.LineLine(lineA, lineB, out a, out b, GlobalSettings.AbsoluteTolerance, true);
+            bool result = Rhino.Geometry.Intersect.Intersection.LineLine(lineA, lineB, out a, out b, GlobalSettings.AbsoluteTolerance, true);
             if (!result)
             {
                 return false;
@@ -577,7 +577,7 @@ namespace UrbanDesignEngine
                 {
                     Line segment = side.PlotsBoundarySegments[j];
                     double a;
-                    bool intersecting = Intersection.LineLine(line, segment, out a, out _, GlobalSettings.AbsoluteTolerance, true);
+                    bool intersecting = Rhino.Geometry.Intersect.Intersection.LineLine(line, segment, out a, out _, GlobalSettings.AbsoluteTolerance, true);
                     if (intersecting)
                     {
                         intParams.Add(a);

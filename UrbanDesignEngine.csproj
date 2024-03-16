@@ -81,6 +81,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\CreateIsoVistModel.cs" />
+    <Compile Include="Algorithms\IsoVist.cs" />
     <Compile Include="Algorithms\KellyMcCabeLotSubdivisionModel.cs" />
     <Compile Include="Algorithms\NShortestPath.cs" />
     <Compile Include="Algorithms\Snap.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Components\CreateUniformTensorField.cs" />
     <Compile Include="Components\GenerateSingleStreamline.cs" />
     <Compile Include="Components\GenerateStreamlines.cs" />
+    <Compile Include="Components\IsoVistViewAnalysis.cs" />
     <Compile Include="Components\KellyMcCabeLotSubdivision.cs" />
     <Compile Include="Components\LSystemFromGraph.cs" />
     <Compile Include="Components\NavMeshTestComponent.cs" />

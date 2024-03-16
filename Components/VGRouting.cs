@@ -57,8 +57,10 @@ namespace UrbanDesignEngine.Components
 
             for (int i = 0; i < count; i++)
             {
+                // change epsilonequals to perhaps min distance index (argmin) ?
                 var vs = vg.Graph.Vertices.ToList().Find(v => v.Location.EpsilonEquals(sps[i], GlobalSettings.AbsoluteTolerance));
                 var ve = vg.Graph.Vertices.ToList().Find(v => v.Location.EpsilonEquals(eps[i], GlobalSettings.AbsoluteTolerance));
+
                 if (vs == null || ve == null)
                 {
                     paths.Add(default);

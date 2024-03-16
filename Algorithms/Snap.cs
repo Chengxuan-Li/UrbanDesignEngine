@@ -288,7 +288,7 @@ namespace UrbanDesignEngine.Algorithms
             {
                 double a;
                 double b;
-                if (Intersection.LineLine(lineExtended, line, out a, out b, GlobalSettings.AbsoluteTolerance, true))
+                if (Rhino.Geometry.Intersect.Intersection.LineLine(lineExtended, line, out a, out b, GlobalSettings.AbsoluteTolerance, true))
                 {
                     distance = lineExtended.PointAt(a).DistanceTo(Source);
                     point = lineExtended.PointAt(a);
