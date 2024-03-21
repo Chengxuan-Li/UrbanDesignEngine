@@ -123,7 +123,6 @@ namespace UrbanDesignEngine.Algorithms
                 bool intersectionResult = Rhino.Geometry.Intersect.Intersection.LineLine(partialRay, linesCloseEnough[i], out double a, out double b, GlobalSettings.AbsoluteTolerance, true);
                 if (intersectionResult && partialRay.PointAt(a).EpsilonEquals(linesCloseEnough[i].PointAt(b), GlobalSettings.AbsoluteTolerance))
                 {
-
                     if (a < intersection.ParamOnRay && a > 0) // added a>0 to avoid strange computational errors in LineLineIntersection
                     {
                         intersection = new Intersection(a, partialRay.PointAt(a), ids[i]);
